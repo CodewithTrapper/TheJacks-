@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign-up</title>
+    <link rel="icon" type="image/jpg" href="/Images/RST LOGO.png">
+    <link rel="stylesheet" href="Styles/style.css">
+</head>
+<body class="register-page">
+    <nav class="nav">
+        <div class="nav-logo-login">
+            <p>ROYALSTAY HOTEL</p>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <ul>
+                <li><a href="login.html" class="link">Home</a></li>
+                <li><a href="#" class="link">About</a></li>
+            </ul>
+        </div>
+        <div class="nav-button">
+            <button class="btn white-btn" id="loginbtn" type="submit"
+                onclick="window.location.href='login.html'">Sign-in</button>
+        </div>
+    </nav>
+    <div class="Sign-up-box">
+        <form action="" id="registerForm">
+            <h2>Create Account</h2>
+            <div class="input-box">
+                <input type="username" id="username" placeholder=" " required>
+                <label for="username">Create Username</label>
+            </div>
+            <div class="input-box">
+                <input type="email" id="email" placeholder=" " required>
+                <label for="email">Email</label>
+            </div>
+            <div class="input-box">
+                <input type="password" id="password" placeholder=" " required>
+                <label for="password">Enter Password</label>
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder=" " required>
+                <label for="password">Confirm Password</label>
+            </div>
+            <button type="submit">Sign-up</button>
+            <div class="Sign-in-link">
+                <div>
+                    <p>Go back to </p>
+                    <div><a href="login.html">Sign-in</a></div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <footer class="footer">
+        <p>&copy; 2025 RoyalStay Hotel. All Rights Reserved.</p>
+        <div class="footer-icons">
+            <img src="/icons/telegram.png">
+            <img src="/icons/twitter.png">
+            <img src="/icons/instagram.png">
+        </div>
+    </footer>
+    <script src="Script/script.js"></script>
+</body>
+</html>
