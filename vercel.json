@@ -1,4 +1,25 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/homePage", "destination": "/index.html" },
+    { "source": "/roombooking", "destination": "/roombooking.html" },
+    { "source": "/bookings", "destination": "/roombooking.html" },
+    { "source": "/adminstatus", "destination": "/admin.html" },
+    { "source": "/newsletter", "destination": "/news.html" },
+    { "source": "/payment", "destination": "/payment.html" },
+    { "source": "/profit", "destination": "/profit.html" },
+    { "source": "/manageRooms", "destination": "/adminaddroom.html" },
+    { "source": "/manageAdmins", "destination": "/adminadd.html" },
+    { "source": "/adminlogin", "destination": "/Adminlogin.html" },
+    { "source": "/guestregistration", "destination": "/register.html" },
+    { "source": "/guestlogin", "destination": "/login.html" },
+    { "source": "/passwordreset", "destination": "/forgot.html" },
+    { "source": "/reservation", "destination": "/reservation.html" },
+    { "source": "/book-table", "destination": "/table.html" },
+    { "source": "/activitystatus", "destination": "/activity.html" },
+    { "source": "/frequentlyaskedquestions", "destination": "/faq.html" },
+    { "source": "/notifications", "destination": "/notifications.html" },
+    { "source": "/admin-simple", "destination": "/admindashboard.html" }
+  ]
 }
