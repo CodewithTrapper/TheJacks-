@@ -3,50 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password reset</title>
-    <link rel="icon" type="image/jpg" href="/Images/RST LOGO.png">
+    <title>The Jacks'- Password Reset</title>
+    <link rel="icon" type="image/jpg" href="">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="Styles/style.css">
+    <style>
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 10px;
+        }
+    </style>
 </head>
 <body class="forgot-page">
+    <div class="topbar">
+        <div class="socialicons">
+            <img src="/icons/telegram.png" alt="Telegram">
+            <img src="/icons/twitter.png" alt="Twitter">
+            <img src="/icons/instagram.png" alt="Instagram">
+        </div>
+        <div class="contact">
+            <img id="mail" src="/icons/Mail.png" alt="Mail">
+            <a href="#">
+                <p>info@thejackshotel.com</p>
+            </a>
+        </div>
+        <div id="contact">
+            <img id="phone" src="/icons/hotline.png" alt="phone">
+            <a href="#">
+                <p>+254 790 778 102</p>
+            </a>
+        </div>
+        <a href="/frequentlyaskedquestions"><button id="faq"><img class="faqicon" src="/icons/faq.png"></button></a>
+    </div>
+
+
     <nav class="nav">
-        <div class="nav-logo-forgot">
-            <p>ROYALSTAY HOTEL</p>
+        <div class="nav-logo-login">
+            <p><span style="color: white;">THE</span><span style="color: coral;"> JACKS'</span></p>
+        </div>
+        <div id="sublogo">
+            <p>YOUR DREAMY HOTEL</p>
         </div>
         <div class="nav-menu" id="navMenu">
             <ul>
-                <li><a href="login.html" class="link">Home</a></li>
-                <li><a href="about.html" class="link">About</a></li>
+                <li><a href="/" class="link">Home</a></li>
+                <li><a href="/adminlogin" class="link">Admin</a></li>
             </ul>
         </div>
-        <div class="nav-button-reg">
-            <button class="btn white-btn" id="loginbtn" type="submit"
-                onclick="window.open('login.html')">Sign-in</button>
-            <button class="btn" id="Registerbtn" type="submit" onclick="window.open('register.html')">Sign-up</button>
-        </div>
+        <button id="Registerbtn" type="button" onclick="window.location.href='/guestregistration'">Sign-up</button>
     </nav>
+
+
     <div class="forgot-box">
-        <form action="">
-            <h2>Reset password</h2>
+        <form id="forgotForm">
+            <h2 class="box-headers">Reset Password</h2>
             <div class="input-box">
-                <input type="email" placeholder=" " required>
+                <input type="email" name="email" id="email" placeholder=" " required>
                 <label for="email">Enter Email</label>
             </div>
-            <button type="submit">Send Reset link</button>
-            <div class="Sign-in-link">
-                <div>
-                    <p>Go back to </p>
-                    <div><a href="login.html">Sign-in</a></div>
-                </div>
+            <button type="submit" id="resendlink">Send Reset Link</button>
+            <div id="message"></div>
         </form>
     </div>
-    <footer class="footer">
-        <p>&copy; 2025 RoyalStay Hotel. All Rights Reserved.</p>
-        <div class="footer-icons">
-            <img src="/icons/telegram.png">
-            <img src="/icons/twitter.png">
-            <img src="/icons/instagram.png">
-        </div>
-    </footer>
-    <script src="Script/script.js"></script>
+
+
+    <script>
+        const form = document.getElementById("forgotForm");
+        const messageDiv = document.getElementById("message");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            messageDiv.style.color = "green";
+            messageDiv.textContent = "Sending reset link...";
+
+            const email = document.getElementById("email").value.trim();
+
+            try {
+                const res = await fetch("/forgotpassword", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    messageDiv.style.color = "green";
+                    messageDiv.textContent = data.message || "Reset link sent successfully!";
+                } else {
+                    messageDiv.style.color = "red";
+                    messageDiv.textContent = data.message || "Failed to send reset link.";
+                }
+            } catch (err) {
+                console.error(err);
+                messageDiv.style.color = "red";
+                messageDiv.textContent = "Server error. Please try again later.";
+            }
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
 </body>
 </html>

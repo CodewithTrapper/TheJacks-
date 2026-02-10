@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Jacks'- Send Newsletter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/Styles/style.css">
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            padding-left: 6px;
+            background-color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 95vh;
+            min-width: 200px;
+            max-width: 250px;
+            animation: fadeIn 0.3s ease;
+            border: 1px solid #ddd;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-content {
+            padding: 50px 0;
+        }
+
+        .dropdown-link {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            padding: 20px 20px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+
+        .dropdown-link.active {
+            background-color: #34495e;
+            border-left: 3px solid #3498db;
+            font-weight: bold;
+        }
+
+        .dropdown-link.logoutlink {
+            margin-top: 5px;
+        }
+
+        .dropdown-link img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 999;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-120px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+
+            .dropdown-menu {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="newsL">
+    <button class="menu-toggle" aria-label="Toggle menu" id="hamburgerBtn">☰</button>
+
+    <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-content">
+            <a href="/admin-simple" class="dropdown-link">
+                <img src="/icons/Dashboard.png" alt="Status"> Dashboard
+            </a>
+            <a href="/adminstatus" class="dropdown-link ">
+                <img src="/icons/status icon.png" alt="Status"> Status
+            </a>
+            <a href="/newsletter" class="dropdown-link active">
+                <img src="/icons/news.png" alt="News"> News Letters
+            </a>
+            <a href="/payment" class="dropdown-link">
+                <img src="/icons/payment icon.png" alt="Payment"> Payment
+            </a>
+
+            <a href="/manageRooms" class="dropdown-link">
+                <img src="/icons/rooms management.png" alt="Rooms"> Manage Rooms
+            </a>
+            <a href="/manageAdmins" class="dropdown-link">
+                <img src="/icons/Admin management.png" alt="Accounts"> Manage Accounts
+            </a>
+            <a href="/adminlogout" class="dropdown-link logoutlink">
+                <img src="/icons/logout icon.png" alt="Logout"> Logout
+            </a>
+        </div>
+    </div>
+
+
+    <div class="sidebar">
+        <h2 style="padding: 20px; margin: 0; border-bottom: 1px solid #34495e;">ADMIN</h2>
+        <div class="sidebar-content">
+            <a href="/admin-simple"><img src="/icons/Dashboard.png">Dashboard </a>
+            <a href="/adminstatus"><img src="/icons/status icon.png">Status</a>
+            <a href="/newsletter" class="link active"><img src="/icons/news.png">News Letters</a>
+            <a href="/payment"><img src="/icons/payment icon.png">Payment</a>
+            <a href="/manageRooms"><img src="/icons/rooms management.png">Manage Rooms</a>
+            <a href="/manageAdmins"><img src="/icons/Admin management.png">Manage Accounts</a>
+            <a href="/adminlogout" class="logoutlink"><img src="/icons/logout icon.png"> Logout</a>
+        </div>
+    </div>
+
+    <div class="msg-wrapper">
+        <div class="msg-action">
+            <input type="text" id="newsletterSubject" placeholder="Newsletter Subject" class="newsletter-subject">
+            <textarea id="newsletterMessage" placeholder="Type your newsletter here..."
+                class="newsletter-text"></textarea>
+            <button id="sendNewsletterBtn" class="msg-btn">Send Newsletter</button>
+        </div>
+
+
+        <div class="msg-table-card">
+            <div class="msg-table-top"></div>
+
+            <table class="msg-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone Number</th>
+                        <th>Email</th>
+                        <th>Date Subscribed</th>
+                        <th>Status</th>
+                        <th>Approval</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody id="subscribersTableBody">
+
+                </tbody>
+            </table>
+
+            <div class="msg-footer">
+                <span id="tableInfo">Showing 0 of 0 entries</span>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
+    <script>
+
+
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+
+        hamburgerBtn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+
+        document.addEventListener('click', function (event) {
+            if (!dropdownMenu.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        document.querySelectorAll('.dropdown-link').forEach(link => {
+            link.addEventListener('click', function () {
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        const sidebar = document.querySelector('.sidebar');
+
+
+        window.addEventListener('resize', function () {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                dropdownMenu.classList.remove('show');
+                sidebar.style.display = 'none';
+            } else {
+                dropdownMenu.classList.remove('show');
+                sidebar.style.display = 'block';
+            }
+        });
+
+
+        function initResponsiveLayout() {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                sidebar.style.display = 'none';
+                hamburgerBtn.style.display = 'block';
+            } else {
+                sidebar.style.display = 'block';
+                hamburgerBtn.style.display = 'none';
+                dropdownMenu.classList.remove('show');
+            }
+        }
+
+
+        initResponsiveLayout();
+
+
+        async function loadSubscribers() {
+            const res = await fetch("/admin/subscribers");
+            const subscribers = await res.json();
+
+            const tbody = document.getElementById("subscribersTableBody");
+            tbody.innerHTML = "";
+
+            subscribers.forEach(sub => {
+                const tr = document.createElement("tr");
+                tr.setAttribute("data-id", sub.id);
+
+                tr.innerHTML = `
+                <td>${sub.name || ""}</td>
+                <td>${sub.phone || ""}</td>
+                <td>${sub.email}</td>
+                <td>${new Date(sub.date_subscribed).toLocaleDateString()}</td>
+                <td>${sub.status}</td>
+                <td><button class="btn-permission">${sub.status === "Permitted" ? "Permitted" : "Approve"}</button></td>
+                <td><button class="btn-delete">Delete</button></td>
+            `;
+
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById("tableInfo").innerText = `Showing ${subscribers.length} entries`;
+        }
+
+
+        document.getElementById("subscribersTableBody").addEventListener("click", async (e) => {
+            const row = e.target.closest("tr");
+            if (!row) return;
+            const subscriberId = row.getAttribute("data-id");
+
+            if (e.target.classList.contains("btn-permission")) {
+                const response = await fetch(`/admin/subscribers/approve/${subscriberId}`, { method: "PUT" });
+                const data = await response.json();
+                alert(data.message);
+                loadSubscribers();
+            }
+
+            if (e.target.classList.contains("btn-delete")) {
+                const response = await fetch(`/admin/subscribers/${subscriberId}`, { method: "DELETE" });
+                const data = await response.json();
+                alert(data.message);
+                loadSubscribers();
+            }
+        });
+
+
+        document.getElementById("sendNewsletterBtn").addEventListener("click", async () => {
+            const subject = document.getElementById("newsletterSubject").value.trim();
+            const message = document.getElementById("newsletterMessage").value.trim();
+
+            if (!subject || !message) return alert("Please fill in both subject and message.");
+
+            const response = await fetch("/admin/sendNewsletter", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ subject, message })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+        });
+
+
+        loadSubscribers();
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const logoutLinks = document.querySelectorAll('a[href="/adminlogout"]');
+
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+
+                    if (confirmLogout) {
+
+                        window.location.href = '/adminlogout';
+                    } else {
+
+                        console.log('Logout cancelled by user');
+                    }
+                });
+            });
+
+
+            const logoutButtons = document.querySelectorAll('button[data-action="logout"]');
+            logoutButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+                    if (confirmLogout) {
+                        window.location.href = '/adminlogout';
+                    }
+                });
+            });
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
+
+</body>
+</html>

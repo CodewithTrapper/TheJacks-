@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Jacks'- Homepage</title>
+    <link rel="icon" type="image/jpg" href="">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/Styles/style.css">
+</head>
+<body class="home-page">
+    <div class="topbar">
+        <div class="socialicons">
+            <a href="https://web.telegram.org/"><img src="/icons/telegram.png" alt="Telegram"></a>
+            <a href="https://x.com/"> <img src="/icons/twitter.png" alt="Twitter"></a>
+            <a href="https://www.instagram.com/"><img src="/icons/instagram.png" alt="Instagram"></a>
+        </div>
+
+        <div>
+            <div class="contact"> <img id="mail" src="/icons/Mail.png" alt="Mail">
+                <a href="">
+                    <p style="position: relative;">info@thejackshotel.com</p>
+                </a>
+            </div>
+            <div id="contact"><img id="phone" src="/icons/hotline.png" alt="phone">
+                <a href="">
+                    <p>+254 701 274575</p>
+                </a>
+            </div>
+        </div>
+
+        <a href="/frequentlyaskedquestions"><button id="faq"><img class="faqicon" src="/icons/faq.png"></button></a>
+    </div>
+
+
+    <nav class="nav">
+
+        <div class="nav-logo-login">
+            <p><span style="color: white;">THE</span><span style="color: coral;"> JACKS'</span></p>
+        </div>
+        <div id="sublogo">
+            <p>YOUR DREAMY HOTEL</p>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <ul>
+                <li> <a href="#homepage-form" class="link">Home</a> </li>
+                <li> <a href="#roomrates" class="link">Rooms</a> </li>
+                <li> <a href="#team-members-section" class="link">Teams</a> </li>
+                <li> <a href="#restaurantbox" class="link">Restaurant</a> </li>
+                <li> <a href="#contactUsbox" class="link">Contact</a> </li>
+                <li> <a href="/adminlogin" class="link">Admin</a></li>
+            </ul>
+        </div>
+        <button id="Registerbtn" type="submit" onclick="window.location.href='/guestregistration'">Sign-up</button>
+
+
+    </nav>
+    <video autoplay muted loop>
+        <source src="/vid/homepage vid.mp4" type="video/mp4">
+    </video>
+    <div class="homepage-form" id="homepage-form">
+        <h1 id="hometitle">Welcome To The Jacks' Hotel</h1>
+        <div class="homebk-box">
+            <div class="box">
+                <label>Check-in:</label>
+                <input class="date" id="checkIn" type="date" min="" placeholder="Check-in-Date">
+            </div>
+            <div class="box2">
+                <label>Check-out:</label>
+                <input class="date" id="checkOut" type="date" min="" placeholder="Check-out-Date">
+            </div>
+
+            <button class="booknow" type="button" id="bookNowBtn">
+                BOOK NOW
+            </button>
+
+        </div>
+        <div class="learnmore">
+            <a href="#about"><button id="learnmore" type="button">
+                    LEARN MORE
+                </button>
+            </a>
+        </div>
+
+        <div class="downarrow">
+            <a href="#services">&#8595;</a>
+        </div>
+        <div class="homereservation">
+            <p>ROOM RESERVATION</p>
+        </div>
+        <h2 class="homegoodstay">EXPERIENCE A LUXURIOUS STAY WITH FANTASTIC OFFERS</h2>
+        <div class="offersbox">
+            <div class="offers">
+                <img src="/icons/bedroom.png">
+                <h3>MASTER BEDROOMS</h3>
+            </div>
+
+            <div class="offers2">
+                <img src="/icons/balcony.png">
+                <h3>SEA VIEW BALCONY</h3>
+            </div>
+
+            <div class="offers3">
+                <img src="/icons/cafe.png">
+                <h3>LARGE CAFE</h3>
+            </div>
+
+            <div class="offers4">
+                <img src="/icons/wifi.png">
+                <h3>HIGH SPEED WI-FI</h3>
+            </div>
+
+            <div class="offers5">
+                <img src="/icons/swimming icon.png">
+                <h3>REFRESHING SWIMMING POOLS</h3>
+            </div>
+        </div>
+        <div id="about">
+            <h1 id="abouttitle">ABOUT<br>THE JACKS' HOTEL</h1>
+            <p id="aboutContent">
+                Jacks’ Hotel is a medium sized hospitality establishment that provides accommodation, dining and
+                recreational services to both local and international guests. The hotel aims to offer quality and
+                comfortable services at affordable prices while maintaining high standards of customer satisfaction. The
+                hotel has 60 employees divided across several departments such as Front Office Department (Receptionist,
+                Reservation Clerk & Accounts), Food & Beverage Department and ICT Department (IT Support and
+                Maintenance). The hotel has 50 rooms, a restaurant, conference halls and a swimming pool, making it
+                mid-level hospitality organization and operates 24/7.
+                The Jacks’ Hotel runs several operations which includes Room Booking and reservation where guests can
+                book rooms in advance or upon arrival, customer check-in and check-out done by the receptionist through
+                registering guests, assigning rooms and billing upon departures. In the hotel the meals and drinks are
+                also prepared and served by Food and Beverage department led by the Executive chef for food preparation
+                and cooking while the waiters serve meals and drinks to guests.
+
+            </p>
+            <div class="aboutimg"><img id="img1" src="/Images/hotel view.jpg">
+                <img id="img2" src="/Images/hotel view 2.jpg">
+            </div>
+            <div class="shortabout">
+                <p>Our Amenities Guarantee An Unforgatable Stay</p>
+            </div>
+        </div>
+        <div class="service">
+            <h1 id="services">OUR SERVICES</h1>
+            <div class="clean-assist">
+                <div class="cleaning">
+                    <img src="/icons/room cleaning.png">
+                    <h3>Your comfort, our priority</h3>
+                    <p>Our dedicated housekeeping team ensures your room remains spotless
+                        fresh and comfortable througout your stay. We provide daily cleaning, including towel
+                        and beddings replacement and thorough sanitation of all surfaces.
+                    </p>
+                </div>
+                <div class="time">
+                    <img src="/icons/clock.png">
+                    <h3>24/7 Assistance</h3>
+                    <p>Our front desk is available around the clock to ensure your stay
+                        is smooth and worry-free.
+                    </p>
+                </div>
+            </div>
+            <div class="service-parking">
+                <div class="roomservice">
+                    <img src="/icons/room services.png">
+                    <h3>Delicious in-room Dining</h3>
+                    <p>Enjoy Royal culinary experience without leaving your room. From
+                        signature dishes to delightful beverages, every order is prepared to deliver
+                        richness, comfort, and unforgatable taste.
+                    </p>
+                </div>
+
+                <div class="parking">
+                    <img src="/icons/Parking.png">
+                    <h3>Safe and convenient parking</h3>
+                    <p>Guests enjoy free, safe, and convenient parking with round-the-clock security.
+                        park with confidence, your vehicle is always accommodated safely and conveniently.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div id="roomrates">
+            <h1 id="roomratestitle">ROOMS AND RATES</h1>
+            <div id="rooms-grid">
+
+                <div id="Family Suite-card" class="room-card">
+                    <img src="/Images/Family Suite.jpg" alt="Family Suite Room View" class="room-image">
+                    <div class="card-body">
+                        <h2 class="room-type">Family Suite Room</h2>
+                        <div class="star-rating">
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star empty">★</span>
+                        </div>
+                        <p class="room-description">
+                            Spacious and ideal for families, offering multiple sleeping areas and extra comfort for
+                            group stays.
+                        </p>
+                        <div class="pricecontainer">
+                            <span class="price-tag">Ksh. 18,000</span>
+                            <a href="#" class="book-button book-now-session">Book Now</a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="suite-room-card" class="room-card">
+                    <img src="/Images/Suite.jpg" alt="Suite Room View" class="room-image">
+                    <div class="card-body">
+                        <h2 class="room-type">Suite Room</h2>
+                        <div class="star-rating">
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star empty">★</span>
+                            <span class="star empty">★</span>
+                        </div>
+                        <p class="room-description">
+                            Elegant and comfortable, offering a private lounge space and upgraded luxury amenities.
+                        </p>
+                        <div class="pricecontainer">
+                            <span class="price-tag">Ksh. 12,000</span>
+                            <a href="#" class="book-button book-now-session">Book Now</a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="Deluxe Room-card" class="room-card">
+                    <img src="/Images/deluxe.jpg" alt="Deluxe Room View" class="room-image">
+                    <div class="card-body">
+                        <h2 class="room-type">Deluxe Room</h2>
+                        <div class="star-rating">
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star empty">★</span>
+                            <span class="star empty">★</span>
+                            <span class="star empty">★</span>
+                        </div>
+                        <p class="room-description">
+                            A well furnished room offering enhanced comfort and convenient amenities.
+                        </p>
+                        <div class="pricecontainer">
+                            <span class="price-tag">Ksh. 7,500</span>
+                            <a href="#" class="book-button book-now-session">Book Now</a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="Standard Room-card" class="room-card">
+                    <img src="/Images/Standard.jpg" alt="Standard Room View" class="room-image">
+                    <div class="card-body">
+                        <h2 class="room-type">Standard Room</h2>
+                        <div class="star-rating">
+                            <span class="star filled">★</span>
+                            <span class="star empty">★</span>
+                            <span class="star empty">★</span>
+                            <span class="star empty">★</span>
+                            <span class="star empty">★</span>
+                        </div>
+                        <p class="room-description">
+                            A cozy and budget-friendly room offering essential comfort for a pleasant stay.
+                        </p>
+                        <div class="pricecontainer">
+                            <span class="price-tag">Ksh. 5,000</span>
+                            <a href="#" class="book-button book-now-session">Book Now</a>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="team-members-section">
+            <h1 id="section-title">MEET OUR TEAM</h1>
+            <nav id="profile-selector-nav">
+
+                <img src="/Images/IMG-20260119-WA0006.jpg" alt="Jackson Musembi Nav" class="nav-thumb is-active-nav"
+                    data-profile-target="member-bonny">
+
+                <img src="/Images/Head Chef.jpg" alt="Jane Doe Nav" class="nav-thumb" data-profile-target="member-jane">
+
+                <img src="/Images/Marketting Director.jpg" alt="Mike Ross Nav" class="nav-thumb"
+                    data-profile-target="member-mike">
+
+                <img src="/Images/Events Manager.jpg" alt="Kenji Tanaka Nav" class="nav-thumb"
+                    data-profile-target="member-kenji">
+            </nav>
+            <div id="profile-display-area">
+                <div id="member-bonny" class="member-profile is-visible">
+                    <img src="/Images/IMG-20260119-WA0006.jpg" alt="Jackson Musembi Main" class="member-photo">
+                    <div class="member-details">
+
+                        <h2>Jackson Musembi</h2>
+                        <p class="job-title">GENERAL MANAGER</p>
+                        <p>
+                            As the General Manager of Jacks Hotel, Jackson Musembi brings a distinguished blend of
+                            leadership,
+                            strategic insight,
+                            and deep industry expertise developed over more than three decades in the hospitality
+                            sector. Beginning his career
+                            in the early 1990s, Jackson has served in several high-level operational and executive
+                            roles,
+                            earning a reputation
+                            for his ability to transform challenges into opportunities and consistently elevate
+                            organizational performance.
+                            <br><br>
+                            His leadership style is rooted in professionalism, innovation, and an unwavering commitment
+                            to service excellence.
+                            Jackson oversees all hotel operations with a meticulous eye for detail, ensuring that every
+                            department—from guest
+                            services to food and beverage—functions cohesively and upholds the highest standards. He is
+                            known for fostering a
+                            collaborative work environment, empowering teams to grow, and inspiring staff to take pride
+                            in delivering
+                            exceptional experiences to every guest.
+                        </p>
+
+                    </div>
+                </div>
+                <div id="member-jane" class="member-profile">
+                    <img src="/Images/Head Chef.jpg" alt="Jane Doe Main" class="member-photo">
+                    <div class="member-details">
+                        <h2>Jane Doe</h2>
+                        <p class="job-title">EXECUTIVE CHEF</p>
+                        <p>
+                            As the Executive Chef, Jane leads our culinary vision with a distinguished blend of
+                            innovation, discipline,
+                            and refined technique. Her career spans decades across renowned international kitchens,
+                            where she developed
+                            a deep understanding of global gastronomy and the art of crafting unforgettable dining
+                            experiences.
+                            <br><br>
+                            Jane is known for her meticulous approach to menu development, her unwavering commitment to
+                            sourcing the
+                            finest local ingredients, and her ability to harmonize authentic regional flavors with
+                            sophisticated
+                            contemporary presentations. Her leadership inspires the entire kitchen brigade, fostering
+                            creativity,
+                            precision, and a passion for excellence in every dish that leaves the pass.
+                            <br><br>
+                            Under her direction, our restaurant continues to push culinary boundaries, offering guests a
+                            dining
+                            experience defined by artistry, consistency, and exceptional flavor.
+                        </p>
+
+                    </div>
+                </div>
+                <div id="member-mike" class="member-profile">
+                    <img src="/Images/Marketting Director.jpg" alt="Mike Ross Main" class="member-photo">
+                    <div class="member-details">
+                        <h2>Mike Ross</h2>
+                        <p class="job-title">MARKETING DIRECTOR</p>
+                        <p> Mike leads all branding and outreach initiatives at Jacks Hotel, bringing a forward-thinking
+                            approach to every campaign he crafts. His creative strategies have played a major role in
+                            elevating the hotel's visibility and attracting a broader global audience. <br><br> Through
+                            his expertise in modern marketing trends and multi-platform engagement, Mike continues to
+                            strengthen the hotel's identity while building meaningful connections with new and returning
+                            clientele. </p>
+                    </div>
+                </div>
+                <div id="member-kenji" class="member-profile">
+                    <img src="/Images/Events Manager.jpg" alt="Kenji Tanaka Main" class="member-photo">
+                    <div class="member-details">
+                        <h2>Kenji Tanaka</h2>
+                        <p class="job-title">EVENTS MANAGER</p>
+                        <p> Kenji plays a vital role in ensuring that every event hosted at Jacks Hotel unfolds with
+                            precision and excellence. Whether coordinating large-scale conferences or curating intimate
+                            weddings, he brings a meticulous approach to planning and execution. <br><br> His dedication
+                            to detail, organization, and client collaboration ensures that each occasion not only runs
+                            seamlessly but also leaves a lasting, memorable impression on every guest. </p>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+
+        <div id="restaurantbox">
+            <h1 id="restauranttitle">RESTAURANT</h1>
+
+            <div id="diningSection" class="diningsection">
+                <img src="/Images/Restaurant.jpg" class="section-image" id="dining-image">
+                <div class="dining-content">
+                    <h2>A Grand Welcome Awaits</h2>
+                    <p>
+                        From the moment you enter, you are welcomed into an environment designed to
+                        embody the
+                        highest standards of modern luxury. Our Hotel blends contemporary elegance with warm, inviting
+                        touches
+                        that create an immediate sense of comfort and sophistication. Soft lighting, thoughtfully
+                        curated décor,
+                        and a serene ambiance work together to offer an atmosphere that is both impressive and relaxing.
+                        Every
+                        detail from the polished marble floors to the refined fragrances carried gently through the
+                        air has been
+                        tailored to enhance your experience. Our professional hospitality team is trained to anticipate
+                        your needs,
+                        ensuring that each interaction is effortless, personalized, and rooted in genuine care. Whether
+                        you are
+                        joining us for a brief visit, an extended stay, or a special celebration, we aim to create a
+                        welcoming
+                        first impression that sets the tone for a memorable and truly exceptional stay.
+                    </p>
+                </div>
+            </div>
+
+            <div id="breakfastSection" class="diningsection dining-section--reverse">
+                <img src="/Images/Breakfast.jpg" class="section-image" id="breakfast-image">
+                <div class="section-content">
+                    <h2>Gourmet Breakfast Experience</h2>
+                    <p>
+                        Begin your morning with a breakfast crafted to invigorate your senses and elevate the start of
+                        your day.
+                        Our gourmet buffet presents an expansive selection of freshly prepared dishes, ranging from
+                        artisan breads
+                        and buttery, oven-warm pastries to delicately seasoned hot entrées and signature specials
+                        created by our
+                        culinary team. We prioritize the use of locally sourced ingredients and premium quality produce
+                        to ensure
+                        every plate is bursting with freshness and flavor. Guests may enjoy nutrient-rich fruits,
+                        handcrafted
+                        yogurts, charcuterie selections, and perfectly brewed coffees made by skilled baristas who
+                        understand the
+                        art of the perfect cup. Whether you prefer a light and refreshing breakfast or a hearty and
+                        indulgent meal,
+                        our offerings are designed to suit every preference. Served daily from <span
+                            style=" font-weight: bold;">7:00 AM to 11:00 AM</span>, our
+                        breakfast
+                        experience creates a relaxed and uplifting atmosphere where guests can begin their day at their
+                        own pace,
+                        savoring each bite and enjoying the quiet luxury of a meticulously crafted morning service.
+                    </p>
+
+                    <a href="/book-table" id="breakfast-book-button">Book a Table</a>
+                </div>
+            </div>
+
+            <div id="lunchSection" class="diningsection">
+                <img src="/Images/Lunch.jpg" class="section-image" id="lunch-image">
+                <div class="section-content">
+                    <h2>Refreshing Lunch Fare</h2>
+                    <p>
+                        Rediscover the pleasure of a midday retreat with our refined lunch offerings, curated to provide
+                        the
+                        perfect balance of nourishment, flavor, and sophistication. Each dish is thoughtfully prepared
+                        to deliver
+                        an exceptional dining experience, whether you are seeking a wholesome meal, a light afternoon
+                        bite, or a
+                        flavorful indulgence to break up your day. Our menu features crisp, vibrant salads composed of
+                        fresh
+                        seasonal vegetables, handcrafted sandwiches layered with premium ingredients, and an array of
+                        daily soup
+                        specials prepared with the finest culinary techniques. The atmosphere during lunch service is
+                        designed to
+                        be relaxing yet energizing, making it ideal for business meetings, friendly gatherings, or
+                        peaceful solo
+                        dining. With service available from <span style=" font-weight: bold;">11:30 AM to 2:30 PM</span>
+                        daily, our lunch experience invites you
+                        to step
+                        away from the rush of your routine and immerse yourself in a moment of calm, delicious comfort
+                        enhanced by
+                        attentive hospitality and inviting surroundings.
+                    </p>
+
+                    <a href="/book-table" id="lunch-book-button">Book a Table</a>
+                </div>
+            </div>
+
+            <div id="dinnerSection" class="diningsection dining-section--reverse">
+                <img src="/Images/Dinner.jpg" class="section-image" id="dinner-image">
+                <div class="section-content">
+                    <h2>Signature Dinner Experience</h2>
+                    <p>
+                        As the evening unfolds, our restaurant transforms into an intimate destination for exceptional
+                        dining that
+                        celebrates artistry, flavor, and atmosphere. Our signature dinner menu reflects the culinary
+                        mastery of our
+                        chefs, featuring dishes crafted with precision, creativity, and a commitment to using the finest
+                        ingredients available. From premium cuts of meat and freshly sourced seafood to innovative
+                        vegetarian and
+                        plant forward creations, every plate is designed to deliver a memorable experience filled with
+                        depth and
+                        character. The dining room ambiance is elevated with soft lighting, refined table settings, and
+                        a serene
+                        environment that encourages conversation and relaxation. Whether you are marking a milestone,
+                        enjoying a
+                        romantic evening, entertaining guests, or simply indulging in a night of fine dining, our dinner
+                        service
+                        provides a perfectly choreographed balance of elegance and comfort. Served daily from <span
+                            style=" font-weight: bold;">5:00 PM to
+                            9:00 PM</span>,
+                        this experience invites you to unwind, savor exquisite cuisine, and enjoy the unique charm that
+                        defines
+                        our evening hospitality.
+                    </p>
+
+                    <a href="/book-table" id="dinner-book-button">Book a Table</a>
+                </div>
+            </div>
+
+            <div id="dessertSection" class="diningsection">
+                <img src="/Images/Dessert.jpg" class="section-image" id="dessert-image">
+                <div class="section-content">
+                    <h2>Decadent Desserts & Sweets</h2>
+                    <p>
+                        Elevate your dining experience with a dessert selection crafted to celebrate indulgence in its
+                        finest
+                        form. Our pastry team meticulously designs each dessert to balance flavor, texture, and
+                        presentation,
+                        creating offerings that are as visually stunning as they are delicious. Indulge in velvety
+                        chocolate
+                        creations, delicate fruit tarts layered with seasonal produce, silky custards, and house-made
+                        ice creams
+                        churned daily for optimal freshness. Our menu also features rotating seasonal specialties that
+                        highlight
+                        unique ingredients and artisanal techniques. To complement your dessert, we offer a curated list
+                        of
+                        dessert wines, specialty coffees, artisanal teas, and signature cocktails crafted specifically
+                        to enhance
+                        the sweetness of your final course. Whether you choose to enjoy dessert as a light finish to
+                        your meal or
+                        as a luxurious treat on its own, our selections promise a memorable and satisfying end to your
+                        dining
+                        journey, leaving you with a lingering sense of delight and indulgence.
+                    </p>
+
+                    <button id="dessert-menu-button" type="button">View Dessert Menu</button>
+
+                </div>
+            </div>
+        </div>
+        <div id="contactUsbox">
+            <div class="contact-connect">
+                <div id="contactus">
+                    <h2 class="contactheading">Contact Us</h2>
+                    <p class="contactsubheading">Sign Up For Our News Letters</p>
+                    <form id="newsletterForm" class="contactnewsletter" method="POST">
+                        <label for="userfullname">Full Name</label><br>
+                        <input class="user-name" name="fullName" placeholder="Full Name:"><br>
+
+                        <label for="userphonenumber">Phone Number</label>
+                        <input type="tel" class="phone-number" name="phoneNumber" placeholder="eg. +254"><br>
+
+                        <label for="user-email-address" class="visually-hidden">Email Address</label>
+                        <input type="email" id="user-email-address" name="emailAddress"
+                            placeholder="Email Address:"><br>
+
+                        <button type="submit" id="send-button">Send Now</button>
+                    </form>
+
+
+                </div>
+
+                <div id="contactus">
+                    <h2 class="contactheading">Connect With Us</h2>
+                    <div id="hotel-contact-info-block">
+                        <p><strong>Phone:</strong> +254 701 274575</p>
+                        <p><strong>Email:</strong>info@thejackshotel.com</p>
+                        <p>
+                            <strong>Address:</strong> Old Town Near Fort Jesus, Mombasa, Kenya
+                            (Accessible via Nkrumah Road)
+                        </p>
+
+                    </div>
+
+                    <div id="social-media">
+                        <a href="https://web.telegram.org/"><img src="/icons/telegram.png" alt="Telegram"></a>
+                        <a href="https://x.com/"> <img src="/icons/twitter.png" alt="Twitter"></a>
+                        <a href="https://www.instagram.com/"><img src="/icons/instagram.png" alt="Instagram"></a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="map-area">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3991.307048070146!2d39.68020!3d-4.06230!3m2!1i1024!2i768!4f13.1!3m3!1m2!1sCoastline%20Point%20Near%20Fort%20Jesus!2s-4.06230%2C%2039.68020!5e0!3m2!1sen!2ske!4v1700000000099!5m2!1sen!2ske"
+                    width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade" title="Coastline Point Near Fort Jesus">
+                </iframe>
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <footer class="footer">
+        <p>&copy; 2025 The Jacks' Hotel. All Rights Reserved.</p>
+    </footer>
+
+    <div id="dessertMenuModal" class="modal-dessert" style="display:none;">
+        <div class="modal-dessert-content"
+            style="max-width:600px; margin:auto; background:#fff; border-radius:12px; padding:30px; position:relative; box-shadow:0 8px 25px rgba(0,0,0,0.2);">
+            <span id="closeDessertModal" class="modal-dessert-close"
+                style="position:absolute; top:15px; right:20px; font-size:28px; cursor:pointer;">&times;</span>
+            <h2 class="modal-dessert-title"
+                style="text-align:center; font-family:'Cinzel'; color:#8B0000; margin-bottom:25px;">Decadent
+                Dessert Menu</h2>
+            <div class="modal-dessert-body" style="font-family:'Arial', sans-serif; line-height:1.6; color:#333;">
+                <ul class="dessert-menu-list" style="list-style:circle; padding:0; margin:0;">
+                    <li style="margin-bottom:18px;">
+                        <strong>Midnight Chocolate Symphony</strong> – Rich dark chocolate cake layered with silky
+                        ganache, finished with gold dust and raspberry coulis.
+                    </li>
+                    <li style="margin-bottom:18px;">
+                        <strong>Vanilla Orchid Crème Brûlée</strong> – Classic French custard infused with
+                        Madagascar
+                        vanilla and topped with caramelized crust.
+                    </li>
+                    <li style="margin-bottom:18px;">
+                        <strong>Citrus Blossom Tart</strong> – Buttery tart shell filled with tangy citrus curd,
+                        topped
+                        with candied zest and fresh edible flowers.
+                    </li>
+                    <li style="margin-bottom:18px;">
+                        <strong>Velvet Berry Cheesecake</strong> – Creamy cheesecake with graham crust, layered with
+                        mixed berry compote and fresh berries.
+                    </li>
+                    <li style="margin-bottom:18px;">
+                        <strong>Decadent Truffle Assortment</strong> – Handmade chocolate truffles infused with fine
+                        liqueurs, nuts, or fruit essence, elegantly plated.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+
+        const today = new Date().toISOString().split('T')[0];
+        const checkInInput = document.getElementById("checkIn");
+        const checkOutInput = document.getElementById("checkOut");
+
+
+        if (checkInInput) {
+            checkInInput.min = today;
+            checkInInput.value = today;
+        }
+
+        if (checkOutInput) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            checkOutInput.min = tomorrow.toISOString().split('T')[0];
+            checkOutInput.value = tomorrow.toISOString().split('T')[0];
+        }
+
+
+        if (checkInInput && checkOutInput) {
+            checkInInput.addEventListener("change", function () {
+                if (this.value) {
+                    const nextDay = new Date(this.value);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    checkOutInput.min = nextDay.toISOString().split('T')[0];
+
+                    if (checkOutInput.value <= this.value) {
+                        checkOutInput.value = checkOutInput.min;
+                    }
+                }
+            });
+
+            checkOutInput.addEventListener("change", function () {
+                if (checkInInput.value && this.value <= checkInInput.value) {
+                    const nextDay = new Date(checkInInput.value);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    this.value = nextDay.toISOString().split('T')[0];
+                    alert("Check-out date must be after check-in date");
+                }
+            });
+        }
+
+        const newsletterForm = document.getElementById("newsletterForm");
+        newsletterForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const fullName = document.querySelector(".user-name").value.trim();
+            const phoneNumber = document.querySelector(".phone-number").value.trim();
+            const emailAddress = document.querySelector("#user-email-address").value.trim();
+
+            if (!fullName || !emailAddress) {
+                return alert("Please enter your name and email.");
+            }
+
+            try {
+                const response = await fetch("/subscribe", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ fullName, phoneNumber, emailAddress })
+                });
+
+                const data = await response.json();
+                alert(data.message);
+
+                if (data.message.includes("Subscribed successfully")) {
+                    newsletterForm.reset();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong. Please try again.");
+            }
+        });
+
+
+
+        const registerBtn = document.getElementById("Registerbtn");
+        const homepageBookBtn = document.getElementById("bookNowBtn");
+        const allRoomBookBtns = document.querySelectorAll(".book-now-session");
+
+        let redirectTo = "/guestlogin";
+        fetch("/api/session-user")
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(user => {
+
+                redirectTo = "/reservation";
+                if (registerBtn) registerBtn.style.display = "none";
+            })
+            .catch(() => {
+
+                redirectTo = "/guestlogin";
+            })
+            .finally(() => {
+
+
+                if (homepageBookBtn) {
+                    homepageBookBtn.onclick = () => {
+                        const checkIn = document.getElementById("checkIn").value;
+                        const checkOut = document.getElementById("checkOut").value;
+
+                        if (!checkIn || !checkOut) {
+                            alert("Please select check-in and check-out dates");
+                            return;
+                        }
+
+
+                        if (new Date(checkOut) <= new Date(checkIn)) {
+                            alert("Check-out date must be after check-in date");
+                            return;
+                        }
+
+                        window.location.href = `${redirectTo}?checkIn=${checkIn}&checkOut=${checkOut}`;
+                    };
+                }
+
+
+                allRoomBookBtns.forEach(btn => {
+                    btn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        window.location.href = redirectTo;
+                    });
+                });
+
+            });
+
+        const navThumbs = document.querySelectorAll('#profile-selector-nav .nav-thumb');
+        const profiles = document.querySelectorAll('#profile-display-area .member-profile');
+
+        navThumbs.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+
+                navThumbs.forEach(t => t.classList.remove('is-active-nav'));
+                thumb.classList.add('is-active-nav');
+
+
+                profiles.forEach(profile => profile.classList.remove('is-visible'));
+
+
+                const targetId = thumb.dataset.profileTarget;
+                const targetProfile = document.getElementById(targetId);
+                if (targetProfile) targetProfile.classList.add('is-visible');
+            });
+        });
+
+        const dessertModal = document.getElementById("dessertMenuModal");
+        const dessertBtn = document.getElementById("dessert-menu-button");
+        const closeBtns = document.querySelectorAll(".modal-dessert-close, .modal-dessert-close-btn");
+
+        if (dessertBtn) {
+            dessertBtn.addEventListener("click", () => {
+                dessertModal.style.display = "flex";
+            });
+        }
+
+        closeBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                dessertModal.style.display = "none";
+            });
+        });
+
+
+        window.addEventListener("click", (e) => {
+            if (e.target === dessertModal) {
+                dessertModal.style.display = "none";
+            }
+        });
+
+
+
+
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
+
+</body>
+</html>

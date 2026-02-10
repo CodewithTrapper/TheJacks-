@@ -3,60 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign-in</title>
-    <link rel="icon" type="image/jpg" href="/Images/RST LOGO.png">
+    <title>The Jacks'- Sign-in</title>
+    <link rel="icon" type="image/jpg" href="">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="Styles/style.css">
+    <style>
+        .input-box {
+            position: relative;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding-right: 35px;
+            box-sizing: border-box;
+            background: transparent;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-90%);
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+        }
+
+        .toggle-password svg {
+            width: 11px;
+            height: 11px;
+            stroke: white;
+            fill: none;
+        }
+    </style>
 </head>
-<body class="dashboard-page">
+<body class="login-page">
+    <div class="topbar">
+        <div class="socialicons">
+            <img src="/icons/telegram.png" alt="Telegram">
+            <img src="/icons/twitter.png" alt="Twitter">
+            <img src="/icons/instagram.png" alt="Instagram">
+        </div>
+        <div class="contact">
+            <img id="mail" src="/icons/Mail.png" alt="Mail">
+            <a href="#">
+                <p>info@thejackshotel.com</p>
+            </a>
+        </div>
+        <div id="contact">
+            <img id="phone" src="/icons/hotline.png" alt="phone">
+            <a href="#">
+                <p>+254 790 778 102</p>
+            </a>
+        </div>
+        <a href="/frequentlyaskedquestions"><button id="faq"><img class="faqicon" src="/icons/faq.png"></button></a>
+    </div>
+
     <nav class="nav">
         <div class="nav-logo-login">
-            <p>ROYALSTAY HOTEL</p>
+            <p><span style="color: white;">THE</span><span style="color: coral;"> JACKS'</span></p>
+        </div>
+        <div id="sublogo">
+            <p>YOUR DREAMY HOTEL</p>
         </div>
         <div class="nav-menu" id="navMenu">
             <ul>
-                <li><a href="login.html" class="link active">Home</a></li>
-                <li><a href="about.html" class="link">About</a></li>
+                <li><a href="/" class="link">Home</a></li>
+                <li><a href="/adminlogin" class="link">Admin</a></li>
             </ul>
         </div>
-        <div class="nav-button">
-            <button class="btn white-btn" id="loginbtn" type="submit"
-                onclick="window.location.href='login.html'">Sign-in</button>
-            <button class="btn" id="Registerbtn" type="submit"
-                onclick="window.location.href='register.html'">Sign-up</button>
-        </div>
+        <button id="Registerbtn" type="submit" onclick="window.location.href='/guestregistration'">Sign-up</button>
     </nav>
+
     <div class="login-box">
-        <form action="" id="loginForm">
-            <h2>Sign-in</h2>
+        <form id="loginForm" autocomplete="off" action="/loginGuest" method="POST">
+            <h2 class="box-headers">Sign-in</h2>
             <div class="input-box">
-                <input type="email" id="loginEmail" placeholder=" " required>
-                <label for="email">Enter your Email</label>
+                <input type="email" id="loginEmail" name="email" placeholder=" " autocomplete="off" required>
+                <label for="loginEmail">Enter your Email</label>
             </div>
             <div class="input-box">
-                <input type="password" id="loginPassword" minlength="8" placeholder=" " required>
-                <label for="password">Enter your Password</label>
+                <input type="password" id="loginPassword" name="password" placeholder=" " autocomplete="off" required>
+                <label for="loginPassword">Enter your Password</label>
+                <span id="togglePassword" class="toggle-password">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                </span>
             </div>
             <div class="remember-forgot">
-                <label><input type="checkbox" id="remember">Remember me</label>
-                <a href="forgot.html">Forgot Password?</a>
+                <label><input type="checkbox" id="remember" name="rememberMe">Remember me</label>
+                <a href="/passwordreset">Forgot Password?</a>
             </div>
             <button type="submit">Sign-in</button>
             <div class="Sign-up-link">
-                <p>Don't have an account?<a href="register.html"> Sign-up</a><br><br>or
-                </p>
-                <a href="user-dashboard.html">Continue as a Guest</a>
-
+                <p>Don't have an account?<a href="/guestregistration"> Sign-up</a></p>
+            </div>
         </form>
     </div>
-    </div>
-    <footer class="footer">
-        <p>&copy; 2025 RoyalStay Hotel. All Rights Reserved.</p>
-        <div class="footer-icons">
-            <img src="/icons/telegram.png">
-            <img src="/icons/twitter.png">
-            <img src="/icons/instagram.png">
-        </div>
-    </footer>
-    <script src="Script/script.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const passwordInput = document.getElementById("loginPassword");
+            const togglePassword = document.getElementById("togglePassword");
+
+            togglePassword.addEventListener("click", () => {
+                const type = passwordInput.getAttribute("type") === "password" ? "name" : "password";
+                passwordInput.setAttribute("type", type);
+
+
+                togglePassword.innerHTML = type === "password"
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+               <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="#fff" fill="none"/>
+               <circle cx="12" cy="12" r="3" stroke="#fff" fill="none"/>
+             </svg>`
+                    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+               <path d="M2 2l20 20M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="#fff" fill="none"/>
+               <circle cx="12" cy="12" r="3" stroke="#fff" fill="none"/>
+             </svg>`;
+            });
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
 </body>
 </html>

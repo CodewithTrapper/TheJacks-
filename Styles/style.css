@@ -4,736 +4,6007 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100vh;
 }
 
-body.login-page {
-    background: url(/Images/Dashboard\ bg.jpg) no-repeat;
+body.status {
+    background: white;
     background-position: center;
     background-attachment: fixed;
     background-size: cover;
 }
 
-body.register-page {
-    background: url(/Images/Dashboard\ bg.jpg) no-repeat;
+body.notif {
+    background: white;
     background-position: center;
     background-attachment: fixed;
     background-size: cover;
 }
 
-body.dashboard-page {
-    background: url(/Images/Dashboard\ bg.jpg) no-repeat;
+body.newsL {
+    background: white;
     background-position: center;
     background-attachment: fixed;
     background-size: cover;
 }
 
-.forgot-page {
-    background: url(/Images/Dashboard\ bg.jpg) no-repeat;
+body.Apayment {
+    background: white;
     background-position: center;
     background-attachment: fixed;
     background-size: cover;
 }
 
-body.booking-page {
-    background-image: url(/Images/Dashboard\ bg.jpg);
-    background-attachment: fixed;
-    background-position: center;
-    background-size: cover;
-}
-
-
-.login-box {
-    position: absolute;
-    top: 25%;
-    width: 500px;
-    height: 420px;
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 3px 3px 25px;
-}
-
-.Sign-up-box {
-    position: absolute;
-    top: 20%;
-    width: 500px;
-    height: 425px;
-    background: rgba(0, 0, 0, 0.692);
-    border-radius: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 3px 3px 25px;
-
-}
-
-.forgot-box {
-    position: absolute;
-    top: 30%;
-    width: 400px;
-    height: 350px;
-    background: rgba(0, 0, 0, 0.692);
-    border-radius: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 3px 3px 25px;
-}
-
-
-h2 {
-    font-size: 24px;
-    font-family: "Cinzel";
-    color: white;
-    text-align: center;
-    text-shadow: 3px 3px 10px rgb(3, 3, 3);
-}
-
-.input-box label {
-    color: rgba(255, 255, 255, 0.4);
-    position: absolute;
-    top: 70%;
-    left: -2px;
-    transform: translateY(-100%);
-    pointer-events: none;
-    transition: 0.6s;
-    font-family: "Roboto";
-    font-size: 14px;
-
-}
-
-.input-box input:focus~label,
-.input-box input:not(:placeholder-shown)~label {
-    top: 2px;
-    left: -1px;
-    color: coral;
-}
-
-.input-box {
-    position: relative;
-    width: 310px;
-    margin: 30px 0;
-    border-bottom: 1px solid white;
-}
-
-.input-box input {
-    width: 100%;
-    height: 20px;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 15px;
-    font-family: "Roboto";
-    color: white;
-    padding: 0 8px 0 5px;
-}
-
-.remember-forgot {
-    margin: -15px 0 15px;
-    font-size: 13px;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    font-family: "Roboto";
-}
-
-.remember-forgot label input {
-    margin-right: 10px;
-}
-
-.remember-forgot a {
-    color: white;
-    text-decoration: none;
-    font-family: "Roboto";
-}
-
-button {
-    width: 100%;
-    height: 30px;
-    border-radius: 40px;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    font-size: 15px;
-    color: black;
-    transition: 0.2s;
-    font-weight: 600;
-    font-family: "Cinzel";
-
-}
-
-button:hover[type="submit"] {
-    background-color: coral;
-}
-
-body.about-page {
-    background: url(/Images/Dashboard\ bg.jpg) no-repeat;
+body.Aprofit {
+    background: white;
     background-position: center;
     background-attachment: fixed;
     background-size: cover;
 }
 
-.aboutBox {
-    position: relative;
-    top: 15px;
-    height: 400px;
-    width: 500px;
-    background: transparent;
-    overflow-y: auto;
-    padding: 50px;
-}
-
-.aboutBox::-webkit-scrollbar {
-    display: none;
-}
-
-
-#aboutContent {
-    color: white;
-    font-family: "Roboto";
-}
-
-a {
-    color: rgb(255, 255, 255);
-    text-decoration: none;
-    font-family: "Roboto";
-}
-
-a:hover {
-    color: coral;
-}
-
-.Sign-in-link {
-    font-size: 13px;
-    color: white;
-    text-align: center;
-    margin: 25px 0 10px;
-    font-family: "Roboto";
-}
-
-.Sign-in-link p a {
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    font-family: "Roboto";
-}
-
-.Sign-in-link p a:hover {
-    color: coral;
-    text-decoration: underline;
-}
-
-
-.Sign-up-link {
-    font-size: 13px;
-    color: white;
-    text-align: center;
-    margin: 25px 0 10px;
-    font-family: "Roboto";
-
-}
-
-.nav {
-    justify-content: center;
-    position: fixed;
-    top: 2px;
-    display: flex;
-    line-height: 5px;
+body.Admadd {
+    background: white;
     background-position: center;
-    width: 100%;
+    background-attachment: fixed;
+    background-size: cover;
 }
 
-.nav-logo-login {
-    color: white;
-    font-size: 25px;
-    font-family: "Cinzel";
-    font-weight: 600;
-    text-shadow: 3px 3px 10px rgb(3, 3, 3);
-    position: relative;
-    right: 120px;
 
-}
 
-.nav-logo-forgot {
-    color: white;
-    font-size: 25px;
-    font-family: "Cinzel";
-    font-weight: 600;
-    text-shadow: 3px 3px 10px rgb(3, 3, 3);
-    position: relative;
-    right: 100px;
-}
 
-.nav-logo-admin {
-    color: white;
-    font-size: 25px;
-    font-family: "Cinzel";
-    font-weight: 600;
-    text-shadow: 3px 3px 10px rgb(3, 3, 3);
-    position: relative;
-    right: 100px;
-}
 
-.nav-logo-user {
-    color: white;
-    font-size: 25px;
-    font-family: "Cinzel";
-    font-weight: 600;
-    text-shadow: 3px 3px 10px rgb(3, 3, 3);
-    position: relative;
-    right: 43px;
-}
-
-.nav-menu ul {
-    display: flex;
-    position: relative;
-    left: 0%;
-    text-align: center;
-    animation-name: slideLeft;
-    animation-duration: 2s;
-    animation-delay: 0s;
-
-}
-
-@keyframes slideLeft {
-    from {
-        transform: translateX(120px)
+@media (max-width: 1024px) {
+    body.login-page {
+        background: rgb(138, 198, 224);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        min-height: 80vh;
     }
+
+
+    body.register-page {
+        background: rgb(138, 198, 224);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        min-height: 80vh;
+    }
+
+    body.booking-page {
+        background-image: url(/Images/franck-morisset-UFhM8kMuQbo-unsplash.jpg);
+        background-attachment: fixed;
+        background-position: center;
+        background-size: cover;
+    }
+
+    body.forgot-page {
+        background: rgb(138, 198, 224);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        min-height: 80vh;
+    }
+
+
+    body.profile-page {
+        background: url(/Images/franck-morisset-UFhM8kMuQbo-unsplash.jpg);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        height: fit-content;
+    }
+
+    body.activity {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+
+
+    .login-box {
+        position: absolute;
+        margin-top: 40%;
+        width: 80%;
+        height: 50%;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 3px 3px 25px;
+
+    }
+
+    .Sign-up-box {
+        position: absolute;
+        margin-top: 40%;
+        width: 80%;
+        height: 55%;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 3px 3px 25px;
+
+    }
+
+    .forgot-box {
+        position: absolute;
+        margin-top: 40%;
+        width: 80%;
+        height: 40%;
+        background: rgba(0, 0, 0, 0.692);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 3px 3px 25px;
+    }
+
+
+    .box-headers {
+        font-family: "Cinzel";
+        color: white;
+        text-align: center;
+        text-shadow: 1px 1px 3px black;
+    }
+
+
+    .input-box {
+        position: relative;
+        width: 100%;
+        margin: 25px 0;
+        border-bottom: 1px solid white;
+    }
+
+    .input-box input {
+        width: 100%;
+        height: 20px;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 12px;
+        font-family: "Roboto";
+        color: white;
+        padding: 0 4px 0 5px;
+    }
+
+    .input-box label {
+        color: rgba(255, 255, 255, 0.4);
+        position: absolute;
+        top: 70%;
+        left: -2px;
+        transform: translateY(-100%);
+        pointer-events: none;
+        transition: 0.6s;
+        font-family: "Roboto";
+        font-size: 10px;
+
+    }
+
+    .input-box input:focus~label,
+    .input-box input:not(:placeholder-shown)~label {
+        top: 2px;
+        left: -1px;
+    }
+
+
+    .remember-forgot {
+        margin: -10px 0 10px;
+        font-size: 10px;
+        color: white;
+        display: flex;
+        font-family: "Roboto";
+        gap: 20px;
+    }
+
+
+
+    .remember-forgot a {
+        margin-top: 2px;
+        margin-left: 20px;
+        color: white;
+        text-decoration: none;
+        font-family: "Roboto";
+    }
+
+
+    .remember-forgot input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 13px;
+        height: 13px;
+        border: 1px solid black;
+        border-radius: 4px;
+        cursor: pointer;
+        position: relative;
+        outline: none;
+        background-color: white;
+        vertical-align: middle;
+    }
+
+    .remember-forgot input[type="checkbox"]:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .remember-forgot input[type="checkbox"]:checked::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 4px;
+        height: 6px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+
+
+    button {
+        width: 100%;
+        border-radius: 40px;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-size: 10px;
+        color: black;
+        transition: 0.2s;
+        font-weight: 600;
+        font-family: "Cinzel";
+    }
+
+
+    .login-box button {
+        width: 100%;
+        height: 25px;
+        font-size: 12px;
+    }
+
+
+    .Sign-up-box button {
+        width: 100%;
+        height: 25px;
+        font-size: 12px;
+    }
+
+
+    .forgot-box button {
+        width: 100%;
+        height: 25px;
+        font-size: 12px;
+    }
+
+
+    a {
+        color: rgb(255, 255, 255);
+        text-decoration: none;
+        font-family: "Roboto";
+    }
+
+    .Sign-in-link,
+    .Sign-up-link {
+        font-size: 13px;
+        color: white;
+        text-align: center;
+        margin: 25px 0 10px;
+        font-family: "Roboto";
+    }
+
+    .Sign-in-link p a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: "Roboto";
+    }
+
+    .Sign-in-link p a:hover {
+        text-decoration: underline;
+    }
+
+
+
+    .topbar {
+        background: rgb(242, 239, 239);
+        position: fixed;
+        top: 0;
+        height: 40px;
+        width: 100%;
+        z-index: 8888;
+    }
+
+    .socialicons {
+        display: flex;
+        position: absolute;
+        top: 20px;
+    }
+
+    .socialicons img {
+        width: 18px;
+        margin: 0 4px;
+        cursor: pointer;
+    }
+
+    .contact {
+        display: flex;
+        gap: 2px;
+        position: absolute;
+        right: 160px;
+        top: 14px;
+        align-items: center;
+        color: black;
+        font-family: "roboto";
+        font-size: 9px;
+        font-weight: bold;
+    }
+
+    #contact {
+        display: flex;
+        gap: 2px;
+        position: absolute;
+        right: 65px;
+        top: 14px;
+        align-items: center;
+        font-family: "roboto";
+        font-size: 9px;
+        font-weight: bold;
+    }
+
+    #contact a {
+        color: black;
+    }
+
+    .contact a {
+        color: black;
+    }
+
+    #mail {
+        margin-bottom: 6px;
+        width: 10px;
+        height: 8px;
+    }
+
+    #phone {
+        margin-bottom: 6px;
+        width: 10px;
+        height: 10px;
+    }
+
+    #faq {
+        background-color: coral;
+        width: 60px;
+        border-radius: 1px;
+        position: absolute;
+        right: 0;
+        height: 40px;
+    }
+
+    #faq:hover {
+        color: white;
+    }
+
+    #faq .faqicon {
+        margin-top: 8px;
+        width: 25px;
+        height: 25px;
+    }
+
+    .nav {
+        justify-content: center;
+        position: fixed;
+        top: 40px;
+        display: flex;
+        line-height: 20px;
+        background-position: center;
+        width: 100%;
+        background: rgb(25, 62, 90);
+        margin-bottom: 0;
+        z-index: 8888;
+    }
+
+
+    .nav-logo-login p,
+    .nav-logo-forgot p,
+    .nav-logo-admin p,
+    .nav-logo-user p {
+        color: white;
+        font-size: 18px;
+        font-family: "Cinzel";
+        font-weight: 600;
+        text-shadow: 1px 1px 2px black;
+        position: fixed;
+        left: 5px;
+        margin: 0;
+        top: 45px;
+    }
+
+    #sublogo {
+        position: fixed;
+        font-size: 8px;
+        left: 50px;
+        top: 48px;
+        margin-top: 6px;
+        color: white;
+    }
+
+    .logo img {
+        position: absolute;
+        left: 60px;
+        top: 100px;
+        background: black;
+        border-radius: 50px;
+        outline: 3px solid white;
+        padding: 20px;
+        width: 300px;
+    }
+
+    .navMenu ul,
+    .nav-menu ul {
+        display: flex;
+        position: relative;
+        top: 18px;
+        right: 35px;
+        text-align: center;
+        animation-name: slideLeft;
+        animation-duration: 2s;
+        animation-delay: 0s;
+    }
+
+    .navMenu ul li,
+    .nav-menu ul li {
+        list-style-type: none;
+    }
+
+    .navMenu ul li .link,
+    .nav-menu ul li .link {
+        text-decoration: none;
+        font-weight: 500;
+        font-family: "Cinzel";
+        color: white;
+        margin: 0 4px;
+        font-size: 10px;
+    }
+
+
+
+    @keyframes slideLeft {
+        from {
+            transform: translateX(120px);
+        }
+    }
+
+    #loginbtn {
+        width: 58px;
+        height: 16px;
+        background: white;
+        position: absolute;
+        right: 2%;
+        top: 62%;
+    }
+
+    #logoutbtn {
+        width: 80px;
+        height: 25px;
+        background: white;
+        position: absolute;
+        right: 6%;
+        top: 25%;
+    }
+
+    #Registerbtn {
+        width: 58px;
+        height: 16px;
+        background: white;
+        position: absolute;
+        right: 2%;
+        top: 40%;
+    }
+
+
+    footer.footer {
+        width: 100%;
+        text-align: center;
+        background-color: rgb(25, 62, 90);
+        position: fixed;
+        bottom: 0vh;
+        color: rgb(255, 255, 255);
+        font-family: "Roboto";
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+
+
+    option {
+        color: coral;
+    }
+
+    select {
+        width: 100%;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: white;
+    }
+
+    @font-face {
+        font-family: "Cinzel";
+        src: url("/Fonts/Cinzel.ttf");
+    }
+
+    @font-face {
+        font-family: "Roboto";
+        src: url("/Fonts/Roboto-Light.ttf");
+    }
+
+    body.home-page {
+        background: #f9f9f9;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+
+    }
+
+    .homepage-form {
+        position: absolute;
+        top: 130px;
+        justify-content: center;
+        scroll-margin-top: 150px;
+        width: 100%;
+        display: block;
+    }
+
+    .homebk-box {
+        position: relative;
+        display: flex;
+        justify-self: center;
+        align-items: center;
+        border-radius: 60px;
+        background-color: rgb(25, 62, 90);
+        border: none;
+        width: 100%;
+    }
+
+    .box {
+        color: white;
+        padding-left: 10%;
+    }
+
+    .box2 {
+        color: white;
+    }
+
+    .homebk-box #bookNowBtn {
+        margin-left: auto;
+    }
+
+    #bookNowBtn {
+        background: white;
+        color: black;
+        transition: 0.3s;
+        font-family: "Cinzel";
+        border: none;
+        border-radius: 60px;
+        font-weight: bold;
+        height: 10vh;
+        width: 30%;
+        justify-self: right;
+        align-self: flex-end;
+
+    }
+
+
+
+    .date {
+        background: white;
+        color: black;
+        border: none;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        border-radius: 10px;
+        font-size: 6px;
+    }
+
+    .box label,
+    .box2 label {
+        font-size: 8px;
+        margin-left: 2px;
+    }
+
+    #hometitle {
+        margin-bottom: 30px;
+        color: white;
+        text-shadow: 1px 1px 2px black;
+        font-family: "Cinzel";
+        font-size: 20px;
+        justify-self: center;
+    }
+
+
+
+    video {
+        height: 63vh;
+        width: 100%;
+        position: absolute;
+        top: 68px;
+        object-fit: cover;
+    }
+
+    .downarrow {
+        justify-self: center;
+        align-items: center;
+        margin-right: 3%;
+    }
+
+    .downarrow a {
+        position: absolute;
+        top: 35vh;
+        font-size: 25px;
+        height: 30px;
+        color: coral;
+        border: 2px solid white;
+        padding: 2px;
+        border-radius: 20px;
+        animation: bounce 1.2s infinite;
+        cursor: pointer;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(20px);
+        }
+    }
+
+    #learnmore {
+        background: transparent;
+        color: white;
+        justify-self: center;
+    }
+
+    .learnmore {
+        justify-self: center;
+        align-self: center;
+        text-align: center;
+        position: relative;
+        top: 10vh;
+        outline: 1px solid rgb(60, 175, 247);
+        font-size: 10px;
+        width: 90px;
+        border-radius: 0;
+        border: 2px solid white;
+        background-color: rgb(60, 175, 247);
+        color: white;
+        text-shadow: 1px 1px 2px black;
+    }
+
+    .homereservation {
+        width: 100%;
+        height: 70px;
+        text-align: center;
+        position: absolute;
+        top: 50vh;
+        color: white;
+        background-color: rgb(25, 62, 90);
+    }
+
+    .homereservation p {
+        margin-top: 30px;
+        margin-bottom: 30px;
+        font-family: "Cinzel";
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .homegoodstay {
+        text-align: center;
+        position: absolute;
+        top: 60vh;
+        color: rgb(25, 62, 90);
+        font-size: 18px;
+    }
+
+    .offersbox {
+        display: flex;
+        position: absolute;
+        top: 68vh;
+        text-align: center;
+        justify-content: center;
+        gap: 1px;
+    }
+
+    .offers,
+    .offers2,
+    .offers3,
+    .offers4,
+    .offers5 {
+        padding: 15px;
+        background: white;
+        transition: 0.3s;
+        border-radius: 2px;
+        width: 20%;
+    }
+
+
+    .offers h3,
+    .offers2 h3,
+    .offers3 h3,
+    .offers4 h3,
+    .offers5 h3 {
+        color: rgb(25, 62, 90);
+        transition: 0.2s;
+        font-size: 8px;
+    }
+
+    .offers img,
+    .offers2 img,
+    .offers3 img,
+    .offers4 img,
+    .offers5 img {
+        width: 80%;
+        height: 50%;
+        transition: 0.2s;
+    }
+
+
+    #about {
+        scroll-margin-top: 95px;
+        text-align: center;
+        position: relative;
+        top: 60vh;
+        background: white;
+    }
+
+    .aboutimg {
+        display: flex;
+        gap: 2px;
+        justify-content: center;
+    }
+
+    #img1 {
+        width: 47%;
+        height: 170px;
+        border: 5px solid rgba(0, 0, 0, 0.134);
+    }
+
+    #img2 {
+        width: 47%;
+        height: 170px;
+        border: 5px solid rgba(0, 0, 0, 0.134);
+    }
+
+    #abouttitle {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 36px;
+        color: rgb(25, 62, 90);
+        padding-bottom: 10px;
+        font-family: 'Cinzel';
+    }
+
+    #aboutContent {
+        color: rgb(25, 62, 90);
+        font-family: "roboto";
+        font-size: 13px;
+
+    }
+
+    .shortabout {
+        position: relative;
+        bottom: 45px;
+        left: 115px;
+        padding: 6px;
+        padding-left: 8px;
+        padding-right: 8px;
+        border: 4px solid rgb(49, 48, 48);
+        width: 28%;
+        justify-self: center;
+    }
+
+    .shortabout p {
+        background-color: rgb(25, 62, 90);
+        padding: 10px;
+        margin: 0;
+        color: white;
+        font-size: 10px;
+        font-family: "roboto";
+    }
+
+    #services {
+        scroll-margin-top: 150px;
+    }
+
+    .service {
+        position: relative;
+        top: 55vh;
+        background: rgb(255, 255, 255);
+        width: 100%;
+        text-align: center;
+        background-size: cover;
+        padding-bottom: 5%;
+    }
+
+    .service h1 {
+        color: rgb(25, 62, 90);
+        font-family: 'Cinzel';
+        margin-top: 50px;
+    }
+
+    .service h3 {
+        color: white;
+        font-family: 'Roboto';
+    }
+
+    .clean-assist {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .cleaning {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+    .time {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+
+    .service-parking {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .roomservice {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+    .parking {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+
+
+    .roomservice img,
+    .parking img,
+    .cleaning img,
+    .time img {
+        width: 30px;
+    }
+
+    .roomservice p,
+    .parking p,
+    .cleaning p,
+    .time p {
+        color: white;
+        font-family: "roboto";
+        font-size: 13px;
+    }
+
+    .roomservice,
+    .parking,
+    .cleaning,
+    .time {
+        transition: 0.2s;
+    }
+
+    #roomrates {
+        padding: 10px;
+        background-color: white;
+        position: relative;
+        top: 56vh;
+        scroll-margin-top: 95px;
+    }
+
+    #roomratestitle {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 36px;
+        font-family: 'Cinzel';
+        color: rgb(25, 62, 90);
+        padding-bottom: 10px;
+    }
+
+    .room-description {
+        color: rgb(25, 62, 90);
+        font-size: 12px;
+    }
+
+
+    #rooms-grid {
+        display: block;
+        justify-content: center;
+        width: 100%;
+    }
+
+
+    .room-card {
+        margin-top: 30px;
+        width: 100%;
+        background: white;
+        text-align: center;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+        transition: transform 0.2s;
+
+    }
+
+
+    .room-image {
+        margin-top: 5px;
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .room-type {
+        font-size: 25px;
+        margin-bottom: 8px;
+        color: rgb(25, 62, 90);
+    }
+
+
+    .star-rating {
+        margin-bottom: 10px;
+    }
+
+    .star {
+        font-size: 1.2rem;
+    }
+
+    .star.filled {
+        color: rgb(245, 205, 7);
+    }
+
+    .star.empty {
+        color: rgb(185, 182, 182);
+    }
+
+
+    .pricecontainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .price-tag {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: rgb(25, 62, 90);
+    }
+
+    .book-button {
+        background-color: #FF8C00;
+        color: white;
+        padding: 8px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    .book-button:hover {
+        background-color: #e67e00;
+        color: white;
+    }
+
+
+
+    #team-members-section {
+        background-color: white;
+        position: relative;
+        top: 55vh;
+        scroll-margin-top: 95px;
+    }
+
+    #section-title {
+        text-align: center;
+        margin-bottom: 30px;
+        font-family: 'Cinzel';
+        color: rgb(25, 62, 90);
+    }
+
+
+    #profile-selector-nav {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .nav-thumb {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        margin: 0 10px;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: border-color 0.3s, opacity 0.3s;
+        opacity: 0.6;
+        object-fit: cover;
+    }
+
+
+    .nav-thumb.is-active-nav {
+        border-color: rgb(25, 62, 90);
+        opacity: 1;
+    }
+
+
+    .member-profile {
+        display: none;
+        color: rgb(25, 62, 90);
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 10px;
+        background: #f9f9f9;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+    }
+
+
+    .member-profile.is-visible {
+        display: flex;
+        height: 460px;
+    }
+
+    .member-photo {
+        width: 150px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .member-details {
+        flex: 1;
+
+    }
+
+    .member-details h2 {
+        font-size: 20px;
+        margin-bottom: 5px;
+        color: rgb(25, 62, 90);
+    }
+
+    .member-details .job-title {
+        font-weight: bold;
+        color: rgb(83, 112, 133);
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        font-size: 8px;
+    }
+
+    .member-details {
+        font-size: 10px;
+    }
+
+
+    #restaurantbox {
+        padding: 10px;
+        position: relative;
+        top: 56vh;
+        background-color: white;
+        justify-items: center;
+        scroll-margin-top: 95px;
+    }
+
+    .restaurant-header {
+        background: #333;
+        color: white;
+        padding: 15px 0;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    #restauranttitle {
+        color: rgb(25, 62, 90);
+        margin-bottom: 10px;
+        font-family: 'Cinzel';
+    }
+
+    .diningsection {
+        padding: 10px;
+        background: white;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: block;
+        text-align: center;
+        align-items: center;
+        gap: 5px;
+        color: rgb(25, 62, 90);
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+
+    .section-image {
+        width: 100%;
+        height: 400px;
+        object-fit: fill;
+    }
+
+
+    .dining-content,
+    .section-content {
+        width: 100%;
+
+    }
+
+    h1,
+    h2 {
+        color: rgb(25, 62, 90);
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    p {
+        margin-bottom: 15px;
+    }
+
+
+    [id$="-book-button"] {
+        display: inline-block;
+        background-color: #FF8C00;
+        color: white;
+        padding: 10px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+    }
+
+
+    #dessert-menu-button {
+        background-color: #FF8C00;
+        color: white;
+        border-radius: 5px;
+        width: 100%;
+        height: 30px;
+    }
+
+    #contactUsbox {
+        width: 100%;
+        justify-items: center;
+        background-color: #3b6792;
+        position: relative;
+        top: 54vh;
+        scroll-margin-top: 95px;
+    }
+
+    .contactheading {
+        color: white;
+        text-decoration: underline;
+        font-family: "Cinzel";
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 13px;
+    }
+
+    .contactsubheading {
+        color: white;
+        margin-bottom: 10px;
+        font-size: 10px;
+    }
+
+    .contactnewsletter label {
+        margin-bottom: 10px;
+        font-size: 10px;
+    }
+
+    .contact-connect {
+        color: white;
+        justify-content: center;
+        width: 100%;
+        display: flex;
+        gap: 5%;
+        font-size: 12px;
+
+    }
+
+    #contactus {
+        padding: 5px;
+        width: 40%;
+    }
+
+    .contactnewsletter {
+        display: grid;
+    }
+
+    #send-button {
+        background-color: black;
+        color: white;
+        border: none;
+        margin-top: 6px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+        font-family: 'Cinzel';
+        transition: 0.2s;
+        width: 100px;
+        transition: 0.2s;
+    }
+
+    input.user-name,
+    input[type="tel"],
+    input[name="emailAddress"] {
+        width: 100%;
+        color: rgb(90, 90, 90);
+        border: 1px solid rgb(231, 228, 228);
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        background-color: white;
+        font-family: "roboto";
+        font-size: 10px;
+    }
+
+    #social-media {
+        display: flex;
+        margin-top: 30px;
+    }
+
+    #social-media img {
+        width: 18px;
+        margin: 0 6px;
+        cursor: pointer;
+    }
+
+    #map-area {
+        position: relative;
+        top: 20px;
+        width: 100%;
+        height: 80px;
+        margin-bottom: 0;
+    }
+
+    #viewmaplink {
+        color: white;
+        text-decoration: none;
+        font-family: "Roboto";
+    }
+
+    #viewmaplink:hover {
+        color: black;
+    }
+
+
+    .res-container {
+        width: 100%;
+        margin: auto;
+        background: white;
+        padding: 15px;
+        position: relative;
+        bottom: 18px;
+    }
+
+    #reservationtitle {
+        color: black;
+        border-bottom: 1px solid rgb(209, 208, 208);
+        padding-bottom: 10px;
+        font-family: "Cinzel", serif;
+    }
+
+    .personal-reservation {
+        display: flex;
+        gap: 0;
+        flex-direction: column;
+    }
+
+    .columns {
+        flex: 1;
+    }
+
+    .column-header {
+        background-color: rgb(25, 62, 90);
+        color: white;
+        padding: 10px;
+        margin-top: 0;
+        font-size: 16px;
+        font-weight: normal;
+        text-align: left;
+    }
+
+    .res-container label {
+        display: block;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: black;
+    }
+
+
+    input[type="text"],
+    input[title="email"],
+    input[name="checkIn"],
+    input[name="checkOut"],
+    input[type="code"] {
+        width: 100%;
+        padding: 8px;
+        color: rgb(90, 90, 90);
+        border: 1px solid rgb(231, 228, 228);
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        background-color: white;
+        font-family: "roboto", sans-serif;
+    }
+
+    select {
+        width: 100%;
+        padding: 8px;
+        color: rgb(90, 90, 90);
+        border: 1px solid rgb(231, 228, 228);
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        background-color: white;
+    }
+
+    select option {
+        color: black;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .radio-group input[type="radio"] {
+        margin-right: 5px;
+    }
+
+    .radio-group label {
+        display: inline;
+        font-weight: normal;
+        margin: 0;
+        color: black;
+    }
+
+    .res-container,
+    .columns,
+    .radio-group,
+    .humanverification {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border: 1px solid #ddd;
+        margin-top: 25px;
+    }
+
+    .form-container {
+        padding: 15px;
+        margin-top: 25px;
+        width: 100%;
+        margin: auto;
+    }
+
+
+    #humanverificationbtn {
+        background-color: rgb(25, 62, 90);
+        color: white;
+        border: none;
+        margin-top: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+        width: 100%;
+        height: 34px;
+    }
+
+
+    .sidebar {
+        display: none !important;
+    }
+
+    #saveGuestBtn,
+    #editGuestBtn {
+        font-size: 12px;
+        height: 30px;
+    }
+
+
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+
+    .dashboard-container {
+        display: flex;
+        margin-top: 40%;
+        position: relative;
+        bottom: 160px;
+        width: 100%;
+        transition: margin-left 0.3s ease;
+    }
+
+
+    .sidebar {
+        position: fixed;
+        width: 270px;
+        background-color: #2c3e50;
+        color: white;
+        padding-top: 10px;
+        padding-left: 10px;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar h2 {
+        text-align: left;
+        margin-bottom: 30px;
+        margin-top: 20px;
+        color: #ecf0f1;
+        font-family: "Cinzel", serif;
+        font-size: 1.5rem;
+    }
+
+
+
+
+    .sidebar a {
+        display: flex;
+        align-items: center;
+        margin-top: 5px;
+        color: white;
+        padding: 15px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+        font-family: "Roboto", sans-serif;
+        border-radius: 4px;
+    }
+
+    .sidebar a img {
+        width: 18px;
+        height: 18px;
+        margin-right: 10px;
+        filter: brightness(0.9);
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+        background-color: #34495e;
+        border-left: 3px solid #3498db;
+        transform: translateX(5px);
+    }
+
+
+    .main-content {
+        padding: 20px;
+        width: 100%;
+        flex-grow: 6;
+        min-width: 0;
+    }
+
+    .header {
+        background-color: white;
+        padding: 15px 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px -20px 20px -20px;
+        font-size: 24px;
+        font-weight: bold;
+        font-family: "Cinzel", serif;
+    }
+
+    .card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    .card h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #eee;
+        padding: 15px 20px;
+        text-align: left;
+        font-size: 16px;
+        font-family: "Roboto", sans-serif;
+        background-color: #2c3e50;
+        border-radius: 8px 8px 0 0;
+        margin: -20px -20px 20px -20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+        padding-bottom: 10px;
+    }
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 12px;
+    }
+
+    th,
+    td {
+        width: 10%;
+        border-bottom: 1px solid #e0e0e0;
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+        color: #2c3e50;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    .status-unconfirmed {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .status-confirm {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-not-confirm {
+        background-color: #f2dede;
+        color: rgba(204, 20, 20, 0.87);
+    }
+
+
+    .action-btn {
+        background-color: #2c3e50;
+        color: white;
+        border: none;
+        font-size: 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 20px;
+        height: 25px;
+    }
+
+    .delete-btn {
+        background-color: #e74c3c;
+        min-width: 20px;
+        height: 25px;
+        font-size: 2px;
+    }
+
+
+
+    .main-content {
+        padding: 12px 10px;
+        margin-top: 20%;
+    }
+
+    .header {
+        margin: 0 -10px 15px -10px;
+        padding: 14px 12px;
+        font-size: 18px;
+    }
+
+    .card {
+        padding: 14px 12px;
+        margin-bottom: 18px;
+    }
+
+    .card h3 {
+        margin: -14px -12px 14px -12px;
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    table {
+        min-width: 250px;
+        font-size: 11.5px;
+    }
+
+
+    .status-badge {
+        padding: 4px 9px;
+        font-size: 10.5px;
+        min-width: 60px;
+    }
+
+    .action-btn,
+    .delete-btn {
+        padding: 6px 11px;
+        font-size: 11.5px;
+        min-width: 60px;
+    }
+
+    #newBookingCount,
+    #totalBookingCount {
+        font-size: 11px;
+        padding: 2px 6px;
+    }
+
+
+
+
+
+
+
+    @media print {
+
+        .sidebar,
+        .menu-toggle {
+            display: none;
+        }
+
+        .dashboard-container {
+            margin-left: 0;
+        }
+    }
+
+    body.room_bk {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        height: 100vh;
+    }
+
+
+    .rb-section {
+        width: 90%;
+        margin-top: 30%;
+    }
+
+    .rheader {
+        padding-left: 18px;
+        padding-bottom: 18px;
+        text-align: left;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 10px -20px 10px -20px;
+        font-size: 24px;
+        font-weight: bold;
+        font-family: "Cinzel";
+    }
+
+    .rb-card {
+        width: 100%;
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .rb-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: #34495e;
+        color: white;
+        padding: 12px 15px;
+        font-size: 16px;
+        font-family: "roboto";
+    }
+
+    .rb-table {
+        border-collapse: collapse;
+    }
+
+    .rb-label {
+        font-family: "roboto";
+        font-size: 14px;
+        color: black;
+        padding: 12px;
+        font-weight: bold;
+        text-align: left;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .rb-value {
+        background: white;
+        border-bottom: 1px solid #e5e5e5;
+        text-align: left;
+        padding-left: 5%;
+    }
+
+    .rb-table th {
+        background-color: white;
+    }
+
+    #appconfirm {
+        padding-left: 20px;
+        color: black;
+        font-family: "Roboto";
+        font-weight: bold;
+        font-size: 14px;
+
+    }
+
+    .rapprove-btn {
+        background-color: rgb(244, 244, 244);
+        padding-top: 20px;
+    }
+
+    #rapprove {
+        margin: 10px;
+        width: 90%;
+        color: black;
+    }
+
+    .confirmbtn {
+        background-color: #34495e;
+        color: white;
+        margin: 20px;
+        width: 24%;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: 'Cinzel';
+    }
+
+    .confirmbtn:hover {
+        background-color: #3b6792;
+    }
+
+
+
+    body.news {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+    .msg-wrapper {
+        padding: 20px;
+        box-sizing: border-box;
+        width: 100%;
+        position: absolute;
+        top: 10%;
+    }
+
+    .newsletter-text {
+        height: 200px;
+    }
+
+    .msg-action {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .msg-btn {
+        background-color: #34495e;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+    }
+
+    .msg-btn:hover {
+        background-color: #3b6792;
+    }
+
+    .msg-table-card {
+        background-color: white;
+        padding-bottom: 20px;
+        padding-left: 5px;
+        padding-right: 5px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .msg-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .msg-table th,
+    .msg-table td {
+        text-align: left;
+
+        border-bottom: 1px solid #ddd;
+    }
+
+    .msg-table th {
+        background-color: #f1f1f1;
+        font-weight: 600;
+        color: black;
+    }
+
+    .msg-table tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .btn-permission {
+        background-color: #34495e;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .btn-permission:hover {
+        background-color: #3b6792;
+    }
+
+    .btn-delete {
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .btn-delete:hover {
+        background-color: rgb(244, 51, 51);
+    }
+
+    .msg-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        font-size: 13px;
+        font-family: "roboto";
+        color: #555;
+    }
+
+    .newsletter-text {
+        width: 100%;
+        min-height: 100px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        resize: vertical;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+
+    .payment-details-wrapper {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        position: absolute;
+        top: 10px;
+        width: 95%;
+        padding-right: 10px;
+    }
+
+    .paymenttblbox {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .norecords {
+        position: relative;
+        right: 250px;
+    }
+
+    .pdetails {
+        width: 100%;
+        position: relative;
+        bottom: 35px;
+        padding-top: 40px;
+        color: black;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        padding-left: 10px;
+        font-size: 24px;
+        font-family: "Cinzel";
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    }
+
+    .payment-pagination-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .payment-search-area {
+        padding-left: 10px;
+    }
+
+    .payment-search-area input {
+        width: 60%;
+        height: 10px;
+        margin-left: 5px;
+        font-size: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .payment-records-table {
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .payment-records-table th,
+    .payment-records-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 12px;
+
+    }
+
+    .payment-records-table th {
+        background-color: #f4f4f4;
+        color: black;
+    }
+
+    .payment-records-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .pagination-summary {
+        padding-left: 10px;
+        font-size: 12px;
+        font-family: "Roboto";
+    }
+
+    .print-receipt-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: rgb(25, 62, 90);
+        color: white;
+    }
+
+    .print-receipt-btn:hover {
+        background-color: #3b6792;
+    }
+
+
+    .profit-details-wrapper {
+        position: absolute;
+        top: 10px;
+        background: #fff;
+        margin: 20px;
+        border-radius: 8px;
+        width: 100%;
+        height: 70%;
+    }
+
+    .hpdetails {
+        color: black;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 40px;
+        padding-left: 20px;
+        font-family: "Cinzel";
+        font-size: 24px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profit-chart-container {
+        position: relative;
+        height: 400px;
+        width: 75%;
+        margin: 0 auto;
+        border-left: 1px solid rgb(161, 161, 161);
+        border-bottom: 1px solid rgb(161, 161, 161);
+    }
+
+    .chart-y-axis-label {
+        position: absolute;
+        right: 100%;
+        text-align: right;
+        padding-right: 10px;
+        font-size: 12px;
+        color: black;
+    }
+
+    .profit-chart-container div:nth-child(1) {
+        top: -10px;
+    }
+
+
+    .profit-chart-container div:nth-child(2) {
+        top: 90px;
+    }
+
+
+    .profit-chart-container div:nth-child(3) {
+        top: 190px;
+    }
+
+
+    .profit-chart-container div:nth-child(4) {
+        top: 290px;
+    }
+
+    .chart-visualization-area {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background-image: linear-gradient(to top, transparent 24%, #eee 25%, #eee 26%, transparent 27%),
+            linear-gradient(to top, transparent 49%, #eee 50%, #eee 51%, transparent 52%),
+            linear-gradient(to top, transparent 74%, #eee 75%, #eee 76%, transparent 77%);
+        background-size: 100% 100px;
+        background-repeat: repeat-y;
+    }
+
+    .data-tooltip {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #fff;
+        border: 1px solid #ccc;
+        padding: 5px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-size: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+
+
+    .dashboard-wrapper {
+        background: white;
+        border-radius: 8px;
+        margin-left: 0px;
+        position: absolute;
+        top: 10px;
+        width: 100%;
+        padding-right: 10px;
+    }
+
+    .dashboard-main-content {
+        padding: 10px;
+        padding-top: 0;
+    }
+
+
+    .admin-accounts__table {
+        background: white;
+        padding: 5px;
+        width: 100%;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        overflow-x: auto;
+    }
+
+    .adminaccounts__table {
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .table-input {
+        width: 90%;
+        padding: 5px;
+        border: 1px solid #cfcfcf;
+        border-radius: 6px;
+        font-size: 12px;
+        background: #fafafa;
+        outline: none;
+        transition: 0.25s ease;
+    }
+
+    .table-inputID {
+        width: 90%;
+        padding: 5px;
+        border: 1px solid #cfcfcf;
+        border-radius: 6px;
+        font-size: 12px;
+        background: #fafafa;
+        outline: none;
+        transition: 0.25s ease;
+    }
+
+
+    .table-input::placeholder {
+        color: #9b9b9b;
+        font-size: 12px;
+    }
+
+    .table__data-cell,
+    .Adminaddheader-cell {
+        width: 10%;
+        border-bottom: 1px solid #ddd;
+        background-color: #f2f2f2;
+    }
+
+
+    .table__action-btn--delete {
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: 'Cinzel';
+        font-size: 12px;
+        width: 100%;
+        height: 20px;
+    }
+
+    .user-accounts__add-btn {
+        background-color: rgb(25, 62, 90);
+        color: white;
+        width: 30%;
+        height: 25px;
+        border: none;
+        font-size: 12px;
+        font-family: 'Cinzel';
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .adminaccounts__table select {
+        width: 90%;
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 12px;
+        outline: none;
+        box-sizing: border-box;
+        background-color: white;
+    }
+
+
+    table {
+        border-collapse: collapse;
+        margin-top: 20px;
+        overflow-y: scroll;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid #ccc;
+
+    }
+
+    .count-box {
+        margin-top: 20px;
+        margin-left: 10px;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+
+    .logoutlink {
+        position: absolute;
+        bottom: 110px;
+        width: 270px;
+    }
+
+
+
+
+
+    #admin-body {
+        background: linear-gradient(135deg, #a88be0 0%, #68a0d4 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: sans-serif;
+    }
+
+
+    .admin-login-container {
+        background-color: white;
+        padding: 40px 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 70%;
+        border-radius: 5px;
+        height: 300px;
+        max-width: 450px;
+        text-align: center;
+        position: relative;
+        bottom: 60px;
+        margin-top: 10px;
+    }
+
+    .admin-icon-circle {
+        background: linear-gradient(135deg, #a88be0 0%, #68a0d4 100%);
+        border-radius: 50%;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 40px;
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .admin-icon-circle img {
+        width: 60%;
+        height: 60%;
+        object-fit: cover;
+    }
+
+    .adminheader {
+        font-family: "Cinzel";
+    }
+
+
+    .admin-login-form {
+        margin-top: 30px;
+    }
+
+    .admin-input-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+
+    input[id="admin-LoginID"],
+    input[id="admin-password"] {
+        width: 100%;
+        padding: 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: black;
+        font-size: 13px;
+        background-color: #ecf0f4;
+        box-sizing: border-box;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #68a0d4;
+    }
+
+    .admin-form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .admin-remember-label {
+        display: flex;
+        align-items: center;
+        color: #666;
+        cursor: pointer;
+        font-size: 11px;
+    }
+
+    .admin-remember-checkbox {
+        margin-right: 8px;
+        width: 14px;
+    }
+
+    .admin-forgot-password {
+        color: #68a0d4;
+        text-decoration: none;
+        font-size: 11px;
+    }
+
+    .admin-forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .admin-login-button {
+        width: 100%;
+        border: none;
+        height: 30px;
+        border-radius: 4px;
+        background-color: #112d4e;
+        color: white;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .admin-login-button:hover {
+        background-color: #3b6792;
+    }
+
+
+
+    .delete-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+
+
+
+    .activitycontainer {
+        flex: 1;
+        padding: 30px;
+        width: 80%;
+        margin-top: 10%;
+    }
+
+
+    .activityheader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        font-family: 'Roboto';
+    }
+
+    .welcome {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: rgb(25, 62, 90);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .activityheader h1 {
+        font-size: 22px;
+    }
+
+    .lead {
+        color: black;
+        font-size: 12px;
+    }
+
+    .btn {
+        background-color: rgb(25, 62, 90);
+        color: white;
+        border: none;
+        font-size: 12px;
+        font-family: 'Cinzel';
+        height: 30px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        transition: background 0.3s;
+    }
+
+
+    .activitygrid {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+
+    .activitycard,
+    .statcard {
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .activitycard {
+        flex: 1;
+        min-width: 280px;
+    }
+
+    .activitycard h3 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .small {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .list .item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        align-items: flex-start;
+    }
+
+    .list .item:last-child {
+        border-bottom: none;
+    }
+
+    .item .meta {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .tag {
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+
+    #card-pending .tag {
+        background-color: #F0A500;
+    }
+
+
+    #card-bookings .tag {
+        background-color: #5AB45A;
+    }
+
+
+    .empty {
+        color: #aaa;
+        font-style: italic;
+        padding: 10px 0;
+    }
+
+
+    .statcard {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .stat {
+        background-color: #f0f4ff;
+        flex: 1;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .stat b {
+        display: block;
+        font-size: 1.5rem;
+        margin-top: 5px;
+    }
+
+
+
+    .booking-container {
+        max-width: 700px;
+        position: relative;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .booking-container h1 {
+        text-align: center;
+        color: coral;
+        margin-bottom: 10px;
+        font-family: "Cinzel";
+        font-size: 20px;
+    }
+
+    .booking-container p {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 12px;
+    }
+
+    form .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    form .form-group label {
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    form .form-group input,
+    form .form-group textarea {
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 13px;
+        outline: none;
+    }
+
+    form .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    button.booktblnow {
+        background-color: #ff6347;
+        color: white;
+        font-family: "Cinzel";
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        cursor: pointer;
+        width: 100%;
+        height: 30px;
+        transition: background 0.3s ease;
+    }
+
+
+
+    .success-message {
+        text-align: center;
+        color: #28a745;
+        font-weight: bold;
+        margin-top: 20px;
+        display: none;
+    }
+
+    .error-message {
+        text-align: center;
+        color: #dc3545;
+        font-weight: bold;
+        margin-top: 20px;
+        display: none;
+    }
+
+
+
+    .modal-dessert {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 10%;
+        width: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-dessert-content {
+        background-color: white;
+        margin: auto;
+        padding: 5px;
+        height: 435px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        text-align: left;
+        position: relative;
+        animation: fadeIn 0.3s ease-in-out;
+        font-size: 13px;
+    }
+
+
+    .modal-dessert-body {
+        margin-top: 15px;
+    }
+
+
+
+    .notification-container {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .notification-item {
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .notification-item.unread {
+        border-left-color: #28a745;
+        background: #e8f5e9;
+    }
+
+    .notification-item.pending {
+        border-left-color: #ffc107;
+        background: #fff3cd;
+    }
+
+    .notification-item.expired {
+        border-left-color: #6c757d;
+        background: #e9ecef;
+        opacity: 0.7;
+    }
+
+    .notification-item.rejected {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+    }
+
+    .notification-time {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+    .backbtn {
+        background-color: rgb(133, 138, 151);
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .nav-back {
+        margin-bottom: 20px;
+    }
+
+    .notification-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        margin-left: 8px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 8px;
+    }
+
+
+
+
+
+    #paymentModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        justify-items: center;
+        align-items: center;
+    }
+
+    #paymentModal>div {
+        background: rgb(255, 255, 255);
+        padding: 25px 30px;
+        border-radius: 12px;
+        width: 400px;
+        max-width: 90%;
+        position: relative;
+        top: 90px;
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease;
+    }
+
+    #paymentModal h2 {
+        margin-top: 0;
+        color: #2c3e50;
+        font-size: 22px;
+        font-family: 'Cinzel';
+        text-align: center;
+    }
+
+    #paymentModal #paymentSummary {
+        margin-bottom: 15px;
+        font-size: 15px;
+        text-align: center;
+        font-weight: bold;
+        color: #333;
+    }
+
+    #paymentModal input {
+        width: 100%;
+        padding: 5px;
+        margin: 8px 0 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    #paymentModal button {
+        background-color: #2c3e50;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        transition: background 0.2s;
+    }
+
+
+    .close {
+        position: absolute;
+        top: 24px;
+        right: 30px;
+        font-size: 28px;
+        cursor: pointer;
+        color: black;
+    }
+
+    .close:hover {
+        color: red;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    @media (max-width: 500px) {
+        #paymentModal>div {
+            width: 90%;
+            padding: 20px;
+        }
+    }
+
+
+
+    #paymentSelectModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        font-family: Arial, sans-serif;
+    }
+
+
+
+
+    #paymentSelectModal .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 80%;
+        height: 230px;
+        margin-top: 40%;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+
+    #paymentSelectModal h2 {
+        margin-bottom: 25px;
+        font-size: 20px;
+        font-family: 'Cinzel';
+        color: #333;
+    }
+
+
+    .payment-option {
+        display: block;
+        text-align: left;
+        margin-bottom: 15px;
+        padding: 6px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 11px;
+        color: #333;
+    }
+
+    .payment-option input[type="radio"] {
+        margin-right: 10px;
+        accent-color: blue;
+    }
+
+    .payment-option:hover {
+        border-color: #007BFF;
+        background-color: #f0f8ff;
+    }
+
+
+    #confirmPaymentMethod {
+        background-color: #2c3e50;
+        color: #fff;
+        border: none;
+        width: 100%;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        margin-top: 15px;
+    }
+
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    #mpesaModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        font-family: Arial, sans-serif;
+    }
+
+    #mpesaModal .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 12px;
+        width: 90%;
+        height: 30%;
+        max-width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        position: relative;
+        animation: fadeIn 0.3s ease;
+    }
+
+
+    #mpesaModal .mpesa-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: #333;
+        font-size: 28px;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    #mpesaModal .mpesa-close:hover {
+        color: red;
+    }
+
+
+    #mpesaModal h2 {
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+
+    #mpesaModal p {
+        margin-bottom: 20px;
+        font-size: 1rem;
+        color: #555;
+    }
+
+
+    #mpesaModal input[type="text"] {
+        width: 100%;
+        margin-bottom: 20px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 12px;
+        outline: none;
+        transition: border-color 0.2s ease;
+    }
+
+    #mpesaModal #mpesaPayBtn {
+        background-color: #2c3e50;
+        color: #fff;
+        border: none;
+        font-size: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.2s ease;
+    }
+
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    .edit-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+
+    .edit-buttons button {
+        font-size: 14px;
+        border: none;
+        width: 50px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+
+
+    #editGuestBtn {
+        background-color: rgb(25, 62, 90);
+        color: white;
+    }
+
+    #saveGuestBtn {
+        background-color: red;
+        color: white;
+    }
+
+
+
 }
 
-.nav-menu ul li {
-    list-style-type: none;
-}
-
-.nav-menu ul li .link {
-    text-decoration: none;
-    font-weight: 500;
-    font-family: "Cinzel";
-    color: white;
-    margin: 0 20px;
-    font-size: 15px;
-}
-
-.link:hover,
-.active {
-    border-bottom: 2px solid white;
-}
-
-.nav-button .btn {
-    width: 100px;
-    height: 25px;
-    background: rgba(255, 255, 255, 0.4);
-    border: none;
-    cursor: pointer;
-    transition: .3s;
-    position: relative;
-    left: 80%;
-    top: 15%;
-    font-family: "Cinzel";
-
-}
-
-.nav-button-reg .btn {
-    width: 130px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.4);
-    border: none;
-    cursor: pointer;
-    transition: .3s;
-    position: relative;
-    left: 120px;
-    top: 15%;
-    font-family: "Cinzel";
-
-}
-
-.btn:hover {
-    background: coral;
-}
-
-#Registerbtn {
-    margin-left: 15px;
-    font-family: "Cinzel";
-}
-
-.btn.white-btn {
-    background: rgba(255, 255, 255, 0.7);
-}
-
-.btn.btn.btn.white-btn:hover {
-    background: coral;
-}
-
-option {
-    color: coral;
-}
-
-select {
-    width: 100%;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: white;
-}
-
-.services-menu {
-    display: flex;
-    position: relative;
-}
-
-.remember-forgot input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 1.5px solid #007bff;
-    border-radius: 4px;
-    cursor: pointer;
-    position: relative;
-    outline: none;
-    background-color: white;
-    vertical-align: middle;
-}
-
-.remember-forgot input[type="checkbox"]:checked {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.remember-forgot input[type="checkbox"]:checked::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 9px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: translate(-50%, -50%) rotate(45deg);
-
-}
-
-.dashboard-container {
-    margin-top: 5px;
-    width: 95%;
-    text-align: center;
-}
-
-.dashboard-container h1 {
-    color: rgb(243, 167, 52);
-    font-size: 35px;
-    font-family: "Cinzel";
-    margin-bottom: 10px;
-    text-shadow: 3px 3px 5px black;
-    position: relative;
-    bottom: 120px;
-
-    font-family: "Cinzel";
-
-}
-
-.dashboard-container.intro {
-    color: white;
-    margin-bottom: 20px;
-    font-size: 16px;
-    position: relative;
-    bottom: 100px;
-    font-weight: bold;
-    font-family: "Roboto";
-    text-shadow: 1px 1px 15px black
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 52px;
-    justify-items: center;
-}
-
-.dash-card {
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-    text-align: center;
-    transition: 0.3s;
-    width: 100%;
-    max-width: 300px;
-    position: relative;
-    top: 50px;
-}
-
-.dash-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-}
-
-.dash-card h3 {
-    color: rgb(243, 167, 52);
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 15px black;
-    font-family: "Cinzel";
-}
-
-.dash-card p {
-    font-size: 14px;
-    margin-bottom: 20px;
-    color: white;
-    text-shadow: 1px 1px 10px black;
-    font-family: "Roboto";
-    font-weight: bold;
-
-}
-
-.user-dashboard {
-    position: fixed;
-    display: flex;
-    height: 100vh;
-    width: 100%;
-    color: white;
-    margin-top: 80px;
-}
-
-.main-content {
-    position: fixed;
-    left: 230px;
-    bottom: 60px;
-    padding: 30px;
-
-
-}
-
-.main-content h1 {
-    color: rgb(243, 167, 52);
-    font-size: 35px;
-    text-shadow: 2px 2px 10px black;
-    margin-bottom: 10px;
-    font-family: "Cinzel";
-    position: relative;
-    right: 32px;
-}
-
-.main-content .intro {
-    font-size: 16px;
-    color: white;
-    margin-bottom: 40px;
-    font-weight: 500;
-    text-shadow: 3px 3px 10px black;
-    font-family: "Roboto";
-    position: relative;
-    right: 30px;
-}
-
-.user-info {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-    width: 700px;
-    font-family: "Roboto";
-    position: relative;
-    right: 30px;
-}
-
-.user-info h3 {
-    color: coral;
-    margin-bottom: 10px;
-    text-shadow: 1px 1px 10px black;
-    font-family: "Cinzel";
-
-}
-
-.user-info p {
-    margin-bottom: 25px;
-    color: white;
-    text-shadow: 3px 3px 10px black;
-    font-weight: 500;
-    font-family: "Roboto";
-}
-
-.action-buttons {
-    display: flex;
-    gap: 50px;
-}
-
-.action-buttons button {
-    height: 35px;
-    border: none;
-    border-radius: 25px;
-    background: rgba(255, 255, 255, 0.7);
-    color: black;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.action-buttons button:hover {
-    background-color: coral;
-}
-
-#aboutcontent {
-    color: white;
-    position: relative;
-    right: 10%;
-}
-
-
-@font-face {
-    font-family: "Cinzel";
-    src: url("/Fonts/Cinzel.ttf");
-}
-
-@font-face {
-    font-family: "Roboto";
-    src: url("/Fonts/Roboto-Light.ttf");
-}
-
-.bookingheader {
-    color: white;
-    text-shadow: 3px 3px 10px black;
-    position: relative;
-    bottom: 185px;
-    text-align: center;
-    font-family: "Cinzel";
-
-}
-
-#booking-content {
-    color: white;
-    position: relative;
-    bottom: 185px;
-    text-align: center;
-
-}
-
-.booking-options {
-    position: relative;
-    bottom: 175px;
-}
-
-#checkin {
-    background: white;
-    color: rgb(0, 0, 0);
-    border: none;
-    border-radius: 8px;
-    outline: none;
-    text-align: center;
-}
-
-#checkout {
-    background: white;
-    color: rgb(0, 0, 0);
-    border: none;
-    border-radius: 8px;
-    outline: none;
-    text-align: center;
-}
-
-option {
-    color: black;
-}
-
-.sr-only {
-    color: rgb(238, 185, 124);
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    left: 2px;
-}
-
-.tr-only {
-    color: rgb(238, 185, 124);
-    position: relative;
-    top: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    left: 8px;
-}
-
-#sronly {
-    margin: 20px;
-}
-
-#tronly {
-    margin: 20px;
-}
-
-.bookingbtn {
-    position: absolute;
-    top: 240px;
-    right: 200px;
-    width: 10%;
-    border-radius: 10px;
-    font-family: "Cinzel";
-
-}
-
-.totalPrice {
-    position: fixed;
-    top: 160px;
-    right: 230px;
-    width: 6%;
-    border-radius: 10px;
-    color: white;
-}
-
-.booking-cards {
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    left: 20px;
-    bottom: 70px;
-}
-
-.room-card {
-    padding: 15px;
-}
-
-.cardsize {
-    width: 400px;
-    height: 200px;
-    border-radius: 10px;
-
-}
-
-h3 {
-    font-family: "Cinzel";
-    color: white;
-}
-
-#bookingprice {
-    color: rgb(255, 255, 255);
-}
-
-footer.footer {
-    width: 100%;
-    text-align: center;
-    background: transparent;
-    position: fixed;
-    bottom: 0;
-    top: 88%;
-    color: white;
-    font-family: "Roboto";
-    font-size: 13px;
-
-}
-
-.footer-icons {
-    display: flex;
-    justify-content: center;
-    margin-top: 8px;
-}
-
-.footer-icons img {
-    width: 22px;
-    height: 20px;
-    margin: 0 8px;
-    cursor: pointer;
+
+@media (min-width: 1025px) {
+    body.login-page {
+        background: rgb(138, 198, 224);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+    body.register-page {
+        background: rgb(138, 198, 224);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+    body.booking-page {
+        background-image: url(/Images/franck-morisset-UFhM8kMuQbo-unsplash.jpg);
+        background-attachment: fixed;
+        background-position: center;
+        background-size: cover;
+    }
+
+    body.forgot-page {
+        background: rgb(138, 198, 224);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+
+    body.profile-page {
+        background: url(/Images/franck-morisset-UFhM8kMuQbo-unsplash.jpg);
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        height: fit-content;
+    }
+
+
+
+    body.home-page {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        height: 450vh;
+
+    }
+
+    body.res {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+    body.activity {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        height: 100vh;
+
+    }
+
+    .login-box {
+        position: absolute;
+        top: 25%;
+        width: 500px;
+        height: 400px;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 3px 3px 25px;
+    }
+
+
+    .Sign-up-box {
+        position: absolute;
+        top: 22%;
+        width: 500px;
+        height: 400px;
+        background: rgba(0, 0, 0, 0.692);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 3px 3px 25px;
+    }
+
+    .forgot-box {
+        position: absolute;
+        top: 30%;
+        width: 400px;
+        height: 350px;
+        background: rgba(0, 0, 0, 0.692);
+        border-radius: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 3px 3px 25px;
+    }
+
+
+
+
+    .box-headers {
+        font-family: "Cinzel";
+        color: white;
+        text-align: center;
+        text-shadow: 1px 1px 3px black;
+    }
+
+
+
+
+
+
+
+    .input-box {
+        position: relative;
+        width: 310px;
+        margin: 20px 0;
+        border-bottom: 1px solid white;
+    }
+
+    .input-box input {
+        width: 100%;
+        height: 20px;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        font-family: "Roboto";
+        color: white;
+        padding: 0 2px 0 1px;
+    }
+
+    .input-box label {
+        color: rgba(255, 255, 255, 0.4);
+        position: absolute;
+        top: 70%;
+        left: -2px;
+        transform: translateY(-100%);
+        pointer-events: none;
+        transition: 0.6s;
+        font-family: "Roboto";
+        font-size: 14px;
+    }
+
+    .input-box input:focus~label,
+    .input-box input:not(:placeholder-shown)~label {
+        top: 2px;
+        left: -1px;
+
+    }
+
+
+    .remember-forgot {
+        margin: -15px 0 15px;
+        font-size: 12px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        font-family: "Roboto";
+    }
+
+    .remember-forgot label input {
+        margin-right: 10px;
+    }
+
+    .remember-forgot a {
+        color: white;
+        text-decoration: none;
+        font-family: "Roboto";
+    }
+
+
+    .remember-forgot input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        position: relative;
+        outline: none;
+        background-color: white;
+        vertical-align: middle;
+    }
+
+    .remember-forgot input[type="checkbox"]:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .remember-forgot input[type="checkbox"]:checked::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 4px;
+        height: 5px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+
+
+
+
+
+    button {
+        height: 30px;
+        border-radius: 40px;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-size: 15px;
+        color: black;
+        transition: 0.2s;
+        font-weight: 600;
+        font-family: "Cinzel";
+        text-align: center;
+    }
+
+    .login-box button {
+        width: 100%;
+    }
+
+    .login-box button:hover {
+        background-color: coral;
+        color: white;
+    }
+
+    .Sign-up-box button {
+        width: 100%;
+    }
+
+    .Sign-up-box button:hover {
+        background-color: coral;
+        color: white;
+    }
+
+
+
+    .forgot-box button {
+        width: 100%;
+    }
+
+    .forgot-box button:hover {
+        background-color: coral;
+        color: white;
+    }
+
+
+
+
+
+
+    a {
+        color: white;
+        text-decoration: none;
+        font-family: "Roboto";
+    }
+
+    .Sign-in-link,
+    .Sign-up-link {
+        font-size: 13px;
+        color: white;
+        text-align: center;
+        margin: 25px 0 10px;
+        font-family: "Roboto";
+    }
+
+    .Sign-in-link p a {
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-family: "Roboto";
+    }
+
+    .Sign-in-link p a:hover {
+        text-decoration: underline;
+    }
+
+
+
+
+
+
+
+    .topbar {
+        background: rgb(242, 239, 239);
+        position: fixed;
+        top: 0;
+        height: 40px;
+        width: 100%;
+        z-index: 8888;
+    }
+
+    .socialicons {
+        display: flex;
+        position: absolute;
+        left: 20px;
+        top: 12px;
+    }
+
+    .socialicons img {
+        width: 22px;
+        margin: 0 8px;
+        cursor: pointer;
+    }
+
+    .contact {
+        display: flex;
+        gap: 20px;
+        position: absolute;
+        right: 300px;
+        top: 8px;
+        align-items: center;
+        color: black;
+        font-family: "roboto";
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    #contact {
+        display: flex;
+        gap: 20px;
+        position: absolute;
+        right: 120px;
+        top: 8px;
+        align-items: center;
+        font-family: "roboto";
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    #contact a {
+        color: black;
+    }
+
+    .contact a {
+        color: black;
+    }
+
+    #mail {
+        width: 20px;
+        height: 12px;
+    }
+
+    #phone {
+        width: 20px;
+        height: 15px;
+    }
+
+    #faq {
+        background-color: coral;
+        width: 80px;
+        border-radius: 1px;
+        position: absolute;
+        right: 0;
+        height: 40px;
+    }
+
+    #faq .faqicon {
+        margin-top: 5px;
+        width: 30px;
+        height: 30px;
+    }
+
+    nav.nav {
+        justify-content: center;
+        position: fixed;
+        top: 40px;
+        display: flex;
+        line-height: 40px;
+        background-position: center;
+        width: 100%;
+        background: rgb(25, 62, 90);
+        margin-bottom: 0;
+        z-index: 8888;
+    }
+
+
+    .nav-logo-login p,
+    .nav-logo-forgot p,
+    .nav-logo-admin p,
+    .nav-logo-user p {
+        color: white;
+        font-size: 30px;
+        font-family: "Cinzel";
+        font-weight: 600;
+        text-shadow: 1px 1px 2px black;
+        position: fixed;
+        left: 30px;
+        margin: 0;
+        top: 55px;
+    }
+
+    #sublogo {
+        position: fixed;
+        font-size: 14px;
+        left: 100px;
+        top: 62px;
+        margin-top: 6px;
+        color: white;
+    }
+
+    .logo img {
+        position: absolute;
+        left: 60px;
+        top: 100px;
+        background: black;
+        border-radius: 50px;
+        outline: 3px solid white;
+        padding: 20px;
+        width: 300px;
+    }
+
+    .navMenu ul,
+    .nav-menu ul {
+        display: flex;
+        position: relative;
+        left: 5px;
+        text-align: center;
+        animation-name: slideLeft;
+        animation-duration: 2s;
+        animation-delay: 0s;
+    }
+
+    .navMenu ul li,
+    .nav-menu ul li {
+        list-style-type: none;
+    }
+
+    .navMenu ul li .link,
+    .nav-menu ul li .link {
+        text-decoration: none;
+        font-weight: 500;
+        font-family: "Cinzel";
+        color: white;
+        margin: 0 20px;
+        font-size: 15px;
+    }
+
+
+
+    @keyframes slideLeft {
+        from {
+            transform: translateX(120px);
+        }
+    }
+
+    #loginbtn {
+        width: 100px;
+        height: 25px;
+        background: white;
+        position: absolute;
+        right: 8%;
+        top: 25%;
+    }
+
+    #logoutbtn {
+        width: 100px;
+        height: 25px;
+        background: white;
+        position: absolute;
+        right: 8%;
+        top: 25%;
+    }
+
+    #Registerbtn {
+        width: 100px;
+        height: 25px;
+        background: white;
+        position: absolute;
+        right: 6%;
+        top: 25%;
+    }
+
+    #loginbtn:hover,
+    #Registerbtn:hover {
+        background-color: coral;
+        color: white;
+    }
+
+    button#logoutbtn:hover {
+        background-color: coral;
+    }
+
+    #profilePic2 {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        object-fit: cover;
+        cursor: pointer;
+        right: 20px;
+        top: 24px;
+    }
+
+
+
+
+
+
+    footer.footer {
+        width: 100%;
+        text-align: center;
+        background-color: rgb(25, 62, 90);
+        position: absolute;
+        top: 1178vh;
+        color: rgb(255, 255, 255);
+        font-family: "Roboto";
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+
+
+
+
+    #loginEmail,
+    #loginPassword {
+        background: transparent;
+        color: #fff;
+        border: none;
+        padding: 0px;
+        outline: none;
+    }
+
+    #loginEmail:-webkit-autofill,
+    #loginEmail:-webkit-autofill:hover,
+    #loginEmail:-webkit-autofill:focus,
+    #loginEmail:-webkit-autofill:active,
+    #loginPassword:-webkit-autofill,
+    #loginPassword:-webkit-autofill:hover,
+    #loginPassword:-webkit-autofill:focus,
+    #loginPassword:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+        -webkit-text-fill-color: #ffffff !important;
+        transition: background-color 5000s ease-in-out 0s !important;
+    }
+
+
+    #loginEmail:-moz-autofill,
+    #loginPassword:-moz-autofill {
+        box-shadow: 0 0 0 1000px transparent inset !important;
+        -moz-text-fill-color: #fff !important;
+    }
+
+
+
+
+    body.home-page {
+        background: #f9f9f9;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+    .homepage-form {
+        position: absolute;
+        top: 130px;
+        scroll-margin-top: 150px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .homebk-box {
+        position: relative;
+        display: flex;
+        justify-self: center;
+        align-items: center;
+        border-radius: 60px;
+        background-color: rgb(25, 62, 90);
+        width: 56%;
+        border: none;
+    }
+
+    .box {
+        color: white;
+        padding: 40px;
+
+    }
+
+    .box2 {
+        color: white;
+    }
+
+    .homebk-box button {
+        margin-left: auto;
+    }
+
+    #bookNowBtn {
+        background-color: white;
+        color: black;
+        transition: 0.3s;
+        font-family: "Cinzel";
+        border: none;
+        border-radius: 60px;
+        font-weight: bold;
+        width: 180px;
+        height: 120px;
+    }
+
+
+
+    .date {
+        background: white;
+        border: none;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        padding-left: 10px;
+        padding-right: 10px;
+        border-radius: 10px;
+    }
+
+    #hometitle {
+        color: white;
+        text-shadow: 1px 1px 2px black;
+        font-family: "Cinzel";
+        font-size: 50px;
+        justify-self: center;
+    }
+
+    #homeinfo {
+        justify-self: right;
+        position: relative;
+        right: 50px;
+        color: white;
+        font-size: 18px;
+
+    }
+
+    #hotelimage {
+        width: 450px;
+        height: 350px;
+        position: absolute;
+        top: 190px;
+        left: 300px;
+        border-radius: 7px;
+        border: 1px solid white;
+    }
+
+    .nav-logo-home {
+        color: white;
+        font-size: 25px;
+        font-family: "Cinzel";
+        font-weight: 600;
+    }
+
+    video {
+        height: 90vh;
+        width: 100%;
+        position: absolute;
+        top: 68px;
+        object-fit: cover;
+    }
+
+    .downarrow {
+        justify-self: center;
+    }
+
+    .downarrow a {
+
+        position: absolute;
+        top: 345px;
+        font-size: 25px;
+        height: 35px;
+        color: coral;
+        border: 2px solid white;
+        padding: 5px;
+        border-radius: 20px;
+        animation: bounce 1.2s infinite;
+        cursor: pointer;
+    }
+
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(20px);
+        }
+    }
+
+
+    #learnmore {
+        background: transparent;
+        color: white;
+    }
+
+    .learnmore {
+        justify-self: center;
+        align-self: center;
+        text-align: center;
+        position: absolute;
+        top: 280px;
+        outline: 1px solid rgb(60, 175, 247);
+        font-size: 13px;
+        width: 180px;
+        height: 30px;
+        border-radius: 0;
+        border: 2px solid white;
+        background-color: rgb(60, 175, 247);
+        color: white;
+        text-shadow: 1px 1px 2px black;
+    }
+
+    .homereservation {
+        width: 100%;
+        height: 90px;
+        text-align: center;
+        position: absolute;
+        top: 460px;
+        color: white;
+        background-color: rgb(25, 62, 90);
+    }
+
+    .homereservation p {
+        margin-top: 30px;
+        margin-bottom: 30px;
+        font-family: "Cinzel";
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .homegoodstay {
+        position: absolute;
+        top: 600px;
+        color: rgb(25, 62, 90);
+        justify-self: center;
+    }
+
+    .offersbox {
+        display: flex;
+        width: 100%;
+        position: absolute;
+        top: 700px;
+        text-align: center;
+        justify-content: center;
+        gap: 1px;
+    }
+
+    .offers,
+    .offers2,
+    .offers3,
+    .offers4,
+    .offers5 {
+
+        padding: 32px;
+        background: white;
+        transition: 0.3s;
+        border-radius: 2px;
+        width: 200px;
+    }
+
+
+    .offers h3,
+    .offers2 h3,
+    .offers3 h3,
+    .offers4 h3,
+    .offers5 h3 {
+        color: rgb(25, 62, 90);
+        transition: 0.2s;
+    }
+
+    .offers img,
+    .offers2 img,
+    .offers3 img,
+    .offers4 img,
+    .offers5 img {
+        width: 100px;
+        height: 90px;
+        transition: 0.2s;
+    }
+
+    .offers:hover,
+    .offers2:hover,
+    .offers3:hover,
+    .offers4:hover,
+    .offers5:hover {
+        background: rgb(25, 62, 90);
+    }
+
+    .offers:hover img,
+    .offers2:hover img,
+    .offers3:hover img,
+    .offers4:hover img,
+    .offers5:hover img {
+        filter: sepia(1) saturate(4) brightness(2) hue-rotate(-25deg);
+    }
+
+    .offers:hover h3,
+    .offers2:hover h3,
+    .offers3:hover h3,
+    .offers4:hover h3,
+    .offers5:hover h3 {
+        color: white;
+    }
+
+    #about {
+        width: 100%;
+        scroll-margin-top: 95px;
+        text-align: center;
+        position: absolute;
+        top: 950px;
+        background: white;
+    }
+
+    .aboutimg {
+        display: flex;
+        gap: 2px;
+        width: 100%;
+        justify-content: center;
+    }
+
+    #img1 {
+        width: 550px;
+        height: 310px;
+        border: 10px solid rgba(0, 0, 0, 0.134);
+    }
+
+    #img2 {
+        width: 550px;
+        height: 310px;
+        border: 10px solid rgba(0, 0, 0, 0.134);
+    }
+
+    #abouttitle {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 36px;
+        color: rgb(25, 62, 90);
+        padding-bottom: 10px;
+    }
+
+    #aboutContent {
+        color: rgb(25, 62, 90);
+        font-family: "roboto";
+
+    }
+
+    .shortabout {
+        position: relative;
+        bottom: 92px;
+        left: 370px;
+        padding: 20px;
+        padding-left: 30px;
+        padding-right: 40px;
+        border: 10px solid rgb(49, 48, 48);
+        width: 30%;
+        justify-self: center;
+    }
+
+    .shortabout p {
+        background-color: rgb(25, 62, 90);
+        padding-top: 20px;
+        padding-bottom: 20px;
+        margin: 0;
+        color: white;
+        font-family: "roboto";
+    }
+
+    #services {
+        scroll-margin-top: 150px;
+    }
+
+    .service {
+        position: absolute;
+        top: 265vh;
+        background: white;
+        width: 100%;
+        height: 320%;
+        text-align: center;
+        background-size: cover;
+    }
+
+    .service h1 {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 36px;
+        color: rgb(25, 62, 90);
+        padding-bottom: 10px;
+
+    }
+
+    .service h3 {
+        color: white;
+    }
+
+    .clean-assist {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+    }
+
+    .cleaning {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+    .time {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+
+    .service-parking {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .roomservice {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+    .parking {
+        background: rgb(51, 83, 107);
+        padding: 20px;
+        width: 35%;
+    }
+
+
+    .roomservice:hover,
+    .parking:hover,
+    .cleaning:hover,
+    .time:hover {
+        background: rgb(76, 101, 121);
+    }
+
+    .roomservice img,
+    .parking img,
+    .cleaning img,
+    .time img {
+        width: 45px;
+    }
+
+    .roomservice p,
+    .parking p,
+    .cleaning p,
+    .time p {
+        color: white;
+        font-family: "roboto";
+    }
+
+    .roomservice,
+    .parking,
+    .cleaning,
+    .time {
+        transition: 0.2s;
+    }
+
+
+
+
+
+    #roomrates {
+        padding: 10px;
+        background-color: white;
+        position: absolute;
+        top: 363vh;
+        scroll-margin-top: 95px;
+    }
+
+    #roomratestitle {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 36px;
+        color: rgb(25, 62, 90);
+        padding-bottom: 10px;
+    }
+
+    .room-description {
+        color: rgb(25, 62, 90);
+    }
+
+
+    #rooms-grid {
+        display: flex;
+        gap: 6px;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+
+    .room-card {
+        width: 32%;
+        background: white;
+        text-align: center;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+        overflow: hidden;
+        transition: transform 0.2s;
+
+    }
+
+    .room-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .room-image {
+        width: 320px;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .room-type {
+        font-size: 25px;
+        margin-bottom: 8px;
+        color: rgb(25, 62, 90);
+    }
+
+
+    .star-rating {
+        margin-bottom: 10px;
+    }
+
+    .star {
+        font-size: 1.2rem;
+    }
+
+    .star.filled {
+        color: rgb(245, 205, 7);
+    }
+
+    .star.empty {
+        color: rgb(185, 182, 182);
+    }
+
+
+    .pricecontainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .price-tag {
+        font-size: 28px;
+        font-weight: bold;
+        color: rgb(25, 62, 90);
+    }
+
+    .book-button {
+        background-color: #FF8C00;
+        color: white;
+        padding: 8px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    .book-button:hover {
+        background-color: #e67e00;
+        color: white;
+    }
+
+
+
+
+    #team-members-section {
+        padding: 20px;
+        background-color: white;
+        position: absolute;
+        top: 465vh;
+        scroll-margin-top: 95px;
+    }
+
+    #section-title {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 36px;
+        color: rgb(25, 62, 90);
+        padding-bottom: 10px;
+
+    }
+
+
+    #profile-selector-nav {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .nav-thumb {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin: 0 10px;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: border-color 0.3s, opacity 0.3s;
+        opacity: 0.6;
+        object-fit: cover;
+    }
+
+
+    .nav-thumb.is-active-nav {
+        border-color: rgb(25, 62, 90);
+        opacity: 1;
+    }
+
+
+    .member-profile {
+        display: none;
+        color: rgb(25, 62, 90);
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 30px;
+        background: #f9f9f9;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+    }
+
+
+    .member-profile.is-visible {
+        display: flex;
+        height: 350px;
+    }
+
+    .member-photo {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .member-details {
+        flex: 1;
+    }
+
+    .member-details h2 {
+        font-size: 2rem;
+        margin-bottom: 5px;
+        color: rgb(25, 62, 90);
+    }
+
+    .member-details .job-title {
+        font-weight: bold;
+        color: rgb(83, 112, 133);
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+    }
+
+
+
+    #restaurantbox {
+        padding: 20px;
+        position: absolute;
+        top: 572vh;
+        background-color: white;
+        justify-items: center;
+        scroll-margin-top: 95px;
+    }
+
+    #restauranttitle {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 36px;
+        color: rgb(25, 62, 90);
+        padding-bottom: 10px;
+
+    }
+
+    .diningsection {
+        background: white;
+        margin-bottom: 30px;
+        padding: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgb(25, 62, 90);
+        border-radius: 8px;
+    }
+
+    .dining-section--reverse {
+        flex-direction: row-reverse;
+    }
+
+    .section-image {
+        width: 50%;
+        height: 500px;
+        object-fit: cover;
+    }
+
+
+    .dining-content,
+    .section-content {
+        width: 50%;
+
+    }
+
+    h1,
+    h2 {
+        color: rgb(25, 62, 90);
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    p {
+        margin-bottom: 15px;
+    }
+
+
+    [id$="-book-button"] {
+        display: inline-block;
+        background-color: #FF8C00;
+        color: white;
+        padding: 10px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+    }
+
+
+    #dessert-menu-button {
+        background-color: #FF8C00;
+        color: white;
+        border-radius: 5px;
+        width: 100%;
+    }
+
+
+
+
+
+
+
+    .res-container {
+        width: 100%;
+        margin: auto;
+        margin-left: 280px;
+        background: white;
+        padding: 80px;
+        position: relative;
+        bottom: 30px;
+    }
+
+    #reservationtitle {
+        font-size: 24px;
+        padding-left: 10px;
+        color: black;
+        border-bottom: 1px solid rgb(209, 208, 208);
+        padding-bottom: 10px;
+        font-family: "Cinzel";
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .personal-reservation {
+        display: flex;
+        gap: 20px;
+    }
+
+    .columns {
+        flex: 1;
+    }
+
+    .column-header {
+        background-color: rgb(25, 62, 90);
+        color: white;
+        padding: 10px;
+        margin-top: 0;
+        font-size: 16px;
+        font-weight: normal;
+        text-align: left;
+    }
+
+    .res-container label {
+        display: block;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: black;
+    }
+
+
+
+    input[type="text"],
+    input[title="email"],
+    input[name="checkIn"],
+    input[name="checkOut"],
+    input[type="code"] {
+        width: 100%;
+        padding: 8px;
+        color: rgb(90, 90, 90);
+        border: 1px solid rgb(231, 228, 228);
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        background-color: white;
+        font-family: "roboto";
+    }
+
+    select {
+        width: 100%;
+        padding: 8px;
+        color: rgb(90, 90, 90);
+        border: 1px solid rgb(231, 228, 228);
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        background-color: white;
+    }
+
+    select option {
+        color: black;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
+
+    .radio-group input[type="radio"] {
+        margin-right: 5px;
+    }
+
+    .radio-group label {
+        display: inline;
+        font-weight: normal;
+        margin: 0;
+        color: black;
+    }
+
+
+
+    .res-container,
+    .columnss,
+    .radio-group,
+    .humanverification {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border: 1px solid #ddd;
+        margin-top: 25px;
+    }
+
+    .form-container {
+        padding: 15px;
+        margin-top: 25px;
+    }
+
+    .humanverification h3 {
+        margin-top: 0;
+        color: black;
+        font-size: 16px;
+        font-family: "Cinzel";
+        font-weight: bold;
+    }
+
+
+    .humanverification p {
+        font-size: 14px;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+
+    .humanverification label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #555;
+    }
+
+    #humanverificationbtn {
+        background-color: rgb(25, 62, 90);
+        color: white;
+        border: none;
+        margin-top: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    #humanverificationbtn:hover {
+        background-color: #3b6792;
+    }
+
+
+
+    .sidebar a img {
+        position: relative;
+        top: 3px;
+        margin-right: 10px;
+        width: 19px;
+        height: 19px;
+    }
+
+
+
+
+
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+        margin-top: 0;
+        width: 100%;
+    }
+
+
+    .sidebar {
+        position: fixed;
+        width: 270px;
+        background-color: #2c3e50;
+        color: white;
+        padding-top: 10px;
+        padding-left: 10px;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar h2 {
+        text-align: left;
+        margin-bottom: 30px;
+        color: #ecf0f1;
+        font-family: "Cinzel";
+    }
+
+    .main-content {
+        margin-left: 270px;
+        padding: 20px;
+        width: calc(100% - 270px);
+        width: 100%;
+    }
+
+    .sidebar a {
+        display: block;
+        margin-top: 5px;
+        color: white;
+        padding: 15px;
+        font-size: 12px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+        border-left: 3px solid transparent;
+        font-family: "Roboto";
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+        background-color: #34495e;
+        border-left: 3px solid #3498db;
+    }
+
+    .main-content {
+        flex-grow: 1;
+        padding: 0px 20px 20px 20px;
+
+    }
+
+    .header {
+        background-color: white;
+        padding: 15px 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px -20px 20px -20px;
+        font-size: 24px;
+        font-weight: bold;
+        font-family: "Cinzel";
+    }
+
+    .card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+
+    .card h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+        padding-top: 15px;
+        text-align: left;
+        padding-left: 10px;
+        font-size: 12px;
+        font-family: "Roboto";
+        background-color: #2c3e50;
+        border-radius: 12px;
+    }
+
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        font-size: 0.9em;
+    }
+
+    th,
+    td {
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: #555;
+    }
+
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+
+    .status-not-confirm {
+        background-color: #f2dede;
+        color: rgba(204, 20, 20, 0.87);
+    }
+
+
+    .action-btn {
+        background-color: #2c3e50;
+        color: white;
+        border: none;
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .action-btn:hover {
+        background-color: #3b6792;
+    }
+
+
+
+
+
+
+    body.room_bk {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+        height: 150vh;
+    }
+
+
+    .rb-section {
+        width: 100%;
+        margin-top: 10px;
+        margin-left: 300px;
+    }
+
+    .rheader {
+        padding-left: 18px;
+        padding-bottom: 18px;
+        text-align: left;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px -20px 20px -20px;
+        font-size: 24px;
+        font-weight: bold;
+        font-family: "Cinzel";
+    }
+
+    .rb-card {
+        width: 85%;
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .rb-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        background-color: #34495e;
+        color: white;
+        padding: 12px 15px;
+        font-size: 16px;
+        font-family: "roboto";
+    }
+
+    .rb-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .rb-label {
+        font-family: "roboto";
+        font-size: 14px;
+        color: black;
+        width: 40%;
+        padding: 12px 15px;
+        font-weight: bold;
+        text-align: left;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .rb-value {
+        width: 60%;
+
+        padding-left: 100px;
+        background: white;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .rb-table th {
+        background-color: white;
+    }
+
+    #appconfirm {
+        padding-left: 20px;
+        color: black;
+        font-family: "Roboto";
+        font-weight: bold;
+        font-size: 14px;
+
+    }
+
+    .rapprove-btn {
+        background-color: rgb(244, 244, 244);
+        padding-top: 20px;
+    }
+
+    #rapprove {
+        margin: 10px;
+        width: 90%;
+        color: black;
+    }
+
+    .confirmbtn {
+        background-color: #34495e;
+        color: white;
+        margin: 20px;
+        width: 15%;
+        border-radius: 4px;
+        font-size: 12px;
+    }
+
+    .confirmbtn:hover {
+        background-color: #3b6792;
+    }
+
+
+
+
+
+
+    body.news {
+        background: white;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
+
+
+    .msg-wrapper {
+        padding: 20px;
+        box-sizing: border-box;
+        position: relative;
+        bottom: 100px;
+        margin-top: 8%;
+        width: 70%;
+        margin-left: 10%;
+
+    }
+
+    .newsletter-text {
+        height: 200px;
+    }
+
+    .msg-action {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .msg-btn {
+        background-color: #34495e;
+        border: none;
+        width: 30%;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 10px;
+        transition: background-color 0.3s ease;
+    }
+
+    .msg-table-card {
+        background-color: white;
+        padding-bottom: 20px;
+        padding-left: 5px;
+        padding-right: 5px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        width: 100%;
+    }
+
+    .msg-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .msg-table th,
+    .msg-table td {
+        text-align: left;
+
+        border-bottom: 1px solid #ddd;
+    }
+
+    .msg-table th {
+        background-color: #f1f1f1;
+        font-weight: 600;
+        color: black;
+    }
+
+    .btn-permission {
+        background-color: #34495e;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 10px;
+    }
+
+
+    .btn-delete {
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 10px;
+    }
+
+    .msg-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        font-size: 13px;
+        font-family: "roboto";
+        color: #555;
+    }
+
+
+    .newsletter-text {
+        width: 100%;
+        min-height: 100px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        resize: vertical;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+
+
+    .payment-details-wrapper {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-left: 12%;
+        position: absolute;
+        justify-self: center;
+        top: 25px;
+        width: 70%;
+        padding-right: 10px;
+    }
+
+    .pdetails {
+        width: 100%;
+        position: relative;
+        bottom: 35px;
+        padding-top: 40px;
+        color: black;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+        padding-left: 10px;
+        font-size: 24px;
+        font-family: "Cinzel";
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-pagination-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    .payment-search-area {
+        padding-left: 10px;
+    }
+
+    .payment-search-area input {
+        width: 30%;
+        padding: 5px;
+        margin-left: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .payment-records-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .payment-records-table th,
+    .payment-records-table td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+    .payment-records-table th {
+        background-color: #f4f4f4;
+        color: black;
+    }
+
+    .payment-records-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .pagination-summary {
+        padding-left: 10px;
+        font-size: 12px;
+        font-family: "Roboto";
+    }
+
+    .print-receipt-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background-color: rgb(25, 62, 90);
+        color: white;
+    }
+
+    .print-receipt-btn:hover {
+        background-color: #3b6792;
+    }
+
+
+
+    .dashboard-wrapper {
+        background: white;
+        border-radius: 8px;
+        margin-left: 265px;
+        position: absolute;
+        top: 8px;
+        width: 75%;
+        padding-right: 10px;
+    }
+
+    .dashboard-main-content {
+        padding: 10px;
+        padding-top: 0;
+    }
+
+
+    .admin-accounts__table {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .adminaccounts__table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .table-input {
+        width: 90%;
+        padding: 10px 12px;
+        border: 1px solid #cfcfcf;
+        border-radius: 6px;
+        font-size: 15px;
+        background: #fafafa;
+        outline: none;
+        transition: 0.25s ease;
+    }
+
+    .table-inputID {
+        width: 90%;
+        padding: 10px 12px;
+        border: 1px solid #cfcfcf;
+        border-radius: 6px;
+        font-size: 15px;
+        background: #fafafa;
+        outline: none;
+        transition: 0.25s ease;
+    }
+
+
+    .table-input:focus {
+        border-color: #4a4a4a;
+        background: #ffffff;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    }
+
+    .table-input::placeholder {
+        color: #9b9b9b;
+        font-size: 14px;
+    }
+
+    .table__header-cell,
+    .table__data-cell {
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table__header-cell {
+        background-color: #f2f2f2;
+    }
+
+    .table__action-btn--delete {
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .user-accounts__add-btn {
+        background-color: rgb(25, 62, 90);
+        color: white;
+        width: 20%;
+        border: none;
+        font-size: 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .user-accounts__add-btn:hover {
+        background-color: #3b6792;
+    }
+
+    .adminaccounts__table select {
+        width: 95%;
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        box-sizing: border-box;
+        background-color: white;
+    }
+
+    .adminaccounts__table select:focus {
+        border-color: #2c3e50;
+        box-shadow: 0 0 4px rgba(44, 62, 80, 0.4);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+
+    table,
+    th,
+    td {
+        border: 1px solid #ccc;
+    }
+
+    th,
+    td {
+        text-align: center;
+    }
+
+    .count-box {
+        margin-top: 20px;
+        font-weight: bold;
+    }
+
+
+    .logoutlink {
+        position: absolute;
+        bottom: 30px;
+        width: 270px;
+    }
+
+
+
+
+
+
+    #contactUsbox {
+        width: 100%;
+        justify-items: center;
+        background-color: #3b6792;
+        position: absolute;
+        top: 1050vh;
+        scroll-margin-top: 95px;
+    }
+
+    .contactheading {
+        color: white;
+        text-decoration: underline;
+        font-family: "Cinzel";
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 22px;
+    }
+
+    .contactsubheading {
+        color: white;
+        margin-bottom: 20px;
+        font-size: 16px;
+    }
+
+    .contactnewsletter label {
+        margin-bottom: 10px;
+    }
+
+    .contact-connect {
+        color: white;
+        justify-content: center;
+        width: 100%;
+        display: flex;
+        gap: 5%;
+
+    }
+
+    #contactus {
+        padding: 10px;
+        width: 30%;
+    }
+
+    .contactnewsletter {
+        display: grid;
+    }
+
+    #send-button {
+        background-color: black;
+        color: white;
+        border: none;
+        margin-top: 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+        width: 160px;
+        transition: 0.2s;
+    }
+
+    #send-button:hover {
+        background-color: coral;
+    }
+
+    input.user-name,
+    input[type="tel"],
+    input[name="emailAddress"] {
+        width: 100%;
+        padding: 8px;
+        color: rgb(90, 90, 90);
+        border: 1px solid rgb(231, 228, 228);
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        background-color: white;
+        font-family: "roboto";
+    }
+
+    #social-media {
+        display: flex;
+        margin-top: 50px;
+    }
+
+    #social-media img {
+        width: 22px;
+        margin: 0 8px;
+        cursor: pointer;
+    }
+
+    #map-area {
+        width: 100%;
+        height: 80px;
+        margin-bottom: 0;
+    }
+
+    #viewmaplink {
+        color: white;
+        text-decoration: none;
+        font-family: "Roboto";
+    }
+
+    #viewmaplink:hover {
+        color: black;
+    }
+
+
+
+
+
+
+
+    #admin-body {
+        background: linear-gradient(135deg, #a88be0 0%, #68a0d4 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: sans-serif;
+    }
+
+
+    .admin-login-container {
+        background-color: white;
+        padding: 40px 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        border-radius: 5px;
+        height: 350px;
+        max-width: 450px;
+        text-align: center;
+        position: relative;
+        margin-top: 50px;
+    }
+
+    .admin-icon-circle {
+        background: linear-gradient(135deg, #a88be0 0%, #68a0d4 100%);
+        border-radius: 50%;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 40px;
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .admin-icon-circle img {
+        width: 60%;
+        height: 60%;
+        object-fit: cover;
+    }
+
+    .adminheader {
+        font-family: "Cinzel";
+    }
+
+
+    .admin-login-form {
+        margin-top: 30px;
+    }
+
+    .admin-input-group {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+
+    input[id="admin-LoginID"],
+    input[id="admin-password"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: black;
+        font-size: 14px;
+        background-color: #ecf0f4;
+        box-sizing: border-box;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #68a0d4;
+    }
+
+    .admin-form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .admin-remember-label {
+        display: flex;
+        align-items: center;
+        color: #666;
+        cursor: pointer;
+    }
+
+    .admin-remember-checkbox {
+        margin-right: 8px;
+    }
+
+    .admin-forgot-password {
+        color: #68a0d4;
+        text-decoration: none;
+    }
+
+    .admin-forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .admin-login-button {
+        width: 100%;
+        border: none;
+        border-radius: 4px;
+        background-color: #112d4e;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .admin-login-button:hover {
+        background-color: #3b6792;
+    }
+
+
+
+
+
+
+    .delete-btn {
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+
+
+
+
+
+    #paymentModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        justify-items: center;
+        align-items: center;
+    }
+
+    #paymentModal>div {
+        background: white;
+        padding: 25px 30px;
+        border-radius: 12px;
+        width: 400px;
+        max-width: 90%;
+        position: relative;
+        top: 10px;
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.3s ease;
+    }
+
+    #paymentModal h2 {
+        margin-top: 0;
+        color: #2c3e50;
+        font-size: 32px;
+        text-align: center;
+    }
+
+    #paymentModal #paymentSummary {
+        margin-bottom: 15px;
+        font-size: 16px;
+        text-align: center;
+        font-weight: bold;
+        color: #333;
+    }
+
+    #paymentModal input {
+        width: 100%;
+        padding: 5px;
+        margin: 8px 0 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    #paymentModal button {
+        background-color: #2c3e50;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+        transition: background 0.2s;
+    }
+
+
+    .close {
+        position: absolute;
+        top: 24px;
+        right: 30px;
+        font-size: 28px;
+        cursor: pointer;
+        color: black;
+    }
+
+    .close:hover {
+        color: red;
+    }
+
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 500px) {
+        #paymentModal>div {
+            width: 90%;
+            padding: 20px;
+        }
+    }
+
+
+
+    #paymentSelectModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        font-family: Arial, sans-serif;
+    }
+
+
+    #paymentSelectModal .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+
+    #paymentSelectModal h2 {
+        margin-bottom: 25px;
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+
+    .payment-option {
+        display: block;
+        text-align: left;
+        margin-bottom: 15px;
+        padding: 6px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .payment-option input[type="radio"] {
+        margin-right: 10px;
+        accent-color: blue;
+    }
+
+    .payment-option:hover {
+        border-color: #007BFF;
+        background-color: #f0f8ff;
+    }
+
+
+    #confirmPaymentMethod {
+        background-color: #2c3e50;
+        color: #fff;
+        border: none;
+        width: 100%;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        margin-top: 15px;
+    }
+
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    #mpesaModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.6);
+        font-family: Arial, sans-serif;
+    }
+
+    #mpesaModal .modal-content {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        position: relative;
+        animation: fadeIn 0.3s ease;
+    }
+
+
+    #mpesaModal .mpesa-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        color: #333;
+        font-size: 28px;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+
+    #mpesaModal .mpesa-close:hover {
+        color: red;
+    }
+
+
+    #mpesaModal h2 {
+        margin-bottom: 15px;
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+
+    #mpesaModal p {
+        margin-bottom: 20px;
+        font-size: 1rem;
+        color: #555;
+    }
+
+
+    #mpesaModal input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s ease;
+    }
+
+    #mpesaModal input[type="text"]:focus {
+        border-color: #007BFF;
+    }
+
+
+    #mpesaModal #mpesaPayBtn {
+        background-color: #2c3e50;
+        color: #fff;
+        border: none;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        width: 100%;
+        transition: background-color 0.2s ease;
+    }
+
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+
+
+    .activitycontainer {
+        flex: 1;
+        padding: 30px;
+        margin-left: 20%;
+        margin-top: 5%;
+    }
+
+
+    .activityheader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .welcome {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: rgb(25, 62, 90);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .activityheader h1 {
+        font-size: 1.8rem;
+    }
+
+    .lead {
+        color: #666;
+    }
+
+
+    .btn {
+        background-color: rgb(25, 62, 90);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .btn:hover {
+        background-color: #3a47d1;
+    }
+
+
+
+
+
+    .activitycard,
+    .statcard {
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .activitycard {
+        flex: 1;
+        width: 80%;
+    }
+
+    .activitycard h3 {
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .small {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .list .item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        align-items: flex-start;
+    }
+
+    .list .item:last-child {
+        border-bottom: none;
+    }
+
+    .item .meta {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .tag {
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+
+    #card-pending .tag {
+        background-color: #F0A500;
+    }
+
+
+    #card-bookings .tag {
+        background-color: #5AB45A;
+    }
+
+
+    .empty {
+        color: #aaa;
+        font-style: italic;
+        padding: 10px 0;
+    }
+
+
+    .statcard {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .stat {
+        background-color: #f0f4ff;
+        flex: 1;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .stat b {
+        display: block;
+        font-size: 1.5rem;
+        margin-top: 5px;
+    }
+
+
+    .edit-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+
+    .edit-buttons button {
+        font-size: 14px;
+        border: none;
+        width: 50px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+
+
+    #editGuestBtn {
+        background-color: rgb(25, 62, 90);
+        color: white;
+    }
+
+    #saveGuestBtn {
+        background-color: red;
+        color: white;
+    }
+
+
+    .loading-spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 4px solid #3498db;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .booking-container {
+        max-width: 700px;
+        margin: 30px auto;
+        position: relative;
+        top: 10px;
+        padding: 40px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .booking-container h1 {
+        text-align: center;
+        color: coral;
+        margin-bottom: 10px;
+        font-family: "Cinzel";
+    }
+
+    .booking-container p {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 15px;
+    }
+
+    form .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    form .form-group label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    form .form-group input,
+    form .form-group textarea {
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 13px;
+        outline: none;
+    }
+
+    form .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    button.booktblnow {
+        background-color: #ff6347;
+        color: white;
+        font-family: "Cinzel";
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+        height: 40px;
+        transition: background 0.3s ease;
+    }
+
+    button.booktblnow:hover {
+        background-color: #e5533d;
+    }
+
+
+    .success-message {
+        text-align: center;
+        color: #28a745;
+        font-weight: bold;
+        margin-top: 20px;
+        display: none;
+    }
+
+    .error-message {
+        text-align: center;
+        color: #dc3545;
+        font-weight: bold;
+        margin-top: 20px;
+        display: none;
+    }
+
+    .modal-dessert {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 150px;
+        width: 100%;
+        overflow: auto;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-dessert-content {
+        background-color: white;
+        margin: auto;
+        padding: 20px;
+        height: 400px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        text-align: left;
+        position: relative;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+
+    .modal-dessert-body {
+        margin-top: 15px;
+    }
+
+    .notifcontainer {
+        width: 90%;
+    }
+
+    .notification-container {
+        width: 100%;
+        justify-items: center;
+        margin: 0 auto;
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    #notificationsList {
+        width: 60%;
+
+    }
+
+    .notification-item {
+        width: 100%;
+        border-left: 4px solid #007bff;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .notification-item.unread {
+        border-left-color: #28a745;
+        background: #e8f5e9;
+
+    }
+
+    .notification-item.pending {
+        border-left-color: #ffc107;
+        background: #fff3cd;
+
+    }
+
+    .notification-item.expired {
+        border-left-color: #6c757d;
+        background: #e9ecef;
+        opacity: 0.7;
+    }
+
+    .notification-item.rejected {
+        border-left-color: #dc3545;
+        background: #f8d7da;
+    }
+
+    .notification-time {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+
+    .backbtn {
+        background-color: rgb(133, 138, 151);
+        border-radius: 5px;
+        padding: 5px;
+    }
+
+    .nav-back {
+        margin-bottom: 20px;
+        width: 70%;
+    }
+
+    .notification-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        margin-left: 8px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 8px;
+    }
 }

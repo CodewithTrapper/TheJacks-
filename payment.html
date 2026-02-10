@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Jacks'- Payments</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/Styles/style.css">
+</head>
+<style>
+    .dropdown-menu {
+        display: none;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        padding-left: 6px;
+        background-color: #2c3e50;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        height: 95vh;
+        min-width: 200px;
+        max-width: 250px;
+        animation: fadeIn 0.3s ease;
+        border: 1px solid #ddd;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-content {
+        padding: 50px 0;
+    }
+
+    .dropdown-link {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        padding: 20px 20px;
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .dropdown-link.active {
+        background-color: #34495e;
+        border-left: 3px solid #3498db;
+        font-weight: bold;
+    }
+
+    .dropdown-link.logoutlink {
+        margin-top: 5px;
+    }
+
+    .dropdown-link img {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        opacity: 0.8;
+    }
+
+    .menu-toggle {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 999;
+        background: #2c3e50;
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .menu-toggle:active {
+        transform: scale(0.95);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(-120px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @media (min-width: 769px) {
+        .menu-toggle {
+            display: none;
+        }
+
+        .dropdown-menu {
+            display: none !important;
+        }
+    }
+
+    .pagination-btn {
+        padding: 8px 16px;
+        margin: 0 4px;
+        border: 1px solid #ddd;
+        background: white;
+        cursor: pointer;
+        border-radius: 4px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+    }
+
+    .pagination-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .pagination-btn.active {
+        background: #3498db;
+        color: white;
+        border-color: #3498db;
+    }
+
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 12px 20px;
+        margin: 15px 0;
+        border: 1px solid #f5c6cb;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .print-receipt-btn {
+        padding: 6px 12px;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background 0.3s;
+    }
+
+    .print-receipt-btn:hover {
+        background: #219653;
+    }
+</style>
+<body class="Apayment">
+    <button class="menu-toggle" aria-label="Toggle menu" id="hamburgerBtn">☰</button>
+
+    <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-content">
+            <a href="/admin-simple" class="dropdown-link">
+                <img src="/icons/Dashboard.png" alt="Status"> Dashboard
+            </a>
+            <a href="/adminstatus" class="dropdown-link ">
+                <img src="/icons/status icon.png" alt="Status"> Status
+            </a>
+            <a href="/newsletter" class="dropdown-link">
+                <img src="/icons/news.png" alt="News"> News Letters
+            </a>
+            <a href="/payment" class="dropdown-link active">
+                <img src="/icons/payment icon.png" alt="Payment"> Payment
+            </a>
+            <a href="/manageRooms" class="dropdown-link">
+                <img src="/icons/rooms management.png" alt="Rooms"> Manage Rooms
+            </a>
+            <a href="/manageAdmins" class="dropdown-link">
+                <img src="/icons/Admin management.png" alt="Accounts"> Manage Accounts
+            </a>
+            <a href="/adminlogout" class="dropdown-link logoutlink">
+                <img src="/icons/logout icon.png" alt="Logout"> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="payment-details-wrapper">
+        <div class="sidebar">
+            <h2 style="padding: 20px; margin: 0; border-bottom: 1px solid #34495e;">ADMIN</h2>
+            <div class="sidebar-content">
+                <a href="/admin-simple"><img src="/icons/Dashboard.png">Dashboard </a>
+                <a href="/adminstatus"><img src="/icons/status icon.png">Status</a>
+                <a href="/newsletter"><img src="/icons/news.png">News Letters</a>
+                <a href="/payment" class="link active"><img src="/icons/payment icon.png">Payment</a>
+                <a href="/manageRooms"><img src="/icons/rooms management.png">Manage Rooms</a>
+                <a href="/manageAdmins"><img src="/icons/Admin management.png">Manage Accounts</a>
+                <a href="/adminlogout" class="logoutlink"><img src="/icons/logout icon.png"> Logout</a>
+            </div>
+        </div>
+
+        <h1 class="pdetails">Payment<span style="color: rgb(179, 179, 179); font-size: 16px;"> Details</span></h1>
+
+        <div class="payment-search-area">
+            <label for="payment-search-input">Search:</label>
+            <input type="text" id="payment-search-input" placeholder="Search by name, email, room tag...">
+        </div>
+        <div class="paymenttblbox">
+            <table class="payment-records-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Room type</th>
+                        <th>Bed Type</th>
+                        <th>Check in</th>
+                        <th>Check out</th>
+                        <th>No of Room</th>
+                        <th>Meal Type</th>
+                        <th>Room Rent</th>
+                        <th>Bed Rent</th>
+                        <th>Meals</th>
+                        <th>Gr.Total</th>
+                        <th>Print</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="12" style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 16px; margin-bottom: 10px;">
+                                <i class="norecords">Loading payment records...</i>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="payment-pagination-nav">
+                <span class="pagination-summary">Showing 0 of 0 entries</span>
+                <div class="pagination">
+                    <button class="pagination-btn prev-btn" disabled>Previous</button>
+                    <button class="pagination-btn current-btn active">1</button>
+                    <button class="pagination-btn next-btn" disabled>Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        hamburgerBtn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!dropdownMenu.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        document.querySelectorAll('.dropdown-link').forEach(link => {
+            link.addEventListener('click', function () {
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('payment-search-input');
+            const tableBody = document.querySelector('.payment-records-table tbody');
+            const paginationSummary = document.querySelector('.pagination-summary');
+            const paginationContainer = document.querySelector('.pagination');
+            const prevBtn = paginationContainer.querySelector('.prev-btn');
+            const nextBtn = paginationContainer.querySelector('.next-btn');
+            const currentPageBtn = paginationContainer.querySelector('.current-btn');
+
+            let currentPage = 1;
+            const limit = 10;
+            let totalPages = 1;
+            let currentSearch = '';
+            let totalRecords = 0;
+
+
+            loadPayments();
+
+
+            let searchTimeout;
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    currentSearch = this.value.trim();
+                    currentPage = 1;
+                    loadPayments();
+                }, 500);
+            });
+
+
+            async function loadPayments() {
+                try {
+                    showLoading(true);
+
+
+                    const adminCheck = await fetch('/api/admin/check', {
+                        credentials: 'include'
+                    });
+
+                    if (adminCheck.status === 401 || !adminCheck.ok) {
+                        window.location.href = '/adminlogin';
+                        return;
+                    }
+
+                    const adminData = await adminCheck.json();
+                    if (!adminData.loggedIn) {
+                        window.location.href = '/adminlogin';
+                        return;
+                    }
+
+
+                    const response = await fetch(
+                        `/api/payments?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(currentSearch)}`,
+                        {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            credentials: 'include'
+                        }
+                    );
+
+                    if (response.status === 401) {
+                        window.location.href = '/adminlogin';
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        renderPayments(data.payments);
+                        updatePagination(data.total, data.page, data.totalPages);
+                        totalPages = data.totalPages;
+                        totalRecords = data.total;
+                    } else {
+                        throw new Error(data.message || 'Failed to load payments');
+                    }
+                } catch (error) {
+                    console.error('Error loading payments:', error);
+                    showError('Failed to load payment records: ' + error.message);
+                    renderEmptyTable();
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+
+            function renderPayments(payments) {
+                tableBody.innerHTML = '';
+
+                if (!payments || payments.length === 0) {
+                    renderEmptyTable();
+                    return;
+                }
+
+                payments.forEach(payment => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${escapeHtml(payment.name || 'N/A')}</td>
+                        <td>${escapeHtml(payment.room_type || 'N/A')}</td>
+                        <td>${escapeHtml(payment.bedding_type || 'N/A')}</td>
+                        <td>${formatDate(payment.check_in)}</td>
+                        <td>${formatDate(payment.check_out)}</td>
+                        <td>${payment.no_of_rooms || 1}</td>
+                        <td>${escapeHtml(payment.meal_plan || 'N/A')}</td>
+                        <td>KES ${payment.room_rent || '0.00'}</td>
+                        <td>KES ${payment.bed_rent || '0.00'}</td>
+                        <td>KES ${payment.meals || '0.00'}</td>
+                        <td><strong>KES ${payment.gr_total || '0.00'}</strong></td>
+                        <td>
+                            <button class="print-receipt-btn" data-id="${payment.reservation_id}" title="Print Receipt">
+                                Print
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+
+                document.querySelectorAll('.print-receipt-btn').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const reservationId = this.getAttribute('data-id');
+                        printReceipt(reservationId);
+                    });
+                });
+            }
+
+
+            async function printReceipt(reservationId) {
+                try {
+                    const response = await fetch(`/api/payment/receipt/${reservationId}`, {
+                        credentials: 'include'
+                    });
+
+                    if (response.status === 401) {
+                        alert('Please login as admin to print receipts');
+                        window.location.href = '/adminlogin';
+                        return;
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        generateReceiptPDF(data.receipt);
+                    } else {
+                        alert('Failed to generate receipt: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error printing receipt:', error);
+                    alert('Failed to print receipt. Please try again.');
+                }
+            }
+
+
+            function generateReceiptPDF(receipt) {
+                const receiptWindow = window.open('', '_blank');
+
+                const receiptHTML = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Receipt - The Jack's</title>
+                        <style>
+                            * { margin: 0; padding: 0; box-sizing: border-box; }
+                            body { 
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                                margin: 40px; 
+                                background: #fff;
+                                color: #333;
+                                line-height: 1.6;
+                            }
+                            
+                            .receipt-container {
+                                max-width: 800px;
+                                margin: 0 auto;
+                                border: 1px solid #ddd;
+                                padding: 30px;
+                                background: white;
+                            }
+                            
+                            .header {
+                                text-align: center;
+                                margin-bottom: 30px;
+                                border-bottom: 2px solid #4CAF50;
+                                padding-bottom: 20px;
+                            }
+                            
+                            .hotel-name {
+                                font-size: 32px;
+                                font-weight: bold;
+                                color: #2c3e50;
+                                margin-bottom: 5px;
+                                letter-spacing: 1px;
+                            }
+                            
+                            .hotel-details {
+                                color: #7f8c8d;
+                                font-size: 14px;
+                                margin-bottom: 10px;
+                            }
+                            
+                            .receipt-title {
+                                font-size: 28px;
+                                color: #e74c3c;
+                                margin: 15px 0;
+                                text-transform: uppercase;
+                                letter-spacing: 2px;
+                            }
+                            
+                            .section {
+                                margin: 25px 0;
+                                padding: 15px;
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                border-left: 4px solid #3498db;
+                            }
+                            
+                            .section-title {
+                                font-weight: bold;
+                                color: #2c3e50;
+                                font-size: 18px;
+                                margin-bottom: 15px;
+                                padding-bottom: 8px;
+                                border-bottom: 1px solid #ddd;
+                            }
+                            
+                            .info-grid {
+                                display: grid;
+                                grid-template-columns: repeat(2, 1fr);
+                                gap: 15px;
+                            }
+                            
+                            .info-item {
+                                margin-bottom: 8px;
+                            }
+                            
+                            .info-label {
+                                font-weight: bold;
+                                color: #555;
+                                display: inline-block;
+                                width: 150px;
+                            }
+                            
+                            .info-value {
+                                color: #333;
+                            }
+                            
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin: 15px 0;
+                                background: white;
+                            }
+                            
+                            th {
+                                background: #34495e;
+                                color: white;
+                                padding: 12px;
+                                text-align: left;
+                                font-weight: bold;
+                            }
+                            
+                            td {
+                                padding: 10px;
+                                border-bottom: 1px solid #eee;
+                            }
+                            
+                            tr:hover {
+                                background: #f5f5f5;
+                            }
+                            
+                            .total-row td {
+                                font-weight: bold;
+                                background: #ecf0f1;
+                                font-size: 16px;
+                            }
+                            
+                            .footer {
+                                text-align: center;
+                                margin-top: 40px;
+                                padding-top: 20px;
+                                border-top: 1px solid #ddd;
+                                color: #7f8c8d;
+                                font-size: 12px;
+                            }
+                            
+                            .print-controls {
+                                text-align: center;
+                                margin-top: 30px;
+                                padding: 20px;
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                            }
+                            
+                            .btn {
+                                padding: 12px 30px;
+                                border: none;
+                                border-radius: 4px;
+                                cursor: pointer;
+                                font-size: 16px;
+                                font-weight: bold;
+                                margin: 0 10px;
+                                transition: all 0.3s;
+                            }
+                            
+                            .btn-print {
+                                background: #3498db;
+                                color: white;
+                            }
+                            
+                            .btn-print:hover {
+                                background: #2980b9;
+                            }
+                            
+                            .btn-close {
+                                background: #95a5a6;
+                                color: white;
+                            }
+                            
+                            .btn-close:hover {
+                                background: #7f8c8d;
+                            }
+                            
+                            .receipt-number {
+                                background: #f1c40f;
+                                color: #2c3e50;
+                                padding: 5px 15px;
+                                border-radius: 4px;
+                                display: inline-block;
+                                margin: 10px 0;
+                                font-weight: bold;
+                            }
+                            
+                            @media print {
+                                body { margin: 0; }
+                                .print-controls { display: none; }
+                                .receipt-container { border: none; padding: 20px; }
+                                .btn { display: none; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="receipt-container">
+                            <div class="header">
+                                <div class="hotel-name">THE JACKS' HOTEL</div>
+                                <div class="hotel-details">OldTown near Fort Jesus, Mombasa, Kenya</div>
+                                <div class="hotel-details">Phone: +254 701 274575 | Email: info@thejackshotel.com</div>
+                                <div class="receipt-title">PAYMENT RECEIPT</div>
+                                <div class="receipt-number">RECEIPT #: REC-${receipt.reservation_id}</div>
+                            </div>
+                            
+                            <div class="section">
+                                <div class="section-title">Guest Information</div>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Name:</span>
+                                        <span class="info-value">${escapeHtml(receipt.guest_info.name)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Email:</span>
+                                        <span class="info-value">${escapeHtml(receipt.guest_info.email)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Phone:</span>
+                                        <span class="info-value">${escapeHtml(receipt.guest_info.phone)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Nationality:</span>
+                                        <span class="info-value">${escapeHtml(receipt.guest_info.nationality)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">ID/Passport:</span>
+                                        <span class="info-value">${escapeHtml(receipt.guest_info.id_number)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <div class="section-title">Booking Details</div>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Check-in:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.check_in)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Check-out:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.check_out)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Nights:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.nights)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Room Tag:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.room_tag)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Room Type:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.room_type)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Bed Type:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.bed_type)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Meal Plan:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.meal_plan)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">No. of Rooms:</span>
+                                        <span class="info-value">${escapeHtml(receipt.booking_info.no_of_rooms)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section">
+                                <div class="section-title">Payment Breakdown</div>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                            <th>Rate per Night</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Room Charges</td>
+                                            <td>${receipt.booking_info.no_of_rooms} room(s) × ${receipt.booking_info.nights} night(s)</td>
+                                            <td>KES ${receipt.pricing.room_rate}</td>
+                                            <td>KES ${receipt.pricing.room_total}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bed Charges</td>
+                                            <td>${receipt.booking_info.no_of_rooms} room(s) × ${receipt.booking_info.nights} night(s)</td>
+                                            <td>KES ${receipt.pricing.bed_rate}</td>
+                                            <td>KES ${receipt.pricing.bed_total}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Meal Charges</td>
+                                            <td>${receipt.booking_info.no_of_rooms} room(s) × ${receipt.booking_info.nights} night(s)</td>
+                                            <td>KES ${receipt.pricing.meal_rate}</td>
+                                            <td>KES ${receipt.pricing.meal_total}</td>
+                                        </tr>
+                                        <tr class="total-row">
+                                            <td colspan="3" style="text-align: right;">Subtotal:</td>
+                                            <td>KES ${receipt.pricing.subtotal}</td>
+                                        </tr>
+                                        <tr class="total-row">
+                                            <td colspan="3" style="text-align: right;">Tax (${receipt.pricing.tax_rate}):</td>
+                                            <td>KES ${receipt.pricing.tax_amount}</td>
+                                        </tr>
+                                        <tr class="total-row">
+                                            <td colspan="3" style="text-align: right;"><strong>GRAND TOTAL:</strong></td>
+                                            <td><strong>KES ${receipt.pricing.grand_total}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="section">
+                                <div class="section-title">Payment Information</div>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Amount Paid:</span>
+                                        <span class="info-value">KES ${receipt.payment_info.amount_paid}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Payment Method:</span>
+                                        <span class="info-value">${escapeHtml(receipt.payment_info.payment_method)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Payment Date:</span>
+                                        <span class="info-value">${escapeHtml(receipt.payment_info.payment_date)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Transaction ID:</span>
+                                        <span class="info-value">${escapeHtml(receipt.payment_info.transaction_id)}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Payment Status:</span>
+                                        <span class="info-value" style="color: green; font-weight: bold;">${escapeHtml(receipt.payment_info.payment_status)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="footer">
+                                <p>Thank you for choosing THE JACKS' HOTEL!</p>
+                                <p>This is a computer-generated receipt and does not require a signature.</p>
+                                <p>For any inquiries, please contact our customer service at info@thejackshotel.com</p>
+                                <p style="margin-top: 10px;">Generated on: ${new Date().toLocaleString()}</p>
+                            </div>
+                            
+                            <div class="print-controls">
+                                <button class="btn btn-print" onclick="window.print()">Print Receipt</button>
+                                <button class="btn btn-close" onclick="window.close()">Close Window</button>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                receiptWindow.document.write(receiptHTML);
+                receiptWindow.document.close();
+            }
+
+
+            function updatePagination(total, page, totalPages) {
+                const start = total === 0 ? 0 : (page - 1) * limit + 1;
+                const end = Math.min(page * limit, total);
+                paginationSummary.textContent = `Showing ${start} of ${total} entries`;
+
+
+                currentPageBtn.textContent = page;
+                currentPageBtn.className = page === currentPage ? 'pagination-btn current-btn active' : 'pagination-btn current-btn';
+
+
+                prevBtn.disabled = page <= 1;
+                nextBtn.disabled = page >= totalPages;
+
+
+                prevBtn.onclick = () => {
+                    if (page > 1) {
+                        currentPage = page - 1;
+                        loadPayments();
+                    }
+                };
+
+                nextBtn.onclick = () => {
+                    if (page < totalPages) {
+                        currentPage = page + 1;
+                        loadPayments();
+                    }
+                };
+            }
+
+            function renderEmptyTable() {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="12" style="text-align: center; padding: 40px; color: #666;">
+                            <div style="font-size: 16px; margin-bottom: 10px;">
+                                <i class="norecords">No payment records found</i>
+                            </div>
+                            ${currentSearch ? `<div style="font-size: 14px; margin-top: 10px;">Try adjusting your search term</div>` : ''}
+                        </td>
+                    </tr>
+                `;
+
+                paginationSummary.textContent = `Showing 0 of 0 entries`;
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+            }
+
+
+            function showLoading(show) {
+                if (show) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="12" style="text-align: center; padding: 40px;">
+                                <div class="loading-spinner"></div>
+                                <div style="margin-top: 10px; color: #666;">Loading payment records...</div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+
+
+            function showError(message) {
+                const existingError = document.querySelector('.error-message');
+                if (existingError) existingError.remove();
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = `
+                    <strong>Error:</strong> ${message}
+                    <button onclick="this.parentElement.remove()" style="float: right; background: none; border: none; color: #721c24; cursor: pointer; font-size: 18px;">×</button>
+                `;
+
+                document.querySelector('.payment-search-area').after(errorDiv);
+            }
+
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function formatDate(dateString) {
+                if (!dateString) return 'N/A';
+                try {
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                } catch (e) {
+                    return dateString;
+                }
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const logoutLinks = document.querySelectorAll('a[href="/adminlogout"]');
+
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+                    if (confirmLogout) {
+                        window.location.href = '/adminlogout';
+                    }
+                });
+            });
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/Styles/style.css">
+</head>
+<body class="notif">
+    <div class="notifcontainer">
+        <div class="notification-container">
+
+            <div class="nav-back">
+                <a href="/reservation" class="backbtn">
+                    ← Back to Reservations
+                </a>
+                <h3 class="mt-3">My Notifications</h3>
+                <p class="text-muted small">Pending reservations expire after 2 hours without payment</p>
+            </div>
+
+
+            <div id="noNotifications" class="text-center">
+                <p class="text-muted">No notifications yet</p>
+                <p class="small">You'll see updates about your bookings and payments here</p>
+            </div>
+
+
+            <div id="notificationsList">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden"></span>
+                    </div>
+                    <p class="mt-2"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            await checkLogin();
+            loadNotifications();
+            setInterval(loadNotifications, 30000);
+        });
+
+        async function checkLogin() {
+            try {
+                const response = await fetch('/api/session-user');
+                if (!response.ok) {
+                    window.location.href = '/guestlogin';
+                }
+            } catch (error) {
+                window.location.href = '/guestlogin';
+            }
+        }
+
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/api/reservations');
+                const reservations = await response.json();
+
+
+                const paymentInfo = await getPaymentInfo(reservations);
+
+                displayNotifications(reservations, paymentInfo);
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('notificationsList').innerHTML = `
+                    <div class="alert alert-danger">
+                        Failed to load notifications. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+
+        async function getPaymentInfo(reservations) {
+            const paymentInfo = {};
+
+            for (const res of reservations) {
+                try {
+                    const response = await fetch(`/api/payment/${res.reservation_id}`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        paymentInfo[res.reservation_id] = data;
+                    }
+                } catch (error) {
+                    console.error(`Error fetching payment info for reservation ${res.reservation_id}:`, error);
+                }
+            }
+
+            return paymentInfo;
+        }
+
+
+        function displayNotifications(reservations, paymentInfo) {
+            const container = document.getElementById('notificationsList');
+            const noNotifications = document.getElementById('noNotifications');
+
+            if (!reservations || reservations.length === 0) {
+                container.classList.add('d-none');
+                noNotifications.classList.remove('d-none');
+                return;
+            }
+
+            let html = '';
+            let hasNotifications = false;
+
+
+            reservations.forEach(res => {
+                const isPaid = res.amount_paid > 0 || res.payment_status === 'Paid';
+                const isPaymentPending = res.payment_status === 'Pending';
+                const isPaymentFailed = res.payment_status === 'Failed';
+
+
+                if (res.reservation_status) {
+                    let statusClass = 'info';
+                    let statusText = res.reservation_status;
+                    let notificationClass = '';
+                    let badgeHtml = '';
+
+                    if (res.reservation_status === 'Permitted') {
+                        statusClass = 'success';
+                        notificationClass = 'unread';
+                        badgeHtml = `<span class="badge bg-success status-badge">Confirmed</span>`;
+                    }
+                    else if (res.reservation_status === 'Pending') {
+                        if (isPaid) {
+                            statusClass = 'success';
+                            statusText = 'Awaiting Confirmation';
+                            badgeHtml = `<span class="badge bg-success status-badge">Payment Received</span>`;
+                        }
+
+                        else if (isPaymentFailed) {
+                            statusClass = 'danger';
+                            statusText = 'Payment Failed';
+                            badgeHtml = `<span class="badge bg-danger status-badge">Payment Failed</span>`;
+                        }
+
+                        else if (res.is_expired) {
+                            statusClass = 'secondary';
+                            statusText = 'Expired';
+                            notificationClass = 'expired';
+                            badgeHtml = `<span class="badge bg-secondary status-badge">Expired</span>`;
+                        }
+
+                        else {
+                            statusClass = 'warning';
+                            notificationClass = 'pending';
+                            badgeHtml = `<span class="badge bg-warning text-dark status-badge">Pending</span>`;
+
+
+                            if (res.needs_payment_reminder && isPaymentPending) {
+                                html += createNotificationItem(
+                                    'Payment Reminder',
+                                    `Complete payment for booking #${res.reservation_id} within ${res.time_left_formatted || '1 hour'} to confirm your reservation`,
+                                    'warning',
+                                    'pending reminder',
+                                    `<span class="badge bg-warning text-dark notification-badge">Reminder</span>`
+                                );
+                                hasNotifications = true;
+                            }
+
+
+                            if (res.is_expired && isPaymentPending) {
+                                html += createNotificationItem(
+                                    'Booking Expired',
+                                    `Booking #${res.reservation_id} has expired. Please make a new reservation.`,
+                                    'danger',
+                                    'expired',
+                                    `<span class="badge bg-danger notification-badge">Expired</span>`
+                                );
+                                hasNotifications = true;
+                            }
+                        }
+                    }
+                    else if (res.reservation_status === 'Rejected') {
+                        statusClass = 'danger';
+                        notificationClass = 'rejected';
+                        badgeHtml = `<span class="badge bg-danger status-badge">Rejected</span>`;
+                    }
+
+                    html += createNotificationItem(
+                        'Booking Status',
+                        ` Your Booking is ${statusText}`,
+                        statusClass,
+                        notificationClass,
+                        badgeHtml
+                    );
+                    hasNotifications = true;
+                }
+
+
+                if (isPaid && res.amount_paid > 0) {
+                    html += createNotificationItem(
+                        'Payment Received',
+                        `Payment of KES ${res.amount_paid} was successfull enjoy your stay`,
+                        'success',
+                        'unread',
+                        `<span class="badge bg-success notification-badge">Paid</span>`
+                    );
+                    hasNotifications = true;
+                }
+
+
+                if (isPaymentFailed) {
+                    html += createNotificationItem(
+                        'Payment Failed',
+                        `Payment for booking #${res.reservation_id} failed. Please try again.`,
+                        'danger',
+                        'unread',
+                        `<span class="badge bg-danger notification-badge">Failed</span>`
+                    );
+                    hasNotifications = true;
+                }
+
+
+                if (res.roomTag) {
+                    html += createNotificationItem(
+                        'Room Assigned',
+                        `Room ${res.roomTag} assigned to your booking`,
+                        'info'
+                    );
+                    hasNotifications = true;
+                }
+
+
+                if (paymentInfo[res.reservation_id]) {
+                    const payment = paymentInfo[res.reservation_id];
+                    if (payment.payment_status && payment.payment_status !== 'Pending') {
+
+                        if (payment.payment_status === 'Paid' && !isPaid) {
+                            let paymentStatusClass = 'success';
+
+                            html += createNotificationItem(
+                                'Payment Update',
+                                `Payment of $${payment.amount_paid || res.amount_paid} for your booking  has been confirmed`,
+                                paymentStatusClass,
+                                'unread',
+                                `<span class="badge bg-success notification-badge">Confirmed</span>`
+                            );
+                            hasNotifications = true;
+                        }
+                        else if (payment.payment_status === 'Failed') {
+                            html += createNotificationItem(
+                                'Payment Update',
+                                `Payment for booking #${res.reservation_id} failed. Please try again.`,
+                                'danger',
+                                'unread',
+                                `<span class="badge bg-danger notification-badge">Failed</span>`
+                            );
+                            hasNotifications = true;
+                        }
+                    }
+                }
+
+
+                if (res.reservation_status === 'Pending' &&
+                    isPaymentPending &&
+                    res.minutes_left &&
+                    res.minutes_left <= 30 &&
+                    res.minutes_left > 0) {
+
+                    html += createNotificationItem(
+                        'Urgent Payment Reminder',
+                        `Your Booking will expire in ${res.minutes_left} minute${res.minutes_left > 1 ? 's' : ''}. Complete payment now!`,
+                        'danger',
+                        'urgent',
+                        `<span class="badge bg-danger notification-badge">Urgent</span>`
+                    );
+                    hasNotifications = true;
+                }
+            });
+
+
+            if (!hasNotifications) {
+                html += createNotificationItem(
+                    'Welcome!',
+                    'Thank you for choosing us',
+                    'primary',
+                    'unread'
+                );
+            }
+
+            container.innerHTML = html;
+            noNotifications.classList.add('d-none');
+        }
+
+
+        function createNotificationItem(title, message, type, additionalClass = '', badgeHtml = '') {
+            const colors = {
+                'success': '#28a745',
+                'danger': '#dc3545',
+                'warning': '#ffc107',
+                'info': '#17a2b8',
+                'primary': '#007bff',
+                'secondary': '#6c757d'
+            };
+
+            const borderColor = colors[type] || colors['primary'];
+
+            return `
+                <div class="notification-item ${additionalClass}" style="border-left-color: ${borderColor}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h6 class="mb-1">${title} ${badgeHtml}</h6>
+                    </div>
+                    <p class="mb-1">${message}</p>
+                </div>
+            `;
+        }
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
+</body>
+</html>

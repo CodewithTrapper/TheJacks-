@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | THE JACKS' HOTEL</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="Styles/style.css">
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            padding-left: 6px;
+            background-color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 95vh;
+            min-width: 200px;
+            max-width: 250px;
+            animation: fadeIn 0.3s ease;
+            border: 1px solid #ddd;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-content {
+            padding: 50px 0;
+        }
+
+        .dropdown-link {
+            display: flex;
+            font-size: 14px;
+            align-items: center;
+            padding: 20px 20px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .dropdown-link.active {
+            background-color: #34495e;
+            border-left: 3px solid #3498db;
+            font-weight: bold;
+        }
+
+        .dropdown-link.logoutlink {
+            margin-top: 5px;
+        }
+
+        .dropdown-link img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 999;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-120px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-unconfirmed {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirm {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+
+            .dropdown-menu {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            :root {
+                --primary: #2c3e50;
+                --secondary: #3498db;
+                --success: #27ae60;
+                --warning: #f39c12;
+                --danger: #e74c3c;
+                --light: #f8f9fa;
+                --border: #e9ecef;
+            }
+
+            .dashboard {
+                display: block;
+                gap: 5px;
+                padding: 10px;
+                background: white;
+                width: 90%;
+            }
+
+            .dashboard-header {
+                margin-bottom: 30px;
+            }
+
+            .dashboard-title {
+                font-size: 1.8rem;
+                color: var(--primary);
+                font-weight: 600;
+                font-family: 'Cinzel';
+                margin-bottom: 5px;
+            }
+
+            .dashboard-date {
+                color: #6c757d;
+                font-size: 0.95rem;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+                border-left: 4px solid var(--secondary);
+            }
+
+            .stat-card.revenue {
+                border-left-color: var(--success);
+            }
+
+            .stat-card.bookings {
+                border-left-color: var(--secondary);
+            }
+
+            .stat-card.rooms {
+                border-left-color: var(--warning);
+            }
+
+            .stat-card.occupancy {
+                border-left-color: var(--danger);
+            }
+
+            .stat-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+
+            .stat-icon {
+                width: 30px;
+                height: 30px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 12px;
+                color: white;
+                font-size: 20px;
+            }
+
+            .stat-icon.revenue {
+                background: var(--success);
+            }
+
+            .stat-icon.bookings {
+                background: var(--secondary);
+            }
+
+            .stat-icon.rooms {
+                background: var(--warning);
+            }
+
+            .stat-icon.occupancy {
+                background: var(--danger);
+            }
+
+            .stat-info h3 {
+                font-size: 0.9rem;
+                color: #6c757d;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+            .charts-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 25px;
+                margin-bottom: 30px;
+            }
+
+            .chart-box {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .chart-title {
+                font-size: 1.1rem;
+                color: var(--primary);
+                font-weight: 600;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .chart-container {
+                height: 250px;
+                position: relative;
+            }
+
+            .recent-bookings {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .bookings-list {
+                list-style: none;
+            }
+
+            .booking-item {
+                display: flex;
+                align-items: center;
+                padding: 15px 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .booking-item:last-child {
+                border-bottom: none;
+            }
+
+            .booking-status {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                margin-right: 15px;
+            }
+
+            .booking-status.pending {
+                background: var(--warning);
+            }
+
+            .booking-status.permitted {
+                background: var(--success);
+            }
+
+            .booking-status.rejected {
+                background: var(--danger);
+            }
+
+            .booking-details {
+                flex: 1;
+            }
+
+            .booking-room {
+                font-weight: 600;
+                color: var(--primary);
+                margin-bottom: 3px;
+            }
+
+            .booking-guest {
+                font-size: 0.9rem;
+                color: #6c757d;
+            }
+
+            .booking-date {
+                font-size: 0.85rem;
+                color: #adb5bd;
+            }
+
+            @media (max-width: 768px) {
+                .dashboard {
+                    padding: 15px;
+                }
+
+                .stats-grid,
+                .charts-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .chart-container {
+                    height: 220px;
+                }
+            }
+
+            .loading {
+                text-align: center;
+                padding: 40px;
+                color: #6c757d;
+            }
+
+            .spinner {
+                width: 30px;
+                height: 30px;
+                border: 3px solid var(--border);
+                border-top-color: var(--secondary);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 15px;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        }
+
+        @media (min-width: 1025px) {
+            :root {
+                --primary: #2c3e50;
+                --secondary: #3498db;
+                --success: #27ae60;
+                --warning: #f39c12;
+                --danger: #e74c3c;
+                --light: #f8f9fa;
+                --border: #e9ecef;
+            }
+
+            .dashboard {
+                display: flex;
+                width: 90%;
+                gap: 10px;
+                padding: 10px;
+                background: white;
+                margin-left: 21%;
+            }
+
+            .dashboard-header {
+                margin-bottom: 30px;
+            }
+
+            .dashboard-title {
+                font-size: 1.8rem;
+                color: var(--primary);
+                font-weight: 600;
+                font-family: 'Cinzel';
+                margin-bottom: 5px;
+            }
+
+            .dashboard-date {
+                color: #6c757d;
+                font-size: 0.95rem;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+                border-left: 4px solid var(--secondary);
+            }
+
+            .stat-card.revenue {
+                border-left-color: var(--success);
+            }
+
+            .stat-card.bookings {
+                border-left-color: var(--secondary);
+            }
+
+            .stat-card.rooms {
+                border-left-color: var(--warning);
+            }
+
+            .stat-card.occupancy {
+                border-left-color: var(--danger);
+            }
+
+            .stat-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+
+            .stat-icon {
+                width: 45px;
+                height: 45px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 12px;
+                color: white;
+                font-size: 20px;
+            }
+
+            .stat-icon.revenue {
+                background: var(--success);
+            }
+
+            .stat-icon.bookings {
+                background: var(--secondary);
+            }
+
+            .stat-icon.rooms {
+                background: var(--warning);
+            }
+
+            .stat-icon.occupancy {
+                background: var(--danger);
+            }
+
+            .stat-info h3 {
+                font-size: 0.9rem;
+                color: #6c757d;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--primary);
+            }
+
+            .charts-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+                gap: 25px;
+                margin-bottom: 30px;
+            }
+
+            .chart-box {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .chart-title {
+                font-size: 1.1rem;
+                color: var(--primary);
+                font-weight: 600;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .chart-container {
+                height: 250px;
+                position: relative;
+            }
+
+            .recent-bookings {
+                background: white;
+                border-radius: 12px;
+                width: 30%;
+                padding: 20px;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            }
+
+            .bookings-list {
+                list-style: none;
+            }
+
+            .booking-item {
+                display: flex;
+                align-items: center;
+                padding: 15px 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .booking-item:last-child {
+                border-bottom: none;
+            }
+
+            .booking-status {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                margin-right: 15px;
+            }
+
+            .booking-status.pending {
+                background: var(--warning);
+            }
+
+            .booking-status.permitted {
+                background: var(--success);
+            }
+
+            .booking-status.rejected {
+                background: var(--danger);
+            }
+
+            .booking-details {
+                flex: 1;
+            }
+
+            .booking-room {
+                font-weight: 600;
+                color: var(--primary);
+                margin-bottom: 3px;
+            }
+
+            .booking-guest {
+                font-size: 0.9rem;
+                color: #6c757d;
+            }
+
+            .booking-date {
+                font-size: 0.85rem;
+                color: #adb5bd;
+            }
+
+            @media (max-width: 768px) {
+                .dashboard {
+                    padding: 15px;
+                }
+
+                .stats-grid,
+                .charts-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .chart-container {
+                    height: 220px;
+                }
+            }
+
+            .loading {
+                text-align: center;
+                padding: 40px;
+                color: #6c757d;
+            }
+
+            .spinner {
+                width: 30px;
+                height: 30px;
+                border: 3px solid var(--border);
+                border-top-color: var(--secondary);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 15px;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" aria-label="Toggle menu" id="hamburgerBtn">☰</button>
+
+    <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-content">
+            <a href="/admin-simple" class="dropdown-link active">
+                <img src="/icons/Dashboard.png" alt="Status"> Dashboard
+            </a>
+            <a href="/adminstatus" class="dropdown-link">
+                <img src="/icons/status icon.png" alt="Status"> Status
+            </a>
+            <a href="/newsletter" class="dropdown-link">
+                <img src="/icons/news.png" alt="News"> News Letters
+            </a>
+            <a href="/payment" class="dropdown-link">
+                <img src="/icons/payment icon.png" alt="Payment"> Payment
+            </a>
+
+            <a href="/manageRooms" class="dropdown-link">
+                <img src="/icons/rooms management.png" alt="Rooms"> Manage Rooms
+            </a>
+            <a href="/manageAdmins" class="dropdown-link">
+                <img src="/icons/Admin management.png" alt="Accounts"> Manage Accounts
+            </a>
+            <a href="/adminlogout" class="dropdown-link logoutlink">
+                <img src="/icons/logout icon.png" alt="Logout"> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h2 style="padding: 20px; margin: 0; border-bottom: 1px solid #34495e;">ADMIN</h2>
+        <div class="sidebar-content">
+            <a href="/admin-simple" class="link active"><img src="/icons/Dashboard.png">Dashboard </a>
+            <a href="/adminstatus"><img src="/icons/status icon.png">Status</a>
+            <a href="/newsletter"><img src="/icons/news.png">News Letters</a>
+            <a href="/payment"><img src="/icons/payment icon.png">Payment</a>
+            <a href="/manageRooms"><img src="/icons/rooms management.png">Manage Rooms</a>
+            <a href="/manageAdmins"><img src="/icons/Admin management.png">Manage Accounts</a>
+            <a href="/adminlogout" class="logoutlink"><img src="/icons/logout icon.png"> Logout</a>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Welcome,</h1>
+            <div class="dashboard-date" id="current-date"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card revenue">
+                <div class="stat-header">
+                    <div class="stat-icon revenue">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Today's Revenue</h3>
+                        <div class="stat-value" id="today-revenue">KES 0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bookings">
+                <div class="stat-header">
+                    <div class="stat-icon bookings">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Active Bookings</h3>
+                        <div class="stat-value" id="active-bookings">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card rooms">
+                <div class="stat-header">
+                    <div class="stat-icon rooms">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Available Rooms</h3>
+                        <div class="stat-value" id="available-rooms">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card occupancy">
+                <div class="stat-header">
+                    <div class="stat-icon occupancy">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Occupancy Rate</h3>
+                        <div class="stat-value" id="occupancy-rate">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-box">
+                <h3 class="chart-title">Revenue This Week</h3>
+                <div class="chart-container">
+                    <canvas id="revenue-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <h3 class="chart-title">Room Types</h3>
+                <div class="chart-container">
+                    <canvas id="room-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-bookings">
+            <h3 class="chart-title">Recent Bookings</h3>
+            <ul class="bookings-list" id="recent-bookings">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading bookings...</div>
+                </div>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        hamburgerBtn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!dropdownMenu.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        document.querySelectorAll('.dropdown-link').forEach(link => {
+            link.addEventListener('click', function () {
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        const sidebar = document.querySelector('.sidebar');
+
+        window.addEventListener('resize', function () {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                dropdownMenu.classList.remove('show');
+                sidebar.style.display = 'none';
+            } else {
+                dropdownMenu.classList.remove('show');
+                sidebar.style.display = 'block';
+            }
+        });
+
+        function initResponsiveLayout() {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                sidebar.style.display = 'none';
+                hamburgerBtn.style.display = 'block';
+            } else {
+                sidebar.style.display = 'block';
+                hamburgerBtn.style.display = 'none';
+                dropdownMenu.classList.remove('show');
+            }
+        }
+
+        initResponsiveLayout();
+
+
+
+
+        let dashboardUpdateNeeded = false;
+
+
+        function forceUpdateDashboard() {
+            console.log('Force updating dashboard...');
+            loadDashboardData();
+        }
+
+
+        async function updateStatsOnly() {
+            try {
+                console.log('Updating stats only...');
+                await loadStats();
+                await updateChartData();
+            } catch (error) {
+                console.error('Error updating stats:', error);
+            }
+        }
+
+
+        setInterval(() => {
+            if (dashboardUpdateNeeded) {
+                updateStatsOnly();
+                dashboardUpdateNeeded = false;
+            }
+        }, 5000);
+
+
+        document.addEventListener('bookingStatusChanged', function () {
+            console.log('Booking status changed event received, updating dashboard...');
+            dashboardUpdateNeeded = true;
+            updateStatsOnly();
+        });
+
+
+        let lastUrl = window.location.href;
+        setInterval(() => {
+            const currentUrl = window.location.href;
+            if (currentUrl !== lastUrl) {
+                lastUrl = currentUrl;
+                if (currentUrl.includes('/admin-simple')) {
+                    console.log('Returned to dashboard, refreshing data...');
+                    forceUpdateDashboard();
+                }
+            }
+        }, 1000);
+
+
+        if (typeof window.permitBooking !== 'undefined') {
+            const originalPermitBooking = window.permitBooking;
+            window.permitBooking = async function (reservationId) {
+                try {
+                    const result = await originalPermitBooking(reservationId);
+
+                    setTimeout(() => {
+                        updateStatsOnly();
+                        loadRecentBookings();
+                    }, 1000);
+                    return result;
+                } catch (error) {
+                    console.error('Error in permit booking:', error);
+                    throw error;
+                }
+            };
+        }
+
+
+        if (typeof window.rejectBooking !== 'undefined') {
+            const originalRejectBooking = window.rejectBooking;
+            window.rejectBooking = async function (reservationId) {
+                try {
+                    const result = await originalRejectBooking(reservationId);
+
+                    setTimeout(() => {
+                        updateStatsOnly();
+                        loadRecentBookings();
+                    }, 1000);
+                    return result;
+                } catch (error) {
+                    console.error('Error in reject booking:', error);
+                    throw error;
+                }
+            };
+        }
+
+
+        window.simulateBookingPermitted = function () {
+            console.log('Simulating booking permitted, updating dashboard...');
+            const event = new CustomEvent('bookingStatusChanged');
+            document.dispatchEvent(event);
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const now = new Date();
+            document.getElementById('current-date').textContent =
+                now.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+
+            forceUpdateDashboard();
+
+
+            setInterval(forceUpdateDashboard, 30000);
+        });
+
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadStats(),
+                    loadCharts(),
+                    loadRecentBookings()
+                ]);
+                console.log('Dashboard data loaded successfully');
+            } catch (error) {
+                console.error('Dashboard error:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/dashboard-stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.stats;
+                    document.getElementById('today-revenue').textContent =
+                        `KES ${parseFloat(stats.today_revenue).toLocaleString()}`;
+                    document.getElementById('active-bookings').textContent = stats.active_bookings;
+                    document.getElementById('available-rooms').textContent = stats.available_rooms;
+                    document.getElementById('occupancy-rate').textContent = `${stats.occupancy_rate}%`;
+
+                    console.log('Stats updated:', {
+                        revenue: stats.today_revenue,
+                        activeBookings: stats.active_bookings,
+                        availableRooms: stats.available_rooms,
+                        occupancyRate: stats.occupancy_rate
+                    });
+                }
+            } catch (error) {
+                console.error('Stats error:', error);
+                await loadStatsFallback();
+            }
+        }
+
+        async function loadStatsFallback() {
+            try {
+                const revenueRes = await fetch('/api/payment-summary');
+                const revenueData = await revenueRes.json();
+
+                if (revenueData.success) {
+                    const revenue = parseFloat(revenueData.summary.today_total);
+                    document.getElementById('today-revenue').textContent = `KES ${revenue.toLocaleString()}`;
+                }
+
+                const bookingsRes = await fetch('/api/new-bookings');
+                const bookingsData = await bookingsRes.json();
+
+                if (Array.isArray(bookingsData)) {
+                    const active = bookingsData.filter(b =>
+                        b.status === 'Pending' || b.status === 'Permitted'
+                    ).length;
+                    document.getElementById('active-bookings').textContent = active;
+                }
+
+                const roomsRes = await fetch('/api/rooms');
+                const roomsData = await roomsRes.json();
+
+                if (Array.isArray(roomsData)) {
+                    const totalRooms = roomsData.length;
+                    const bookedRes = await fetch('/api/available-rooms');
+                    const bookedData = await bookedRes.json();
+
+                    let booked = 0;
+                    if (bookedData.success && bookedData.bookedRooms) {
+                        booked = bookedData.bookedRooms.length;
+                    }
+
+                    const available = totalRooms - booked;
+                    document.getElementById('available-rooms').textContent = available;
+                    const occupancy = totalRooms > 0 ? Math.round((booked / totalRooms) * 100) : 0;
+                    document.getElementById('occupancy-rate').textContent = `${occupancy}%`;
+                }
+            } catch (error) {
+                console.error('Stats fallback error:', error);
+            }
+        }
+
+        let revenueChart = null;
+        let roomChart = null;
+
+        async function loadCharts() {
+            if (!revenueChart) {
+                const ctx1 = document.getElementById('revenue-chart').getContext('2d');
+                revenueChart = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'KES',
+                            data: [0, 0, 0, 0, 0, 0, 0],
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (value) {
+                                        return 'KES ' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (!roomChart) {
+                const ctx2 = document.getElementById('room-chart').getContext('2d');
+                roomChart = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Standard', 'Deluxe', 'Suite', 'Family Suite'],
+                        datasets: [{
+                            data: [0, 0, 0, 0],
+                            backgroundColor: ['#3498db', '#27ae60', '#f39c12', '#9b59b6']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%',
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+
+            await updateChartData();
+        }
+
+        async function updateChartData() {
+            try {
+                const revenueRes = await fetch('/api/revenue-weekly');
+                const revenueData = await revenueRes.json();
+
+                if (revenueData.success) {
+                    revenueChart.data.datasets[0].data = revenueData.data;
+                    revenueChart.update();
+                }
+
+                const roomRes = await fetch('/api/room-distribution');
+                const roomData = await roomRes.json();
+
+                if (roomData.success) {
+                    roomChart.data.labels = roomData.labels;
+                    roomChart.data.datasets[0].data = roomData.data;
+                    roomChart.data.datasets[0].backgroundColor = roomData.backgroundColor;
+                    roomChart.update();
+                }
+            } catch (error) {
+                console.error('Chart update error:', error);
+                await updateChartDataFallback();
+            }
+        }
+
+        async function updateChartDataFallback() {
+            try {
+                const profitRes = await fetch('/api/profit-statistics');
+                const profitData = await profitRes.json();
+
+                if (profitData.success && profitData.data.chartData) {
+                    const data = profitData.data.chartData.map(item => item.profit);
+                    revenueChart.data.datasets[0].data = data;
+                    revenueChart.update();
+                }
+
+                const bookingsRes = await fetch('/api/new-bookings');
+                const bookingsData = await bookingsRes.json();
+
+                if (Array.isArray(bookingsData)) {
+                    const counts = {
+                        standard: 0,
+                        deluxe: 0,
+                        suite: 0,
+                        familySuite: 0
+                    };
+
+                    bookingsData.forEach(booking => {
+                        const price = parseFloat(booking.room_type);
+                        if (price === 5000) counts.standard++;
+                        else if (price === 7500) counts.deluxe++;
+                        else if (price === 12000) counts.suite++;
+                        else if (price === 18000) counts.familySuite++;
+                    });
+
+                    roomChart.data.datasets[0].data = [
+                        counts.standard,
+                        counts.deluxe,
+                        counts.suite,
+                        counts.familySuite
+                    ];
+                    roomChart.update();
+                }
+            } catch (error) {
+                console.error('Chart fallback error:', error);
+            }
+        }
+
+        async function loadRecentBookings() {
+            try {
+                const res = await fetch('/api/dashboard/recent-bookings?limit=5');
+                const data = await res.json();
+
+                const container = document.getElementById('recent-bookings');
+
+                if (!data.success || !data.bookings || data.bookings.length === 0) {
+                    container.innerHTML = '<div class="loading">No recent bookings</div>';
+                    return;
+                }
+
+                let html = '';
+                data.bookings.forEach(booking => {
+                    const status = booking.status?.toLowerCase() || 'pending';
+                    const guestName = booking.guest_name || 'Guest';
+                    const roomType = booking.room_type_label || getRoomType(booking.room_type);
+
+
+
+
+                    let roomsRaw =
+                        booking.roomTag ||
+                        booking.room_tag ||
+                        booking.rooms ||
+                        '';
+
+                    let roomsArray = [];
+
+
+                    if (Array.isArray(roomsRaw)) {
+                        roomsArray = roomsRaw;
+                    }
+
+                    else if (typeof roomsRaw === 'string' && roomsRaw.includes(',')) {
+                        roomsArray = roomsRaw.split(',').map(r => r.trim());
+                    }
+
+                    else if (roomsRaw) {
+                        roomsArray = [roomsRaw];
+                    }
+
+                    let roomCount = roomsArray.length;
+                    let roomsDisplay = roomType;
+
+
+                    if (roomCount === 1) {
+                        roomsDisplay = roomsArray[0];
+                    }
+                    else if (roomCount === 2) {
+                        roomsDisplay = `2 rooms (${roomsArray.join(', ')})`;
+                    }
+                    else if (roomCount > 2) {
+                        roomsDisplay = `${roomCount} rooms (${roomsArray[0]}, ${roomsArray[1]}...)`;
+                    }
+
+
+
+
+
+                    const paymentStatus = booking.payment_status || 'pending';
+                    const paymentIndicator = paymentStatus === 'Paid' ? '✓' : paymentStatus === 'Pending' ? '' : '';
+
+                    html += `
+            <li class="booking-item">
+                <div class="booking-status ${status}"></div>
+                <div class="booking-details">
+                    <div class="booking-room">
+                        ${roomsDisplay || roomType}
+                        ${roomCount > 1 ? `<span class="room-count-badge">${roomCount} rooms</span>` : ''}
+                    </div>
+                    <div class="booking-guest">${guestName}</div>
+                    ${paymentStatus !== 'pending' ?
+                            `<div class="payment-indicator ${paymentStatus.toLowerCase()}">
+                            ${paymentIndicator} ${paymentStatus}
+                        </div>` : ''
+                        }
+                </div>
+                <div class="booking-date">
+                    ${new Date(booking.created_at).toLocaleDateString()}
+                </div>
+            </li>
+            `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Recent bookings error:', error);
+                await loadRecentBookingsFallback();
+            }
+        }
+        async function loadRecentBookingsFallback() {
+            try {
+                const res = await fetch('/api/new-bookings?limit=5');
+                const bookings = await res.json();
+
+                const container = document.getElementById('recent-bookings');
+
+                if (!Array.isArray(bookings) || bookings.length === 0) {
+                    container.innerHTML = '<div class="loading">No recent bookings</div>';
+                    return;
+                }
+
+                let html = '';
+                bookings.slice(0, 5).forEach(booking => {
+                    const status = booking.status?.toLowerCase() || 'pending';
+                    const roomType = getRoomType(booking.room_type);
+                    const guestName = `${booking.first_name || ''} ${booking.last_name || ''}`.trim();
+
+                    html += `
+                    <li class="booking-item">
+                        <div class="booking-status ${status}"></div>
+                        <div class="booking-details">
+                            <div class="booking-room">${roomType}</div>
+                            <div class="booking-guest">${guestName || 'Guest'}</div>
+                        </div>
+                        <div class="booking-date">
+                            ${new Date(booking.created_at).toLocaleDateString()}
+                        </div>
+                    </li>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Bookings fallback error:', error);
+                document.getElementById('recent-bookings').innerHTML =
+                    '<div class="loading">Failed to load bookings</div>';
+            }
+        }
+
+        function getRoomType(price) {
+            const priceNum = parseFloat(price);
+            if (priceNum === 5000) return 'Standard Room';
+            if (priceNum === 7500) return 'Deluxe Room';
+            if (priceNum === 12000) return 'Suite';
+            if (priceNum === 18000) return 'Family Suite';
+            return 'Room';
+        }
+
+
+        window.updateDashboardStats = updateStatsOnly;
+        window.refreshDashboard = forceUpdateDashboard;
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const logoutLinks = document.querySelectorAll('a[href="/adminlogout"]');
+
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+
+                    if (confirmLogout) {
+
+                        window.location.href = '/adminlogout';
+                    } else {
+
+                        console.log('Logout cancelled by user');
+                    }
+                });
+            });
+
+
+            const logoutButtons = document.querySelectorAll('button[data-action="logout"]');
+            logoutButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+                    if (confirmLogout) {
+                        window.location.href = '/adminlogout';
+                    }
+                });
+            });
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+
+
+        async function testAPIConnection() {
+            console.log('Testing API connection...');
+
+            try {
+
+                const testRes = await fetch('/api/test');
+                const testData = await testRes.json();
+                console.log('Basic API test:', testData);
+
+
+                const authRes = await fetch('/api/test-auth');
+                if (authRes.status === 401) {
+                    console.error('Admin not authenticated! Redirecting to login...');
+                    window.location.href = '/adminlogin';
+                    return;
+                }
+                const authData = await authRes.json();
+                console.log('Auth API test:', authData);
+
+
+                const statsRes = await fetch('/api/dashboard-stats');
+                const statsData = await statsRes.json();
+                console.log('Dashboard stats:', statsData);
+
+            } catch (error) {
+                console.error('API connection error:', error);
+                alert('Cannot connect to server. Check console for details.');
+            }
+        }
+
+
+    </script>
+</body>
+</html>

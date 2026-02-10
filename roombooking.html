@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/Styles/style.css">
+
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            padding-left: 6px;
+            background-color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 870px;
+            min-width: 200px;
+            max-width: 250px;
+            animation: fadeIn 0.3s ease;
+            border: 1px solid #ddd;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-content {
+            padding: 50px 0;
+        }
+
+        .dropdown-link {
+            display: flex;
+            font-size: 12px;
+            align-items: center;
+            padding: 20px 20px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .dropdown-link.active {
+            background-color: #34495e;
+            border-left: 3px solid #3498db;
+            font-weight: bold;
+        }
+
+        .dropdown-link.logoutlink {
+            margin-top: 5px;
+        }
+
+        .dropdown-link img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 999;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-120px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+        }
+
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-unconfirmed {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirm {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+
+            .dropdown-menu {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="room_bk">
+
+    <button class="menu-toggle" aria-label="Toggle menu" id="hamburgerBtn">☰</button>
+
+
+    <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-content">
+            <a href="/admin-simple" class="dropdown-link">
+                <img src="/icons/Dashboard.png" alt="Status"> Dashboard
+            </a>
+
+            <a href="/adminstatus" class="dropdown-link active">
+                <img src="/icons/status icon.png" alt="Status"> Status
+            </a>
+            <a href="/newsletter" class="dropdown-link">
+                <img src="/icons/news.png" alt="News"> News Letters
+            </a>
+            <a href="/payment" class="dropdown-link">
+                <img src="/icons/payment icon.png" alt="Payment"> Payment
+            </a>
+            <a href="/manageRooms" class="dropdown-link">
+                <img src="/icons/rooms management.png" alt="Rooms"> Manage Rooms
+            </a>
+            <a href="/manageAdmins" class="dropdown-link">
+                <img src="/icons/Admin management.png" alt="Accounts"> Manage Accounts
+            </a>
+            <a href="/adminlogout" class="dropdown-link logoutlink">
+                <img src="/icons/logout icon.png" alt="Logout"> Logout
+            </a>
+        </div>
+    </div>
+
+
+    <div class="rb-section">
+        <div class="sidebar">
+            <h2 style="padding: 20px; margin: 0; border-bottom: 1px solid #34495e;">ADMIN</h2>
+            <div class="sidebar-content">
+                <a href="/admin-simple"><img src="/icons/Dashboard.png">Dashboard </a>
+                <a href="/adminstatus" class="link active"><img src="/icons/status icon.png">Status</a>
+                <a href="/newsletter"><img src="/icons/news.png">News Letters</a>
+                <a href="/payment"><img src="/icons/payment icon.png">Payment</a>
+                <a href="/manageRooms"><img src="/icons/rooms management.png">Manage Rooms</a>
+                <a href="/manageAdmins"><img src="/icons/Admin management.png">Manage Accounts</a>
+                <a href="/adminlogout" class="logoutlink"><img src="/icons/logout icon.png"> Logout</a>
+            </div>
+        </div>
+
+        <h2 class="rheader">
+            <span style="color: black;">Booking Details</span>
+        </h2>
+
+        <div class="rb-card">
+            <div class="rb-header">
+                <span class="rb-header-title">Description</span>
+                <span class="rb-header-title">Information</span>
+            </div>
+
+            <table class="rb-table">
+                <tr>
+                    <th class="rb-label">Name</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Email</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Nationality</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Country</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Phone No</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Room Type</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">No of Rooms</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Meal Plan</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Bedding</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Check-in Date</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Check-out Date</th>
+                    <td class="rb-value"></td>
+                </tr>
+                <tr>
+                    <th class="rb-label">Status</th>
+                    <td class="rb-value"></td>
+                </tr>
+            </table>
+
+            <div class="rapprove-btn">
+                <label id="appconfirm">Select Confirmation</label>
+                <select id="rapprove">
+                    <option value="">Select</option>
+                    <option value="Permitted">Yes</option>
+                    <option value="Rejected">No</option>
+                </select>
+                <button class="confirmbtn" onclick="updateStatus()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const params = new URLSearchParams(window.location.search);
+            const reservationId = params.get("id");
+            if (!reservationId) { alert("No reservation selected."); return; }
+
+            try {
+                const res = await fetch(`/api/reservations/${reservationId}`);
+                const data = await res.json();
+                const cells = document.querySelectorAll(".rb-value");
+
+                const values = [
+                    `${data.title || ''} ${data.first_name || ''} ${data.last_name || ''}`,
+                    data.email || "-",
+                    data.nationality || "-",
+                    data.passport_country || "-",
+                    data.phone_number || "-",
+                    data.room_type || "-",
+                    data.no_of_rooms || "-",
+                    data.meal_plan || "-",
+                    data.bedding_type || "-",
+                    data.check_in ? new Date(data.check_in).toLocaleDateString() : "-",
+                    data.check_out ? new Date(data.check_out).toLocaleDateString() : "-",
+                    data.status || "Unconfirmed"
+                ];
+
+
+
+                cells.forEach((cell, i) => cell.textContent = values[i]);
+
+
+                const statusSelect = document.getElementById("rapprove");
+                statusSelect.value = data.status || "";
+            } catch (err) { console.error(err); }
+        });
+
+
+
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+
+        hamburgerBtn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+
+        document.addEventListener('click', function (event) {
+            if (!dropdownMenu.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        document.querySelectorAll('.dropdown-link').forEach(link => {
+            link.addEventListener('click', function () {
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        async function updateStatus() {
+            const status = document.getElementById("rapprove").value;
+            if (!status) {
+                alert("Please select a status.");
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            const reservationId = params.get("id");
+
+            try {
+                let endpoint;
+                let method;
+                let body = {};
+
+                if (status === "Permitted") {
+
+                    endpoint = `/api/reservations/${reservationId}/permit`;
+                    method = "PATCH";
+
+                } else if (status === "Rejected") {
+
+                    endpoint = `/api/reservations/${reservationId}/reject`;
+                    method = "PATCH";
+                } else {
+                    alert("Invalid status selected.");
+                    return;
+                }
+
+                console.log(`Updating status to: ${status}, endpoint: ${endpoint}`);
+
+                const res = await fetch(endpoint, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: status === "Permitted" ? JSON.stringify({}) : "{}"
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    if (status === "Permitted") {
+                        alert(` ${result.message}\n\nPayment of KES ${result.paymentAmount} has been recorded.\nPayment ID: ${result.paymentId}`);
+                    } else {
+                        alert(`${result.message}`);
+                    }
+
+
+                    const statusCell = document.querySelectorAll(".rb-value")[11];
+                    if (statusCell) {
+                        statusCell.textContent = status;
+                    }
+
+
+                    setTimeout(() => {
+                        window.location.href = "/adminstatus";
+                    }, 2000);
+
+                } else {
+                    alert(`Failed: ${result.message || "Unknown error"}`);
+                }
+
+            } catch (err) {
+                console.error("Error updating status:", err);
+                alert("Failed to update status. Please try again.");
+            }
+        }
+    </script>
+</body>
+</html>

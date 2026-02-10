@@ -3,62 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign-up</title>
-    <link rel="icon" type="image/jpg" href="/Images/RST LOGO.png">
+    <title>The Jacks'- Sign-up</title>
+    <link rel="icon" type="image/jpg" href="">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="Styles/style.css">
 </head>
 <body class="register-page">
+    <div class="topbar">
+        <div class="socialicons">
+            <img src="/icons/telegram.png" alt="Telegram">
+            <img src="/icons/twitter.png" alt="Twitter">
+            <img src="/icons/instagram.png" alt="Instagram">
+        </div>
+        <div class="contact"> <img id="mail" src="/icons/Mail.png" alt="Mail">
+            <a href="#">
+                <p>info@thejackshotel.com</p>
+            </a>
+        </div>
+        <div id="contact"><img id="phone" src="/icons/hotline.png" alt="phone">
+            <a href="#">
+                <p>+254 790 778 102</p>
+            </a>
+        </div>
+
+        <a href="/frequentlyaskedquestions"><button id="faq"><img class="faqicon" src="/icons/faq.png"></button></a>
+    </div>
+
     <nav class="nav">
         <div class="nav-logo-login">
-            <p>ROYALSTAY HOTEL</p>
+            <p><span style="color: white;">THE</span><span style="color: coral;"> JACKS'</span></p>
+        </div>
+        <div id="sublogo">
+            <p>YOUR DREAMY HOTEL</p>
         </div>
         <div class="nav-menu" id="navMenu">
+
             <ul>
-                <li><a href="login.html" class="link">Home</a></li>
-                <li><a href="#" class="link">About</a></li>
+                <li><a href="/" class="link">Home</a></li>
+                <li><a href="/adminlogin" class="link">Admin</a></li>
             </ul>
+
         </div>
-        <div class="nav-button">
-            <button class="btn white-btn" id="loginbtn" type="submit"
-                onclick="window.location.href='login.html'">Sign-in</button>
-        </div>
+        <button id="loginbtn" type="submit" onclick="window.location.href='/guestlogin'">Sign-in</button>
     </nav>
     <div class="Sign-up-box">
-        <form action="" id="registerForm">
-            <h2>Create Account</h2>
+        <form action="/add-guest" method="POST" id="registerForm" autocomplete="off">
+            <h2 class="box-headers">Create Account</h2>
             <div class="input-box">
-                <input type="username" id="username" placeholder=" " required>
+                <input name="username" id="username" placeholder=" " autocomplete="off" required>
                 <label for="username">Create Username</label>
             </div>
             <div class="input-box">
-                <input type="email" id="email" placeholder=" " required>
+                <input type="email" name="email" id="email" placeholder=" " autocomplete="off" required>
                 <label for="email">Email</label>
             </div>
             <div class="input-box">
-                <input type="password" id="password" placeholder=" " required>
+                <input type="password" name="password" id="password" placeholder=" " autocomplete="new-password"
+                    required>
                 <label for="password">Enter Password</label>
             </div>
             <div class="input-box">
-                <input type="password" placeholder=" " required>
+                <input type="password" name="confirmpassword" placeholder=" " required>
                 <label for="password">Confirm Password</label>
             </div>
-            <button type="submit">Sign-up</button>
+            <button type="submit"> Sign-up </button>
             <div class="Sign-in-link">
-                <div>
-                    <p>Go back to </p>
-                    <div><a href="login.html">Sign-in</a></div>
-                </div>
             </div>
         </form>
     </div>
-    <footer class="footer">
-        <p>&copy; 2025 RoyalStay Hotel. All Rights Reserved.</p>
-        <div class="footer-icons">
-            <img src="/icons/telegram.png">
-            <img src="/icons/twitter.png">
-            <img src="/icons/instagram.png">
-        </div>
-    </footer>
-    <script src="Script/script.js"></script>
+    </div>
+    <script src="Script/script.js"> (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();</script>
 </body>
 </html>

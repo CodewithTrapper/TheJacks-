@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Jacks'- Reservations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="Styles/style.css">
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            padding-left: 6px;
+            background-color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 95vh;
+            min-width: 200px;
+            max-width: 250px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-content {
+            padding: 50px 0;
+        }
+
+        .dropdown-link {
+            display: flex;
+            align-items: center;
+            padding: 30px 20px;
+            font-size: 12px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .dropdown-link.active {
+            background-color: #34495e;
+            border-left: 3px solid #3498db;
+            font-weight: bold;
+        }
+
+        .dropdown-link.logoutlink {
+            margin-top: 5px;
+        }
+
+        .dropdown-link img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 999;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-120px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+
+            .dropdown-menu {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="res">
+
+    <button class="menu-toggle" aria-label="Toggle menu" id="hamburgerBtn">☰</button>
+
+    <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-content">
+            <a href="/activitystatus" class="dropdown-link">
+                <img src="/icons/Overview.png" alt="Activity Overview"> Activity Overview
+            </a>
+            <a href="/reservation" class="dropdown-link active">
+                <img src="/icons/booking icon.png" alt="Book a Room"> Book a Room
+            </a>
+            <a href="/notifications" class="dropdown-link">
+                <img src="/icons/notification2.png" alt="Notifications"> Notifications
+            </a>
+            <a href="/logout" class="dropdown-link logoutlink">
+                <img src="/icons/logout icon.png" alt="Logout"> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <h2>User Dashboard</h2>
+        <a href="/activitystatus"><img src="/icons/Overview.png">Activity Overview</a>
+        <a href="/reservation" class="link active"><img src="/icons/booking icon.png">Book a Room</a>
+        <a href="/notifications" class="link"><img src="/icons/notification2.png"><sup id="notif"
+                style="background-color:rgb(255, 0, 0); color:rgb(255, 255, 255); border-radius:50%; border:2px solid rgb(255, 0, 0); padding:0 3px; position: relative; right: 8%;">0</sup>
+            Notifications</a>
+        <a href="/logout" class="logoutlink">
+            <img src="/icons/logout icon.png"> Logout
+        </a>
+    </div>
+
+    <div class="res-container">
+        <h1 id="reservationtitle">RESERVATION</h1>
+        <form class="personal-reservation">
+
+            <div class="columns" id="personalInfoSection">
+                <h2 class="column-header">PERSONAL INFORMATION</h2>
+
+                <label for="title">Title*</label>
+                <select id="title" name="title" required>
+                    <option value="">Select Title</option>
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Miss.">Miss.</option>
+                    <option value="Dr.">Dr.</option>
+                    <option value="Prof.">Prof.</option>
+                    <option value="Rev.">Rev.</option>
+                </select>
+
+                <label for="firstName">First Name*</label>
+                <input type="text" id="firstName" name="firstName" required>
+
+                <label for="lastName">Last Name*</label>
+                <input type="text" id="lastName" name="lastName" required>
+
+                <label for="email">Email*</label>
+                <input title="email" type="email" id="email" name="email" required disabled>
+
+                <label>Nationality*</label>
+                <div class="radio-group">
+                    <input type="radio" id="kenyan" name="nationality" value="Kenyan" required>
+                    <label for="kenyan">Kenyan</label>
+
+                    <input type="radio" id="nonKenyan" name="nationality" value="Non Kenyan">
+                    <label for="nonKenyan">Non Kenyan</label>
+                </div>
+
+                <label for="passportCountry">Passport Country*</label>
+                <select id="passportCountry" name="passportCountry">
+                    <option value="">Select Country</option>
+                    <option value="AF">Afghanistan</option>
+                    <option value="AL">Albania</option>
+                    <option value="DZ">Algeria</option>
+                    <option value="AR">Argentina</option>
+                    <option value="AU">Australia</option>
+                    <option value="AT">Austria</option>
+                    <option value="BE">Belgium</option>
+                    <option value="BR">Brazil</option>
+                    <option value="CA">Canada</option>
+                    <option value="CN">China</option>
+                    <option value="CO">Colombia</option>
+                    <option value="HR">Croatia</option>
+                    <option value="DK">Denmark</option>
+                    <option value="EG">Egypt</option>
+                    <option value="FI">Finland</option>
+                    <option value="FR">France</option>
+                    <option value="DE">Germany</option>
+                    <option value="GH">Ghana</option>
+                    <option value="GR">Greece</option>
+                    <option value="HU">Hungary</option>
+                    <option value="IN">India</option>
+                    <option value="ID">Indonesia</option>
+                    <option value="IR">Iran</option>
+                    <option value="IE">Ireland</option>
+                    <option value="IL">Israel</option>
+                    <option value="IT">Italy</option>
+                    <option value="JM">Jamaica</option>
+                    <option value="JP">Japan</option>
+                    <option value="KE">Kenya</option>
+                    <option value="MY">Malaysia</option>
+                    <option value="MX">Mexico</option>
+                    <option value="MA">Morocco</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="NG">Nigeria</option>
+                    <option value="NO">Norway</option>
+                    <option value="PK">Pakistan</option>
+                    <option value="PH">Philippines</option>
+                    <option value="PL">Poland</option>
+                    <option value="PT">Portugal</option>
+                    <option value="QA">Qatar</option>
+                    <option value="RU">Russia</option>
+                    <option value="SA">Saudi Arabia</option>
+                    <option value="SG">Singapore</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="KR">South Korea</option>
+                    <option value="ES">Spain</option>
+                    <option value="SE">Sweden</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="TW">Taiwan</option>
+                    <option value="TH">Thailand</option>
+                    <option value="TR">Turkey</option>
+                    <option value="UA">Ukraine</option>
+                    <option value="AE">United Arab Emirates</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States</option>
+                    <option value="VE">Venezuela</option>
+                    <option value="VN">Vietnam</option>
+                    <option value="ZW">Zimbabwe</option>
+                </select>
+
+                <label for="nationalid">NationalId No*</label>
+                <input type="text" id="nationalid" name="nationalid">
+
+                <label for="passportno">Passport No*</label>
+                <input type="text" id="passportno" name="passportno">
+
+                <label for="phoneno">Phone Number*</label>
+                <input type="text" id="phoneno" name="phoneno" required>
+
+                <div class="edit-buttons">
+                    <button type="button" id="editGuestBtn">Edit</button>
+                    <button type="button" id="saveGuestBtn" style="display:none;"
+                        onclick="location.reload()">Save</button>
+                </div>
+            </div>
+
+            <div class="columns" id="reservationInfoSection">
+                <h2 class="column-header">RESERVATION INFORMATION</h2>
+
+                <label for="roomType">Type Of Room</label>
+                <select id="roomType" name="roomType" required>
+                    <option value="">Select Room Type</option>
+                    <option value="5000">Standard - ksh.5,000</option>
+                    <option value="7500">Deluxe - Ksh.7,500</option>
+                    <option value="12000">Suite - Ksh.12,000</option>
+                    <option value="18000">Family Suite - Ksh.18,000</option>
+                </select>
+
+                <label for="beddingType">Bedding Type</label>
+                <select id="beddingType" name="beddingType" required>
+                    <option value="">Select Bedding Type</option>
+                    <option value="0">Single</option>
+                    <option value="100">Twin - Ksh.100</option>
+                    <option value="200">Double - Ksh.200</option>
+                    <option value="300">King - Ksh.300</option>
+                </select>
+
+                <label for="noOfRooms">No. of Rooms</label>
+                <select id="noOfRooms" name="noOfRooms" required>
+                    <option value="">Select Number of Rooms</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+
+                <div id="roomTagsContainer">
+                    <label for="roomTag">Room Tag *</label>
+                    <select name="roomTag" id="roomTag" required>
+                        <option value="">Select Room Tag</option>
+                        <option value="101ST">101ST</option>
+                        <option value="101DE">101DE</option>
+                        <option value="101SU">101SU</option>
+                        <option value="101FS">101FS</option>
+
+                        <option value="102ST">102ST</option>
+                        <option value="102DE">102DE</option>
+                        <option value="102SU">102SU</option>
+                        <option value="102FS">102FS</option>
+
+                        <option value="103ST">103ST</option>
+                        <option value="103DE">103DE</option>
+                        <option value="103SU">103SU</option>
+                        <option value="103FS">103FS</option>
+
+                        <option value="104ST">104ST</option>
+                        <option value="104DE">104DE</option>
+                        <option value="104SU">104SU</option>
+                        <option value="104FS">104FS</option>
+
+                        <option value="105ST">105ST</option>
+                        <option value="105DE">105DE</option>
+                        <option value="105SU">105SU</option>
+                        <option value="105FS">105FS</option>
+
+                        <option value="106ST">106ST</option>
+                        <option value="106DE">106DE</option>
+                        <option value="106SU">106SU</option>
+                        <option value="106FS">106FS</option>
+
+                        <option value="107ST">107ST</option>
+                        <option value="107DE">107DE</option>
+                        <option value="107SU">107SU</option>
+                        <option value="107FS">107FS</option>
+
+                        <option value="108ST">108ST</option>
+                        <option value="108DE">108DE</option>
+                        <option value="108SU">108SU</option>
+                        <option value="108FS">108FS</option>
+
+                        <option value="109ST">109ST</option>
+                        <option value="109DE">109DE</option>
+                        <option value="109SU">109SU</option>
+                        <option value="109FS">109FS</option>
+
+                        <option value="110ST">110ST</option>
+                        <option value="110DE">110DE</option>
+                        <option value="110SU">110SU</option>
+                        <option value="110FS">110FS</option>
+
+                        <option value="111ST">111ST</option>
+                        <option value="111DE">111DE</option>
+                        <option value="111SU">111SU</option>
+                        <option value="111FS">111FS</option>
+
+                        <option value="112ST">112ST</option>
+                        <option value="112DE">112DE</option>
+                        <option value="112SU">112SU</option>
+                        <option value="112FS">112FS</option>
+
+                        <option value="113ST">113ST</option>
+                        <option value="113DE">113DE</option>
+
+                    </select>
+                </div>
+
+                <label for="mealPlan">Meal Plan</label>
+                <select id="mealPlan" name="mealPlan">
+                    <option value="0" selected>None - Ksh 0</option>
+                    <option value="500">Breakfast Only - ksh.500</option>
+                    <option value="1200">Half Board - ksh.1200</option>
+                    <option value="2000">Full Board - ksh.2000</option>
+                </select>
+
+                <label for="checkIn">Check-In</label>
+                <input type="date" id="checkIn" name="checkIn" required>
+
+                <label for="checkOut">Check-Out</label>
+                <input type="date" id="checkOut" name="checkOut" required>
+
+                <div id="availabilityMessage" style="margin: 10px 0; padding: 10px; display: none;"></div>
+
+                <button type="button" id="humanverificationbtn">Book Now</button>
+            </div>
+
+        </form>
+    </div>
+
+    <div id="paymentSelectModal" class="modal">
+        <div class="modal-content">
+            <h2>Select Payment Method</h2>
+            <form id="paymentChoiceForm">
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="Mpesa" required>
+                    <strong>Mobile Money</strong><img src="/icons/Airtel-mpesa.png"
+                        style="position:relative; top:6px; left: 80px; width: 80px; height: 40px; ">
+                </label>
+                <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="Cheque" required>
+                    <strong>Cheque Payment</strong> <img src="/icons/Cheque.jpg"
+                        style="position:relative; top:6px; left: 100px; width: 80px; height: 40px;">
+                </label>
+                <button type="submit" id="confirmPaymentMethod">Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Cheque Payment</h2>
+            <div id="paymentSummary"></div>
+            <form id="paymentForm">
+                <label for="chequeNumber">Cheque Number</label>
+                <input type="text" id="chequeNumber" name="chequeNumber" required>
+
+                <label for="bankName">Bank Name</label>
+                <input type="text" id="bankName" name="bankName" required>
+
+                <label for="accountName">Account Holder Name</label>
+                <input type="text" id="accountName" name="accountName" required>
+
+                <label for="chequeDate">Cheque Date</label>
+                <input type="date" id="chequeDate" name="chequeDate" required>
+
+                <label for="amountInWords">Amount in Words</label>
+                <textarea id="amountInWords" name="amountInWords" rows="3" required></textarea>
+
+                <button type="submit">Submit Cheque Details</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="mpesaModal" class="modal">
+        <div class="modal-content">
+            <span class="mpesa-close">&times;</span>
+            <h2>Pay with M-Pesa</h2>
+            <p>Total Payment: Ksh. <span id="mpesaTotal"></span></p>
+            <input type="text" id="mpesaNumber" placeholder="Enter M-Pesa Number" required>
+            <button id="mpesaPayBtn">Pay Now</button>
+        </div>
+    </div>
+
+    <script>
+
+        async function fetchNotificationCount() {
+            try {
+                const response = await fetch('/api/notifications/count');
+
+                if (response.status === 401) {
+
+                    return 0;
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.count || 0;
+                }
+
+                return 0;
+            } catch (error) {
+                console.error('Error fetching notification count:', error);
+                return 0;
+            }
+        }
+
+
+        function updateNotificationBadge(count) {
+            const notificationBadges = document.querySelectorAll('#notif');
+
+            notificationBadges.forEach(badge => {
+                badge.textContent = count;
+
+
+                if (count > 0) {
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+        }
+
+
+
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        hamburgerBtn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!dropdownMenu.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        document.querySelectorAll('.dropdown-link').forEach(link => {
+            link.addEventListener('click', function () {
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            const notificationCount = await fetchNotificationCount();
+            updateNotificationBadge(notificationCount);
+
+
+            setInterval(async () => {
+                const count = await fetchNotificationCount();
+                updateNotificationBadge(count);
+            }, 30000);
+
+            console.log("DOM loaded, script running");
+
+            const reservationForm = document.querySelector(".personal-reservation");
+            const bookBtn = document.getElementById("humanverificationbtn");
+            const paymentSelectModal = document.getElementById("paymentSelectModal");
+            const availabilityMessage = document.getElementById("availabilityMessage");
+
+            console.log("Book button exists:", !!bookBtn);
+            console.log("Payment modal exists:", !!paymentSelectModal);
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlCheckIn = urlParams.get("checkIn");
+            const urlCheckOut = urlParams.get("checkOut");
+
+            console.log("URL parameters - checkIn:", urlCheckIn, "checkOut:", urlCheckOut);
+
+            let guestDetails = null;
+            let isFirstTimeGuest = false;
+            let bookedRoomsCache = [];
+
+            const checkInInput = document.getElementById('checkIn');
+            const checkOutInput = document.getElementById('checkOut');
+
+
+            if (checkInInput) {
+                const today = new Date();
+                const todayString = today.toISOString().split('T')[0];
+                checkInInput.min = todayString;
+                checkInInput.value = urlCheckIn || todayString;
+
+                checkInInput.addEventListener('change', (e) => {
+                    if (checkOutInput) {
+                        const checkInDate = new Date(e.target.value);
+                        const nextDay = new Date(checkInDate);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        const nextDayString = nextDay.toISOString().split('T')[0];
+                        checkOutInput.min = nextDayString;
+
+                        if (checkOutInput.value && new Date(checkOutInput.value) <= checkInDate) {
+                            checkOutInput.value = '';
+                        }
+
+                        if (!checkOutInput.value) {
+                            checkOutInput.value = nextDayString;
+                        }
+
+                        checkAvailability();
+                    }
+                });
+            }
+
+            if (checkOutInput) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const tomorrowString = tomorrow.toISOString().split('T')[0];
+                checkOutInput.min = tomorrowString;
+                checkOutInput.value = urlCheckOut || tomorrowString;
+
+                checkOutInput.addEventListener('change', () => {
+                    checkAvailability();
+                });
+            }
+
+
+            const roomType = document.getElementById("roomType");
+            const noOfRooms = document.getElementById("noOfRooms");
+            const roomTagsContainer = document.getElementById("roomTagsContainer");
+            const mealPlan = document.getElementById("mealPlan");
+
+
+            const roomTagOptions = {
+                '5000': ['101ST', '102ST', '103ST', '104ST', '105ST', '106ST', '107ST', '108ST', '109ST', '110ST', '111ST', '112ST', '113ST'],
+                '7500': ['101DE', '102DE', '103DE', '104DE', '105DE', '106DE', '107DE', '108DE', '109DE', '110DE', '111DE', '112DE', '113DE'],
+                '12000': ['101SU', '102SU', '103SU', '104SU', '105SU', '106SU', '107SU', '108SU', '109SU', '110SU', '111SU', '112SU'],
+                '18000': ['101FS', '102FS', '103FS', '104FS', '105FS', '106FS', '107FS', '108FS', '109FS', '110FS', '111FS', '112FS']
+            };
+
+
+            async function fetchBookedRooms() {
+                try {
+                    const checkIn = checkInInput.value;
+                    const checkOut = checkOutInput.value;
+
+                    if (!checkIn || !checkOut) {
+                        return [];
+                    }
+
+                    const response = await fetch(`/api/available-rooms?checkIn=${checkIn}&checkOut=${checkOut}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        bookedRoomsCache = data.bookedRooms || [];
+                        return bookedRoomsCache;
+                    } else {
+                        console.error('Failed to fetch booked rooms:', data.message);
+                        return [];
+                    }
+                } catch (error) {
+                    console.error('Error fetching booked rooms:', error);
+                    return [];
+                }
+            }
+
+
+            async function checkSpecificRoomAvailability(roomTag) {
+                try {
+                    const checkIn = checkInInput.value;
+                    const checkOut = checkOutInput.value;
+
+                    if (!roomTag || !checkIn || !checkOut) return true;
+
+                    const response = await fetch(`/api/room-availability/${roomTag}?checkIn=${checkIn}&checkOut=${checkOut}`);
+                    const data = await response.json();
+
+                    return data.success && data.isAvailable;
+                } catch (error) {
+                    console.error('Error checking specific room:', error);
+                    return true;
+                }
+            }
+
+
+            async function createRoomTagDropdowns(count) {
+                roomTagsContainer.innerHTML = '';
+
+                const selectedRoomType = roomType.value;
+                const allAvailableTags = roomTagOptions[selectedRoomType] || [];
+                const bookedRooms = await fetchBookedRooms();
+
+                for (let i = 0; i < count; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'room-tag-group';
+                    div.innerHTML = `
+                        <label for="roomTag${i}">Room ${i + 1} Tag *</label>
+                        <select id="roomTag${i}" name="roomTags[]" class="room-tag-select" required>
+                            <option value="">Select Room Tag</option>
+                        </select>
+                    `;
+                    roomTagsContainer.appendChild(div);
+
+                    const select = div.querySelector('.room-tag-select');
+
+
+                    allAvailableTags.forEach(tag => {
+                        const option = document.createElement('option');
+                        option.value = tag;
+                        option.textContent = tag;
+
+                        if (bookedRooms.includes(tag)) {
+                            option.disabled = true;
+                            option.textContent += ' (Booked)';
+                            option.style.color = '#999';
+                        }
+
+                        select.appendChild(option);
+                    });
+
+
+                    select.addEventListener('change', validateRoomTags);
+                    select.addEventListener('change', () => {
+                        updateAvailabilityMessage();
+                    });
+                }
+            }
+
+
+            async function updateRoomTagAvailability() {
+                const selectedTags = document.querySelectorAll('.room-tag-select');
+                const allAvailableTags = roomTagOptions[roomType.value] || [];
+                const bookedRooms = await fetchBookedRooms();
+
+                selectedTags.forEach(select => {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">Select Room Tag</option>';
+
+                    allAvailableTags.forEach(tag => {
+                        const option = document.createElement('option');
+                        option.value = tag;
+                        option.textContent = tag;
+
+                        if (bookedRooms.includes(tag)) {
+                            option.disabled = true;
+                            option.textContent += ' (Booked)';
+                            option.style.color = '#999';
+                        }
+
+                        select.appendChild(option);
+                    });
+
+
+                    if (currentValue && !bookedRooms.includes(currentValue)) {
+                        select.value = currentValue;
+                    } else if (currentValue && bookedRooms.includes(currentValue)) {
+                        select.value = '';
+                        alert(`Room ${currentValue} is no longer available. Please select another room.`);
+                    }
+                });
+            }
+
+
+            function validateRoomTags() {
+                const selectedTags = document.querySelectorAll('.room-tag-select');
+                const selectedValues = [];
+                let hasDuplicates = false;
+                let hasBookedRooms = false;
+
+                selectedTags.forEach(select => {
+                    if (select.value) {
+                        selectedValues.push(select.value);
+                        const selectedOption = select.options[select.selectedIndex];
+                        if (selectedOption.disabled) {
+                            select.style.borderColor = 'red';
+                            hasBookedRooms = true;
+                        } else {
+                            select.style.borderColor = '';
+                        }
+                    }
+                });
+
+
+                const uniqueValues = [...new Set(selectedValues)];
+                if (selectedValues.length !== uniqueValues.length) {
+                    hasDuplicates = true;
+                    selectedTags.forEach(select => {
+                        if (selectedValues.filter(v => v === select.value).length > 1) {
+                            select.style.borderColor = 'red';
+                        }
+                    });
+                }
+
+                updateAvailabilityMessage(hasDuplicates, hasBookedRooms);
+                return !hasDuplicates && !hasBookedRooms;
+            }
+
+
+            function updateAvailabilityMessage(hasDuplicates = false, hasBookedRooms = false) {
+                if (!availabilityMessage) return;
+
+                if (hasDuplicates) {
+                    availabilityMessage.textContent = ' Error: Each room must have a unique tag.';
+                    availabilityMessage.style.color = 'red';
+                    availabilityMessage.style.display = 'block';
+                } else if (hasBookedRooms) {
+                    availabilityMessage.textContent = ' Error: Selected room(s) are already booked.';
+                    availabilityMessage.style.color = 'red';
+                    availabilityMessage.style.display = 'block';
+                } else {
+
+                }
+            }
+
+
+            async function checkAvailability() {
+                if (!checkInInput || !checkOutInput || !roomType.value) {
+                    if (availabilityMessage) {
+                        availabilityMessage.style.display = 'none';
+                    }
+                    return;
+                }
+
+                const checkIn = checkInInput.value;
+                const checkOut = checkOutInput.value;
+                const selectedRoomType = roomType.value;
+
+                if (!checkIn || !checkOut || !selectedRoomType) {
+                    if (availabilityMessage) {
+                        availabilityMessage.style.display = 'none';
+                    }
+                    return;
+                }
+
+                try {
+                    if (availabilityMessage) {
+                        availabilityMessage.textContent = 'Checking room availability...';
+                        availabilityMessage.style.color = 'blue';
+                        availabilityMessage.style.display = 'block';
+                    }
+
+                    const bookedRooms = await fetchBookedRooms();
+                    const allAvailableTags = roomTagOptions[selectedRoomType] || [];
+                    await updateRoomTagAvailability();
+
+                    const availableCount = allAvailableTags.filter(tag => !bookedRooms.includes(tag)).length;
+                    const selectedRoomCount = parseInt(noOfRooms.value) || 1;
+
+                    if (availabilityMessage) {
+                        if (availableCount === 0) {
+                            availabilityMessage.textContent = ' No rooms available for selected dates. Please choose different dates.';
+                            availabilityMessage.style.color = 'red';
+                        } else if (availableCount < selectedRoomCount) {
+                            availabilityMessage.textContent = ` Only ${availableCount} room(s) available. Please adjust your selection.`;
+                            availabilityMessage.style.color = 'rgb(25, 62, 90)';
+                        } else {
+                            availabilityMessage.textContent = ` ${availableCount} room(s) available for ${checkIn} to ${checkOut}`;
+                            availabilityMessage.style.color = 'rgb(25, 62, 90)';
+                        }
+                    }
+
+                    validateRoomTags();
+                } catch (error) {
+                    console.error('Error checking availability:', error);
+                    if (availabilityMessage) {
+                        availabilityMessage.textContent = 'Error checking availability. Please try again.';
+                        availabilityMessage.style.color = 'red';
+                    }
+                }
+            }
+
+
+            createRoomTagDropdowns(parseInt(noOfRooms.value) || 1);
+
+
+            roomType.addEventListener('change', () => {
+                createRoomTagDropdowns(parseInt(noOfRooms.value) || 1);
+                checkAvailability();
+            });
+
+            noOfRooms.addEventListener('change', (e) => {
+                const count = parseInt(e.target.value) || 1;
+                createRoomTagDropdowns(count);
+                checkAvailability();
+            });
+
+            function resetReservationForm() {
+                console.log("Resetting reservation information only");
+
+                document.getElementById("roomType").value = "";
+                document.getElementById("beddingType").value = "";
+                document.getElementById("noOfRooms").value = "1";
+                document.getElementById("mealPlan").value = "0";
+                document.getElementById("checkIn").value = "";
+                document.getElementById("checkOut").value = "";
+
+                createRoomTagDropdowns(1);
+
+                if (checkInInput) {
+                    const today = new Date();
+                    checkInInput.value = urlCheckIn || today.toISOString().split('T')[0];
+                }
+                if (checkOutInput) {
+                    const tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    checkOutInput.value = urlCheckOut || tomorrow.toISOString().split('T')[0];
+                }
+
+                if (availabilityMessage) {
+                    availabilityMessage.style.display = 'none';
+                }
+            }
+
+
+            try {
+                const guestRes = await fetch("/api/guestlogin");
+                if (guestRes.status === 401) return;
+                const guest = await guestRes.json();
+
+                const detailsRes = await fetch("/api/guestdetails");
+
+                if (detailsRes.status === 404) {
+                    isFirstTimeGuest = true;
+                } else if (detailsRes.ok) {
+                    guestDetails = await detailsRes.json();
+                }
+
+                const emailInput = document.querySelector("#email");
+                emailInput.value = guestDetails?.email || guest?.email || "";
+                emailInput.disabled = true;
+
+                if (guestDetails) {
+                    document.querySelector("#title").value = guestDetails?.title || "";
+                    document.querySelector("#firstName").value = guestDetails?.first_name || "";
+                    document.querySelector("#lastName").value = guestDetails?.last_name || "";
+                    document.querySelector("#phoneno").value = guestDetails?.phone_number || "";
+                    document.querySelector("#passportCountry").value = guestDetails?.passport_country || "";
+                    document.querySelector("#nationalid").value = guestDetails?.national_id || "";
+                    document.querySelector("#passportno").value = guestDetails?.passport_no || "";
+
+                    if (guestDetails?.nationality === "Kenyan") document.querySelector("#kenyan").checked = true;
+                    if (guestDetails?.nationality === "Non Kenyan") document.querySelector("#nonKenyan").checked = true;
+                }
+
+
+                const personalFields = ["title", "firstName", "lastName", "kenyan", "nonKenyan", "passportCountry", "nationalid", "passportno", "phoneno"];
+                const editBtn = document.getElementById("editGuestBtn");
+                const saveBtn = document.getElementById("saveGuestBtn");
+
+                function setFields(readonly = true) {
+                    personalFields.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        if (el.tagName === "INPUT" && el.type !== "radio") el.readOnly = readonly;
+                        if (el.tagName === "SELECT") el.disabled = readonly;
+                        if (el.type === "radio") el.disabled = readonly;
+                    });
+                }
+
+
+                if (isFirstTimeGuest) {
+                    setFields(false);
+                    editBtn.style.display = "none";
+                    saveBtn.style.display = "inline";
+                } else {
+
+                    setFields(true);
+                    editBtn.style.display = "inline";
+                    saveBtn.style.display = "none";
+                }
+
+                editBtn.addEventListener("click", () => {
+                    setFields(false);
+                    editBtn.style.display = "none";
+                    saveBtn.style.display = "inline";
+                });
+
+                saveBtn.addEventListener("click", async () => {
+                    const data = {
+                        title: document.getElementById("title").value,
+                        first_name: document.getElementById("firstName").value.trim(),
+                        last_name: document.getElementById("lastName").value.trim(),
+                        email: document.getElementById("email").value.trim(),
+                        nationality: document.querySelector('input[name="nationality"]:checked')?.value || null,
+                        passport_country: document.getElementById("passportCountry").value || null,
+                        national_id: document.getElementById("nationalid").value || null,
+                        passport_no: document.getElementById("passportno").value || null,
+                        phone_number: document.getElementById("phoneno").value.trim()
+                    };
+
+
+                    if (!data.first_name || !data.last_name || !data.phone_number) {
+                        alert("Please fill in all required fields (First Name, Last Name, Phone Number)");
+                        return;
+                    }
+
+                    if (!data.nationality) {
+                        alert("Please select nationality");
+                        return;
+                    }
+
+                    if (data.nationality === "Kenyan" && !data.national_id) {
+                        alert("National ID is required for Kenyan citizens");
+                        return;
+                    }
+
+                    if (data.nationality === "Non Kenyan" && (!data.passport_country || !data.passport_no)) {
+                        alert("Passport country and passport number are required for non-Kenyan citizens");
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(
+                            isFirstTimeGuest ? "/api/guestdetails/save" : "/api/guestdetails/update",
+                            {
+                                method: isFirstTimeGuest ? "POST" : "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(data)
+                            }
+                        );
+
+                        const result = await res.json();
+
+                        if (result.success) {
+                            alert(result.message);
+                            setFields(true);
+                            editBtn.style.display = "inline";
+                            saveBtn.style.display = "none";
+
+                            guestDetails = { ...guestDetails, ...data };
+                            isFirstTimeGuest = false;
+
+                        } else {
+                            alert((result.message || "Failed to save details"));
+                        }
+                    } catch (err) {
+                        console.error("Error saving guest details:", err);
+                        ("Error updating details: " + err.message);
+                    }
+                });
+
+
+                const kenyanRadio = document.getElementById("kenyan");
+                const nonKenyanRadio = document.getElementById("nonKenyan");
+                const passportCountry = document.getElementById("passportCountry");
+                const passportNo = document.getElementById("passportno");
+                const nationalId = document.getElementById("nationalid");
+
+                function updateFields() {
+                    if (kenyanRadio.checked) {
+                        passportCountry.value = "KE";
+                        passportCountry.disabled = false;
+                        passportCountry.required = false;
+                        passportNo.value = "";
+                        passportNo.disabled = true;
+                        passportNo.required = false;
+                        nationalId.disabled = false;
+                        nationalId.required = true;
+                    } else if (nonKenyanRadio.checked) {
+                        passportCountry.disabled = false;
+                        passportCountry.required = true;
+                        passportNo.disabled = false;
+                        passportNo.required = true;
+                        nationalId.value = "";
+                        nationalId.disabled = true;
+                        nationalId.required = false;
+                        if (passportCountry.value === "KE") passportCountry.value = "";
+                    }
+                }
+
+                kenyanRadio.addEventListener("change", updateFields);
+                nonKenyanRadio.addEventListener("change", updateFields);
+
+
+                updateFields();
+
+            } catch (err) {
+                console.error("Error fetching guest info:", err);
+            }
+
+
+            const beddingType = document.getElementById("beddingType");
+
+            function calculateNights() {
+                const checkIn = checkInInput.value;
+                const checkOut = checkOutInput.value;
+                if (!checkIn || !checkOut) return 1;
+                return Math.max(1, (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
+            }
+
+            function calculateTotal() {
+                const nights = calculateNights();
+                return ((parseInt(roomType.value) || 0) + (parseInt(beddingType.value) || 0) + (parseInt(mealPlan.value) || 0)) * (parseInt(noOfRooms.value) || 1) * nights;
+            }
+
+
+            function validateForm() {
+                console.log("Validating form...");
+
+
+                if (isFirstTimeGuest) {
+                    alert("Please save your personal information first");
+                    return false;
+                }
+
+
+                const requiredPersonalFields = ['title', 'firstName', 'lastName', 'phoneno'];
+                for (let fieldId of requiredPersonalFields) {
+                    const field = document.getElementById(fieldId);
+                    if (!field.value.trim()) {
+                        alert(`Please fill in ${fieldId.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+                        field.focus();
+                        return false;
+                    }
+                }
+
+
+                const nationalitySelected = document.querySelector('input[name="nationality"]:checked');
+                if (!nationalitySelected) {
+                    alert("Please select nationality");
+                    return false;
+                }
+
+                if (nationalitySelected.value === "Kenyan" && !document.getElementById("nationalid").value.trim()) {
+                    alert("National ID is required for Kenyan citizens");
+                    document.getElementById("nationalid").focus();
+                    return false;
+                }
+
+                if (nationalitySelected.value === "Non Kenyan") {
+                    if (!document.getElementById("passportCountry").value) {
+                        alert("Passport country is required for non-Kenyan citizens");
+                        document.getElementById("passportCountry").focus();
+                        return false;
+                    }
+                    if (!document.getElementById("passportno").value.trim()) {
+                        alert("Passport number is required for non-Kenyan citizens");
+                        document.getElementById("passportno").focus();
+                        return false;
+                    }
+                }
+
+
+                const roomType = document.getElementById("roomType").value;
+                const beddingType = document.getElementById("beddingType").value;
+                const checkIn = document.getElementById("checkIn").value;
+                const checkOut = document.getElementById("checkOut").value;
+
+                if (!roomType) {
+                    alert("Please select room type");
+                    return false;
+                }
+
+                if (!beddingType) {
+                    alert("Please select bedding type");
+                    return false;
+                }
+
+                if (!checkIn || !checkOut) {
+                    alert("Please select check-in and check-out dates");
+                    return false;
+                }
+
+
+                const roomCount = parseInt(noOfRooms.value) || 1;
+                const selectedTags = document.querySelectorAll('.room-tag-select');
+
+                for (let i = 0; i < selectedTags.length; i++) {
+                    if (!selectedTags[i].value) {
+                        alert(`Please select room tag for Room ${i + 1}`);
+                        selectedTags[i].focus();
+                        return false;
+                    }
+
+
+                    const selectedOption = selectedTags[i].options[selectedTags[i].selectedIndex];
+                    if (selectedOption.disabled) {
+                        alert(`Room ${selectedTags[i].value} is already booked. Please select another room.`);
+                        selectedTags[i].focus();
+                        return false;
+                    }
+                }
+
+
+                const selectedTagValues = Array.from(selectedTags).map(select => select.value);
+                const uniqueTags = [...new Set(selectedTagValues)];
+                if (uniqueTags.length !== selectedTagValues.length) {
+                    alert('Each room must have a unique room tag.');
+                    return false;
+                }
+
+                return true;
+            }
+
+
+            bookBtn.addEventListener("click", async e => {
+                console.log("Book button clicked");
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (!validateForm()) {
+                    console.log("Form validation failed");
+                    return;
+                }
+
+                console.log("Form validation passed");
+
+
+                const selectedTags = document.querySelectorAll('.room-tag-select');
+                const roomTags = Array.from(selectedTags)
+                    .map(select => select.value)
+                    .filter(value => value);
+
+
+                const availabilityChecks = await Promise.all(
+                    roomTags.map(tag => checkSpecificRoomAvailability(tag))
+                );
+
+                const allRoomsAvailable = availabilityChecks.every(available => available);
+
+                if (!allRoomsAvailable) {
+                    alert('One or more selected rooms are no longer available. Please refresh the page and select different rooms.');
+                    await checkAvailability();
+                    return;
+                }
+
+
+                const totalAmount = calculateTotal();
+                console.log("Calculated total amount:", totalAmount);
+
+
+                const formData = new FormData();
+                const formElements = reservationForm.elements;
+
+                for (let element of formElements) {
+                    if (element.name && !element.disabled) {
+                        if (element.type === 'checkbox' || element.type === 'radio') {
+                            if (element.checked) formData.append(element.name, element.value);
+                        } else if (element.name === 'roomTags[]') {
+                            if (element.value) formData.append('roomTags[]', element.value);
+                        } else {
+                            formData.append(element.name, element.value);
+                        }
+                    }
+                }
+
+                const nationality = document.querySelector('input[name="nationality"]:checked');
+                if (nationality) formData.append('nationality', nationality.value);
+
+
+                const formObject = {};
+                for (let [key, value] of formData.entries()) {
+                    if (key === 'roomTags[]') {
+                        if (!formObject.roomTags) formObject.roomTags = [];
+                        formObject.roomTags.push(value);
+                    } else {
+                        formObject[key] = value;
+                    }
+                }
+
+                formObject.totalAmount = totalAmount;
+                formObject.nights = calculateNights();
+
+                console.log("Sending reservation data with total amount:", formObject);
+
+                try {
+                    const res = await fetch('/book-room', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formObject)
+                    });
+
+                    console.log("Response status:", res.status);
+
+                    const data = await res.json();
+                    console.log("Response data:", data);
+
+                    if (data.reservationId) {
+                        console.log("Reservation successful, showing payment modal");
+                        reservationForm.dataset.reservationId = data.reservationId;
+                        reservationForm.dataset.totalAmount = totalAmount;
+                        paymentSelectModal.style.display = "flex";
+                    } else {
+                        alert(data.message || "Failed to save reservation.");
+                    }
+                } catch (err) {
+                    console.error("Error:", err);
+                    alert("Error saving reservation: " + err.message);
+                }
+            });
+
+
+            const paymentChoiceForm = document.getElementById("paymentChoiceForm");
+            const modal = document.getElementById("paymentModal");
+            const closeBtn = document.querySelector("#paymentModal .close");
+            const paymentForm = document.getElementById("paymentForm");
+            const paymentSummary = document.getElementById("paymentSummary");
+            const mpesaModal = document.getElementById("mpesaModal");
+            const mpesaClose = document.querySelector(".mpesa-close");
+            const mpesaPayBtn = document.getElementById("mpesaPayBtn");
+
+
+            paymentChoiceForm.addEventListener("submit", e => {
+                e.preventDefault();
+                const paymentMethod = new FormData(paymentChoiceForm).get("paymentMethod");
+                console.log("Selected payment method:", paymentMethod);
+
+                paymentSelectModal.style.display = "none";
+
+                const totalAmount = reservationForm.dataset.totalAmount || calculateTotal();
+
+                if (paymentMethod === "Cheque") {
+                    paymentSummary.innerHTML = `<p>Total Payment: Ksh. ${totalAmount}</p>`;
+                    modal.style.display = "flex";
+                }
+                else if (paymentMethod === "Mpesa") {
+                    document.getElementById("mpesaTotal").textContent = totalAmount;
+                    mpesaModal.style.display = "flex";
+                }
+            });
+
+
+            closeBtn.addEventListener("click", () => modal.style.display = "none");
+
+            if (mpesaClose) {
+                mpesaClose.addEventListener("click", () => mpesaModal.style.display = "none");
+            }
+
+            window.addEventListener("click", e => {
+                if (e.target === modal) modal.style.display = "none";
+                if (e.target === mpesaModal) mpesaModal.style.display = "none";
+                if (e.target === paymentSelectModal) paymentSelectModal.style.display = "none";
+            });
+
+
+            paymentForm.addEventListener("submit", async e => {
+                e.preventDefault();
+                const reservationId = reservationForm.dataset.reservationId;
+
+                if (!reservationId) {
+                    alert("No reservation ID found");
+                    return;
+                }
+
+                try {
+                    const res = await fetch(`/api/payment/${reservationId}/complete`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: reservationForm.dataset.totalAmount || calculateTotal(),
+                            paymentMethod: 'Cheque',
+                            chequeNumber: document.getElementById("chequeNumber").value,
+                            bankName: document.getElementById("bankName").value,
+                            accountName: document.getElementById("accountName").value,
+                            chequeDate: document.getElementById("chequeDate").value,
+                            amountInWords: document.getElementById("amountInWords").value
+                        })
+                    });
+                    const data = await res.json();
+                    alert(data.message);
+                    modal.style.display = "none";
+
+                    resetReservationForm();
+                } catch (err) {
+                    alert("Cheque submission failed: " + err.message);
+                }
+            });
+
+
+            if (mpesaPayBtn) {
+                mpesaPayBtn.addEventListener("click", async () => {
+                    const number = document.getElementById("mpesaNumber").value.trim();
+                    if (!number || number.length < 10) {
+                        alert("Enter a valid M-Pesa number.");
+                        return;
+                    }
+
+                    const reservationId = reservationForm.dataset.reservationId;
+
+                    if (!reservationId) {
+                        alert("No reservation ID found");
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(`/api/payment/${reservationId}/mpesa`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                amount: reservationForm.dataset.totalAmount || calculateTotal(),
+                                phone: number
+                            })
+                        });
+                        const data = await res.json();
+                        alert(data.message);
+                        mpesaModal.style.display = "none";
+
+                        resetReservationForm();
+                    } catch (err) {
+                        alert("M-Pesa payment failed: " + err.message);
+                    }
+                });
+            }
+
+
+            setTimeout(() => {
+                if (checkInInput && checkOutInput && checkInInput.value && checkOutInput.value) {
+                    checkAvailability();
+                }
+            }, 500);
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const logoutLinks = document.querySelectorAll('a[href="/logout"]');
+
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+
+                    if (confirmLogout) {
+                        window.location.href = '/logout';
+                    } else {
+                        console.log('Logout cancelled by user');
+                    }
+                });
+            });
+
+            const logoutButtons = document.querySelectorAll('button[data-action="logout"]');
+            logoutButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+                    if (confirmLogout) {
+                        window.location.href = '/logout';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Jacks' Hotel - My Activity </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="Styles/style.css">
+    <style>
+        .dropdown-menu {
+            display: none;
+            position: fixed;
+            top: 0px;
+            left: 0px;
+            padding-left: 6px;
+            background-color: #2c3e50;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            height: 95vh;
+            min-width: 200px;
+            max-width: 250px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-content {
+            padding: 50px 0;
+        }
+
+        .dropdown-link {
+            display: flex;
+            align-items: center;
+            padding: 30px 20px;
+            font-size: 13px;
+            font-family: 'Roboto';
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .dropdown-link.active {
+            background-color: #34495e;
+            border-left: 3px solid #3498db;
+            font-weight: bold;
+        }
+
+        .dropdown-link.logoutlink {
+            margin-top: 5px;
+        }
+
+        .dropdown-link img {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 999;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-120px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+        }
+
+        @media (min-width: 769px) {
+            .menu-toggle {
+                display: none;
+            }
+
+            .dropdown-menu {
+                display: none !important;
+            }
+        }
+    </style>
+
+
+</head>
+<body class="activity">
+    <button class="menu-toggle" aria-label="Toggle menu" id="hamburgerBtn">☰</button>
+
+
+    <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-content">
+            <a href="/activitystatus" class="dropdown-link active">
+                <img src="/icons/Overview.png" alt="Activity Overview"> Activity Overview
+            </a>
+            <a href="/reservation" class="dropdown-link ">
+                <img src="/icons/booking icon.png" alt="Book a Room"> Book a Room
+            </a>
+            <a href="/notifications" class="dropdown-link">
+                <img src="/icons/notification2.png" alt="Notifications"> Notifications
+            </a>
+            <a href="/logout" class="dropdown-link logoutlink">
+                <img src="/icons/logout icon.png" alt="Logout"> Logout
+            </a>
+        </div>
+    </div>
+
+
+    <div class="sidebar">
+        <h2>User Dashboard</h2>
+        <a href="/activitystatus" class="link active"><img src="/icons/Overview.png">Activity Overview</a>
+        <a href="/reservation" class="link"><img src="/icons/booking icon.png">Book a Room</a>
+        <a href="/notifications" class="link"><img src="/icons/notification2.png">Notifications</a>
+        <a href="/logout" class="logoutlink"><img src="/icons/logout icon.png"> Logout</a>
+    </div>
+    <div class="activitycontainer">
+        <div class="activityheader">
+            <div class="welcome">
+                <div class="avatar" id="avatar">Hi</div>
+                <div>
+                    <h1 id="guestName"></h1>
+                    <p class="lead">Here's what you've done recently.</p>
+                </div>
+            </div>
+
+            <div>
+                <button id="btn-refresh" class="btn">Refresh</button>
+            </div>
+        </div>
+
+        <div class="activitygrid">
+            <div>
+                <div class="activitycard" id="card-pending">
+                    <h3 id="pendingheader">Pending Payments</h3>
+                    <div class="small">Latest payment requiring your attention</div>
+                    <div class="list" id="list-pending"></div>
+                    <div id="empty-pending" class="empty">No pending payments</div>
+                </div>
+
+                <div class="activitycard" id="card-bookings">
+                    <h3 id="recentbookings">Latest Booking</h3>
+                    <div class="small">Your most recent reservation</div>
+                    <div class="list" id="list-bookings"></div>
+                    <div id="empty-bookings" class="empty">No bookings found</div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script>
+
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+
+        hamburgerBtn.addEventListener('click', function (event) {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+
+        document.addEventListener('click', function (event) {
+            if (!dropdownMenu.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        document.querySelectorAll('.dropdown-link').forEach(link => {
+            link.addEventListener('click', function () {
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const listPending = document.getElementById("list-pending");
+            const emptyPending = document.getElementById("empty-pending");
+            const listBookings = document.getElementById("list-bookings");
+            const emptyBookings = document.getElementById("empty-bookings");
+            const btnRefresh = document.getElementById("btn-refresh");
+            const avatarEl = document.getElementById("avatar");
+            const guestNameEl = document.getElementById("guestName");
+
+
+            let currentGuestId = null;
+
+
+            async function loadGuestDetails() {
+                try {
+                    const res = await fetch("/api/guestlogin");
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            window.location.href = "/guestlogin";
+                            return;
+                        }
+                        throw new Error("Failed to load guest details");
+                    }
+                    const guest = await res.json();
+
+                    avatarEl.textContent = guest.username ? guest.username[0].toUpperCase() : "G";
+                    guestNameEl.textContent = `Hello, ${guest.username || 'Guest'}`;
+
+
+                    currentGuestId = guest.id || guest.guest_id;
+                    console.log("Current guest ID:", currentGuestId);
+                } catch (err) {
+                    console.error("Failed to load guest details:", err);
+                    avatarEl.textContent = "G";
+                    guestNameEl.textContent = "Hello, Guest";
+                }
+            }
+
+            function formatDateTimeNairobi(dateStr) {
+                try {
+                    const date = new Date(dateStr);
+                    return date.toLocaleString("en-GB", {
+                        timeZone: "Africa/Nairobi",
+                        year: "numeric",
+                        month: "short",
+                        day: "2-digit",
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true
+                    });
+                } catch (err) {
+                    return dateStr;
+                }
+            }
+
+            async function loadDashboard() {
+                listPending.innerHTML = "";
+                listBookings.innerHTML = "";
+                emptyPending.style.display = "none";
+                emptyBookings.style.display = "none";
+
+                try {
+                    const res = await fetch("/api/reservations");
+                    if (!res.ok) {
+                        if (res.status === 401) {
+                            window.location.href = "/guestlogin";
+                            return;
+                        }
+                        throw new Error("Failed to fetch reservations");
+                    }
+                    const allReservations = await res.json();
+                    console.log("All reservations:", allReservations);
+
+
+                    const guestReservations = allReservations.filter(reservation => {
+
+                        return reservation.guest_id === currentGuestId ||
+                            reservation.guestId === currentGuestId ||
+                            reservation.user_id === currentGuestId;
+                    });
+
+                    console.log("Guest's reservations:", guestReservations);
+
+                    if (guestReservations.length === 0) {
+                        emptyPending.style.display = "block";
+                        emptyBookings.style.display = "block";
+                        return;
+                    }
+
+
+                    const latestReservation = [...allReservations].sort((a, b) => b.reservation_id - a.reservation_id)[0];
+                    console.log("Latest reservation from all:", latestReservation);
+
+                    const totalAmount = parseFloat(latestReservation.total_amount) || 0;
+                    const amountPaid = parseFloat(latestReservation.amount_paid) || 0;
+                    const remainingAmount = totalAmount - amountPaid;
+                    const paymentStatus = (latestReservation.payment_status || '').toLowerCase();
+                    if (paymentStatus !== 'paid' && remainingAmount > 0) {
+                        emptyPending.style.display = "none";
+
+                        const pendingItem = document.createElement("div");
+                        pendingItem.className = "item";
+                        pendingItem.innerHTML = `
+                            <div class="meta">
+                                <div><strong>Reservation #${latestReservation.reservation_id}</strong></div>
+                                <div class="small">Room: ${latestReservation.room_type || 'N/A'} (${latestReservation.roomTag || ''})</div>
+                                <div class="small">Check-in: ${formatDateTimeNairobi(latestReservation.check_in)}</div>
+                                <div class="small">Check-out: ${formatDateTimeNairobi(latestReservation.check_out)}</div>
+                                <div class="small">Amount Due: <strong>KES ${remainingAmount.toFixed(2)}</strong></div>
+                                <div class="small">Total: KES ${totalAmount.toFixed(2)} | Paid: KES ${amountPaid.toFixed(2)}</div>
+                            </div>
+                            <div>
+                                <button class="btn pay-btn" data-id="${latestReservation.reservation_id}" data-amount="${remainingAmount}">Pay Now</button>
+                            </div>
+                        `;
+                        listPending.appendChild(pendingItem);
+
+
+                        const payBtn = pendingItem.querySelector('.pay-btn');
+                        payBtn.addEventListener('click', (e) => {
+                            const reservationId = e.target.getAttribute('data-id');
+                            const amount = e.target.getAttribute('data-amount');
+                            payReservation(reservationId, amount);
+                        });
+                    } else {
+                        emptyPending.style.display = "block";
+                    }
+
+
+                    emptyBookings.style.display = "none";
+
+                    const bookingItem = document.createElement("div");
+                    bookingItem.className = "item latest-booking";
+                    bookingItem.innerHTML = `
+                        <div class="meta">
+                            <div><strong>Reservation #${latestReservation.reservation_id}</strong></div>
+                            <div class="small">Room: ${latestReservation.room_type || 'N/A'} (${latestReservation.roomTag || ''})</div>
+                            <div class="small">Check-in: ${formatDateTimeNairobi(latestReservation.check_in)}</div>
+                            <div class="small">Check-out: ${formatDateTimeNairobi(latestReservation.check_out)}</div>
+                            <div class="small">
+                                Status: ${latestReservation.reservation_status || 'Pending'} | 
+                                Payment: <span style="color: ${paymentStatus === 'paid' ? 'green' : 'orange'}">${paymentStatus}</span>
+                            </div>
+                            <div class="small">
+                                Total: KES ${totalAmount.toFixed(2)} | 
+                                Paid: KES ${amountPaid.toFixed(2)} | 
+                                Balance: KES ${remainingAmount.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                    listBookings.appendChild(bookingItem);
+
+                } catch (err) {
+                    console.error("Dashboard load error:", err);
+                    listPending.innerHTML = `<div class="error">Failed to load dashboard data: ${err.message}</div>`;
+                    emptyPending.style.display = "none";
+                    emptyBookings.style.display = "block";
+                }
+            }
+
+            async function payReservation(reservationId, amount) {
+                const phoneNumber = prompt("Enter your M-Pesa phone number (e.g., 0712345678):");
+                if (!phoneNumber) {
+                    console.log("Payment cancelled by user");
+                    return;
+                }
+
+                const cleanPhone = phoneNumber.replace(/\s/g, '');
+                let mpesaPhone = cleanPhone;
+
+                if (cleanPhone.startsWith("0")) {
+                    mpesaPhone = "254" + cleanPhone.slice(1);
+                } else if (cleanPhone.startsWith("+254")) {
+                    mpesaPhone = cleanPhone.slice(1);
+                }
+
+
+                if (!/^2547\d{8}$/.test(mpesaPhone)) {
+                    alert("Please enter a valid Kenyan phone number starting with 07 (e.g., 0712345678)");
+                    return;
+                }
+
+                console.log(`Initiating M-Pesa payment for reservation ${reservationId}, amount: ${amount}, phone: ${mpesaPhone}`);
+
+                try {
+
+                    const res = await fetch(`/api/payment/${reservationId}/mpesa`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify({
+                            phone: mpesaPhone,
+                            amount: parseFloat(amount)
+                        })
+                    });
+
+                    console.log("Payment response status:", res.status);
+                    const data = await res.json();
+                    console.log("Payment response data:", data);
+
+                    if (data.success) {
+                        alert("✓ STK Push sent! Please check your phone to complete the payment.");
+                        setTimeout(() => {
+                            loadDashboard();
+                        }, 3000);
+                    } else {
+                        alert(`Payment failed: ${data.message || JSON.stringify(data.error || data)}`);
+                    }
+                } catch (err) {
+                    console.error("Payment request error:", err);
+                    alert("Error initiating payment. Please check the console for details.");
+                }
+            }
+
+            btnRefresh.addEventListener("click", () => {
+                console.log("Manual refresh triggered");
+                loadGuestDetails();
+                loadDashboard();
+            });
+
+
+            loadGuestDetails();
+            loadDashboard();
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const logoutLinks = document.querySelectorAll('a[href="/logout"]');
+
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+
+                    if (confirmLogout) {
+
+                        window.location.href = '/logout';
+                    } else {
+
+                        console.log('Logout cancelled by user');
+                    }
+                });
+            });
+
+
+            const logoutButtons = document.querySelectorAll('button[data-action="logout"]');
+            logoutButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const confirmLogout = confirm('Are you sure you want to logout?');
+                    if (confirmLogout) {
+                        window.location.href = '/logout';
+                    }
+                });
+            });
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
+</body>
+</html>

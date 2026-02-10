@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="Styles/style.css">
+    <style>
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+        }
+
+        .admin-input-group {
+            position: relative;
+        }
+
+        .toggle-password svg {
+            stroke: black;
+            fill: none;
+            width: 15px;
+            height: 15px;
+        }
+
+        .homelink {
+            position: absolute;
+            bottom: 5%;
+            font-size: 14px;
+            font-family: 'Roboto';
+            color: white;
+        }
+
+        .homelink a:hover {
+            border-bottom: 1px solid white;
+        }
+    </style>
+</head>
+<body id="admin-body">
+    <div class="homelink"><a href="/">Homepage</a></div>
+    <div class="admin-login-container">
+        <div class="admin-icon-circle">
+            <img src="/icons/profile.png" alt="Profile">
+        </div>
+        <h2 class="adminheader">Sign-in</h2>
+        <form class="admin-login-form" id="adminLoginForm" action="/loginAdmin" method="POST">
+            <div class="admin-input-group">
+                <input type="text" id="admin-LoginID" name="adminId" placeholder="Admin ID" required>
+            </div>
+
+            <div class="admin-input-group">
+                <input type="password" id="admin-password" name="adminPassword" placeholder="Password" required>
+                <span id="togglePassword" class="toggle-password">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+                </span>
+            </div>
+
+            <div class="admin-form-options">
+                <label for="admin-remember" class="admin-remember-label">
+                    <input type="checkbox" id="admin-remember" name="rememberMe" class="admin-remember-checkbox">
+                    Remember me
+                </label>
+                <a href="#" class="admin-forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="admin-login-button">Sign-in</button>
+        </form>
+
+        <p id="loginMessage" style="color: red; text-align:center; margin-top:10px;"></p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const passwordInput = document.getElementById("admin-password");
+            const togglePassword = document.getElementById("togglePassword");
+
+            togglePassword.addEventListener("click", () => {
+                const type = passwordInput.getAttribute("type") === "password" ? "name" : "password";
+                passwordInput.setAttribute("type", type);
+
+
+                togglePassword.innerHTML = type === "password"
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+               <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+               <circle cx="12" cy="12" r="3"/>
+             </svg>`
+                    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+               <path d="M2 2l20 20M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+               <circle cx="12" cy="12" r="3"/>
+             </svg>`;
+            });
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Jacks' - FAQ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+
+    <style>
+        @media (min-width: 780px) {
+            body.FAQ {
+                background-color: rgb(255, 252, 252);
+                margin: 0;
+                padding: 0;
+            }
+
+            .faqhead {
+                background-color: rgb(25, 62, 90);
+                color: white;
+                padding: 20px 0;
+                text-align: center;
+
+            }
+
+            h1 {
+                margin: 0;
+                font-family: 'Cinzel';
+            }
+
+            .faq-container {
+                max-width: 800px;
+                margin: 40px auto;
+                background-color: white;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            .faq-item {
+                margin-bottom: 20px;
+            }
+
+            .faq-item h3 {
+                margin: 0;
+                cursor: pointer;
+                background-color: #e6f0ff;
+                padding: 15px;
+                border-radius: 5px;
+                transition: background 0.3s;
+                font-family: 'Roboto';
+            }
+
+            .faq-item h3:hover {
+                background-color: #cce0ff;
+            }
+
+            .faq-item p {
+                display: none;
+                margin: 10px 0 0 0;
+                padding: 0 15px;
+                font-family: 'Roboto';
+            }
+
+            .faqfoot {
+                background-color: rgb(25, 62, 90);
+                color: white;
+                text-align: center;
+                padding: 15px 0;
+                margin-top: 40px;
+                font-family: "Roboto";
+                font-size: 12px;
+                font-weight: bold;
+            }
+        }
+
+        @media (max-width: 767px) {
+            body.FAQ {
+                background-color: rgb(255, 252, 252);
+                margin: 0;
+                padding: 0;
+            }
+
+            .faqhead {
+                background-color: rgb(25, 62, 90);
+                color: white;
+                padding: 12px 0;
+                text-align: center;
+            }
+
+            h1 {
+                margin: 0;
+                font-family: 'Cinzel';
+                font-size: 16px;
+            }
+
+            .faq-container {
+                background-color: white;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            .faq-item {
+                margin-bottom: 20px;
+            }
+
+            .faq-item h3 {
+                margin: 0;
+                cursor: pointer;
+                background-color: #e6f0ff;
+                padding: 18px;
+                margin-top: 15px;
+                font-size: 12px;
+                border-radius: 5px;
+                transition: background 0.3s;
+                font-family: 'Roboto';
+            }
+
+
+            .faq-item p {
+                display: none;
+                margin: 10px 0 0 0;
+                padding: 0 15px;
+                font-family: 'Roboto';
+                font-size: 12px;
+            }
+
+
+        }
+    </style>
+</head>
+<body class="FAQ">
+
+    <header class="faqhead">
+        <h1> The Jacks' Hotel - Frequently Asked Questions (FAQs) </h1>
+    </header>
+
+    <div class="faq-container">
+        <div class="faq-item">
+            <h3>1. What are the check-in and check-out times?</h3>
+            <p>Check-in is from 2:00 PM and check-out is until 12:00 PM. Early check-in or late check-out may be
+                available upon request.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>2. Do you offer free Wi-Fi?</h3>
+            <p>Yes, complimentary high-speed Wi-Fi is available in all rooms and public areas.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>3. Is parking available at the hotel?</h3>
+            <p>Yes, we have free on-site parking for all guests.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>4. Do you allow pets?</h3>
+            <p>We are a pet-friendly hotel, but prior notification is required. Additional charges may apply.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>5. How can I make a reservation?</h3>
+            <p>You can make a reservation online via our website, call us directly, or email our booking team.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>6. What is your cancellation policy?</h3>
+            <p>Cancellations up to 24 hours before the check-in date are free. Late cancellations or no-shows may incur
+                charges.</p>
+        </div>
+    </div>
+
+    <script>
+        const faqItems = document.querySelectorAll('.faq-item h3');
+        faqItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const answer = item.nextElementSibling;
+                answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+
+        (function () {
+            const overlay = document.createElement("div");
+
+            overlay.innerHTML = "Please rotate your phone back to portrait mode";
+            overlay.style.position = "fixed";
+            overlay.style.top = "0";
+            overlay.style.left = "0";
+            overlay.style.width = "100vw";
+            overlay.style.height = "100vh";
+            overlay.style.background = "#000";
+            overlay.style.color = "#fff";
+            overlay.style.display = "none";
+            overlay.style.justifyContent = "center";
+            overlay.style.alignItems = "center";
+            overlay.style.textAlign = "center";
+            overlay.style.fontSize = "20px";
+            overlay.style.zIndex = "9999";
+
+            document.body.appendChild(overlay);
+
+            function checkOrientation() {
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+                if (!isMobile) return;
+
+                if (window.innerWidth > window.innerHeight) {
+
+                    overlay.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                } else {
+
+                    overlay.style.display = "none";
+                    document.body.style.overflow = "auto";
+                }
+            }
+
+            window.addEventListener("load", checkOrientation);
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+        })();
+    </script>
+
+</body>
+</html>
