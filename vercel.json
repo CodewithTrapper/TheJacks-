@@ -1,23 +1,25 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    { "handle": "filesystem" },
-    {
-      "src": "/(roombooking|adminstatus|newsletter|payment|profit|manageRooms|manageAdmins|homePage|bookings|adminlogin|guestregistration|guestlogin|passwordreset|reservation|book-table|activitystatus|frequentlyaskedquestions|notifications|admin-simple|login|logout|adminlogout|add-guest|add-room|subscribe|admin|loginAdmin|loginGuest|book-room|forgotpassword|resetpassword/.*|pay/mpesa|admin/sendNewsletter|api/.*|mpesa/.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/server.js"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/index" },
+    { "source": "/homePage", "destination": "/index" },
+    { "source": "/roombooking", "destination": "/roombooking" },
+    { "source": "/bookings", "destination": "/roombooking" },
+    { "source": "/adminstatus", "destination": "/admin" },
+    { "source": "/newsletter", "destination": "/news" },
+    { "source": "/payment", "destination": "/payment" },
+    { "source": "/profit", "destination": "/profit" },
+    { "source": "/manageRooms", "destination": "/adminaddroom" },
+    { "source": "/manageAdmins", "destination": "/adminadd" },
+    { "source": "/adminlogin", "destination": "/Adminlogin" },
+    { "source": "/guestregistration", "destination": "/register" },
+    { "source": "/guestlogin", "destination": "/login" },
+    { "source": "/passwordreset", "destination": "/forgot" },
+    { "source": "/reservation", "destination": "/reservation" },
+    { "source": "/book-table", "destination": "/table" },
+    { "source": "/activitystatus", "destination": "/activity" },
+    { "source": "/frequentlyaskedquestions", "destination": "/faq" },
+    { "source": "/notifications", "destination": "/notifications" },
+    { "source": "/admin-simple", "destination": "/admindashboard" }
+  ]
 }
