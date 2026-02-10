@@ -1,8 +1,7 @@
+// api/server.js - FULLY INTACT VERCEL VERSION
 require('dotenv').config();
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
-
-
 
 const express = require("express");
 const path = require("path");
@@ -15,7 +14,10 @@ const jwt = require("jsonwebtoken");
 const dns = require("dns");
 dns.setDefaultResultOrder("ipv4first");
 const cors = require('cors');
+const { MailerSend, EmailParams } = require("mailersend");
 
+// FOR VERCEL: Use memory store for sessions
+const MemoryStore = require('memorystore')(session);
 
 const MPESA_BASE_URL = process.env.MPESA_BASE_URL || "https://sandbox.safaricom.co.ke";
 const MPESA_SHORTCODE = process.env.MPESA_SHORTCODE;
@@ -23,29 +25,31 @@ const MPESA_PASSKEY = process.env.MPESA_PASSKEY;
 const MPESA_CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY;
 const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET;
 
-
 const app = express();
 
+// VERCEL REQUIRED: Trust proxy for proper session handling
+app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
 
 app.use((req, res, next) => {
     res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     next();
 });
 
-
-
+// VERCEL SESSION CONFIG - Using MemoryStore
 app.use(session({
+    store: new MemoryStore({
+        checkPeriod: 86400000 // Clean up expired entries every 24h
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false,
-        sameSite: 'lax'
+        secure: process.env.NODE_ENV === 'production', // true on Vercel
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
 
@@ -78,20 +82,16 @@ function requireAdmin(req, res, next) {
     next();
 }
 
-
 app.use(cors({
     origin: true,
     credentials: true
 }));
 
-
-
-
-app.use("/Styles", express.static(path.join(__dirname, "Styles")));
-app.use("/vid", express.static(path.join(__dirname, "vid")));
-app.use("/Images", express.static(path.join(__dirname, "images")));
-app.use("/icons", express.static(path.join(__dirname, "icons")));
-
+// VERCEL: Update paths to go up one level from /api folder
+app.use("/Styles", express.static(path.join(__dirname, "..", "Styles")));
+app.use("/vid", express.static(path.join(__dirname, "..", "vid")));
+app.use("/Images", express.static(path.join(__dirname, "..", "images")));
+app.use("/icons", express.static(path.join(__dirname, "..", "icons")));
 
 const htmlFiles = {
     "/": "index.html",
@@ -116,13 +116,11 @@ const htmlFiles = {
     "/admin-simple": "admindashboard.html"
 };
 
-
 const publicPages = [
     "/", "/homePage", "/book-table", "/frequentlyaskedquestions",
     "/guestlogin", "/guestregistration", "/passwordreset",
     "/newsletter", "/adminlogin"
 ];
-
 
 const userProtectedPages = [
     "/reservation",
@@ -131,7 +129,6 @@ const userProtectedPages = [
     "/book-table",
     "/notifications"
 ];
-
 
 const adminProtectedPages = [
     "/profit",
@@ -143,27 +140,25 @@ const adminProtectedPages = [
     "/payment"
 ];
 
-
+// Serve HTML files with updated paths for Vercel
 publicPages.forEach(route => {
     app.get(route, (req, res) => {
-
         if (route === "/adminlogin" || route === "/guestlogin") {
             res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             res.setHeader('Pragma', 'no-cache');
             res.setHeader('Expires', '0');
         }
-
-        res.sendFile(path.join(__dirname, htmlFiles[route]));
+        // VERCEL: Path goes up one level from /api folder
+        res.sendFile(path.join(__dirname, "..", htmlFiles[route]));
     });
 });
-
 
 userProtectedPages.forEach(route => {
     app.get(route, requireLogin, (req, res) => {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
-        res.sendFile(path.join(__dirname, htmlFiles[route]));
+        res.sendFile(path.join(__dirname, "..", htmlFiles[route]));
     });
 });
 
@@ -172,19 +167,17 @@ adminProtectedPages.forEach(route => {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
-        res.sendFile(path.join(__dirname, htmlFiles[route]));
+        res.sendFile(path.join(__dirname, "..", htmlFiles[route]));
     });
 });
 
-
+// ALL YOUR API ROUTES - COMPLETELY INTACT
 app.get("/api/session-user", (req, res) => {
     if (req.session && req.session.user) {
         return res.json(req.session.user);
     }
     return res.status(401).json({ message: "Not logged in" });
 });
-
-
 
 app.get("/api/admin/check", (req, res) => {
     if (req.session.admin) {
@@ -202,7 +195,6 @@ app.get("/api/user/check", (req, res) => {
     }
 });
 
-
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
@@ -216,10 +208,8 @@ app.post("/login", async (req, res) => {
 
         const guest = rows[0];
 
-
         const passwordMatch = await bcrypt.compare(password, guest.password);
         if (!passwordMatch) return res.status(401).json({ message: "Invalid credentials" });
-
 
         req.session.user = {
             guest_id: guest.guest_id,
@@ -234,7 +224,6 @@ app.post("/login", async (req, res) => {
     }
 });
 
-
 app.get("/adminlogout", (req, res) => {
     req.session.destroy(err => {
         if (err) {
@@ -242,11 +231,9 @@ app.get("/adminlogout", (req, res) => {
             return res.status(500).send("Logout failed");
         }
 
-
         res.clearCookie("connect.sid");
         res.clearCookie("session");
         res.clearCookie("sessionId");
-
 
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
@@ -263,11 +250,9 @@ app.get("/logout", (req, res) => {
             return res.status(500).send("Failed to logout");
         }
 
-
         res.clearCookie("connect.sid");
         res.clearCookie("session");
         res.clearCookie("sessionId");
-
 
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
@@ -442,13 +427,11 @@ app.get("/api/new-bookings", requireAdmin, (req, res) => {
             return res.status(500).json({ error: "Database error", details: err });
         }
 
-
         const enhancedResults = results.map(booking => {
             let roomCount = 1;
             if (booking.no_of_rooms) {
                 roomCount = parseInt(booking.no_of_rooms) || 1;
             }
-
 
             let roomsArray = [];
             if (booking.roomTag) {
@@ -482,18 +465,11 @@ app.get("/api/bookedRooms", (req, res) => {
     });
 });
 
-
-
-
-
-
 app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
     const reservationId = req.params.id;
 
     try {
-
         await db.promise().query("START TRANSACTION");
-
 
         const [reservationRows] = await db.promise().query(
             `SELECT r.reservation_id, r.guest_id, r.total_amount, 
@@ -516,7 +492,6 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
 
         console.log(`Permitting reservation ${reservationId} for guest ${guestId}, amount: ${totalAmount}`);
 
-
         const [existingPayments] = await db.promise().query(
             "SELECT payment_id FROM payments WHERE reservation_id = ?",
             [reservationId]
@@ -525,7 +500,6 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
         let paymentId;
 
         if (existingPayments.length > 0) {
-
             await db.promise().query(
                 `UPDATE payments 
                  SET status = 'Paid', 
@@ -538,7 +512,6 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
             paymentId = existingPayments[0].payment_id;
             console.log(`Updated existing payment ${paymentId} to Paid`);
         } else {
-
             const [paymentResult] = await db.promise().query(
                 `INSERT INTO payments 
                  (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
@@ -549,12 +522,10 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
             console.log(`Created new payment ${paymentId} with amount ${totalAmount}`);
         }
 
-
         const [updateResult] = await db.promise().query(
             "UPDATE reservationsdetails SET status = 'Permitted' WHERE reservation_id = ?",
             [reservationId]
         );
-
 
         await db.promise().query("COMMIT");
 
@@ -580,7 +551,6 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
     }
 });
 
-
 app.patch("/api/reservations/:id/reject", requireAdmin, async (req, res) => {
     const reservationId = req.params.id;
     try {
@@ -595,8 +565,6 @@ app.patch("/api/reservations/:id/reject", requireAdmin, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-
-
 
 app.post("/add-guest", async (req, res) => {
     const { username, email, password, confirmpassword } = req.body;
@@ -648,13 +616,11 @@ app.post("/guestlogin", async (req, res) => {
         email: guest.email
     };
 
-
     const returnTo = req.session.returnTo || "/reservation";
     delete req.session.returnTo;
 
     res.json({ success: true, redirectTo: returnTo });
 });
-
 
 app.post("/loginGuest", async (req, res) => {
     const { email, password, rememberMe } = req.body;
@@ -662,22 +628,18 @@ app.post("/loginGuest", async (req, res) => {
     try {
         const [results] = await db.promise().query("SELECT * FROM guest WHERE email = ?", [email]);
 
-
         if (results.length === 0) return res.redirect("/guestlogin");
 
         const guest = results[0];
         const match = await bcrypt.compare(password, guest.password);
 
-
         if (!match) return res.redirect("/guestlogin");
-
 
         req.session.user = {
             guest_id: guest.guest_id,
             username: guest.username,
             email: guest.email
         };
-
 
         if (rememberMe) {
             req.session.cookie.maxAge = 7 * 24 * 60 * 60 * 1000;
@@ -693,14 +655,10 @@ app.post("/loginGuest", async (req, res) => {
     }
 });
 
-
-
 app.get("/api/guestlogin", (req, res) => {
     if (!req.session.user) {
-
         return res.status(401).json({ message: "Not logged in" });
     }
-
 
     res.json({
         guest_id: req.session.user.guest_id,
@@ -708,9 +666,6 @@ app.get("/api/guestlogin", (req, res) => {
         email: req.session.user.email
     });
 });
-
-
-
 
 app.post("/add-room", (req, res) => {
     const { roomTag, roomType } = req.body;
@@ -740,22 +695,16 @@ app.get("/api/rooms", (req, res) => {
     });
 });
 
-
-
 app.get("/admin-simple", requireAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, "admin-simple.html"));
+    res.sendFile(path.join(__dirname, "..", "admindashboard.html"));
 });
 
-
 publicPages.push("/admin-simple");
-
-
 
 app.delete("/api/bookedRooms/:reservationId", requireAdmin, async (req, res) => {
     const { reservationId } = req.params;
 
     try {
-
         const [bookingResult] = await db.promise().query(
             "SELECT roomTag FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
@@ -770,12 +719,10 @@ app.delete("/api/bookedRooms/:reservationId", requireAdmin, async (req, res) => 
 
         const roomTag = bookingResult[0].roomTag;
 
-
         await db.promise().query(
             "DELETE FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
         );
-
 
         await db.promise().query(
             "DELETE FROM payments WHERE reservation_id = ?",
@@ -800,9 +747,6 @@ app.delete("/api/bookedRooms/:reservationId", requireAdmin, async (req, res) => 
     }
 });
 
-
-
-
 app.post("/book-table", async (req, res) => {
     const { fullName, emailAddress, phoneNumber, bookingDate, bookingTime, guests, specialRequests } = req.body;
 
@@ -823,7 +767,6 @@ app.post("/book-table", async (req, res) => {
         res.status(500).json({ message: "Database error", error: err.sqlMessage || err.message });
     }
 });
-
 
 app.get("/api/table-bookings", (req, res) => {
     const sql = "SELECT * FROM table_bookings ORDER BY created_at DESC";
@@ -849,12 +792,8 @@ app.delete("/api/table-bookings/:id", (req, res) => {
     });
 });
 
-
-
-
 app.delete("/api/deleteRoom/:roomTag", (req, res) => {
     const roomTag = req.params.roomTag;
-
 
     const deleteRoomQuery = `
         DELETE FROM rooms
@@ -879,9 +818,6 @@ app.delete("/api/deleteRoom/:roomTag", (req, res) => {
         });
     });
 });
-
-
-
 
 app.post("/admin", async (req, res) => {
     const { adminId, adminPassword, action } = req.body;
@@ -915,10 +851,8 @@ app.post("/admin", async (req, res) => {
     }
 });
 
-
 app.post("/loginAdmin", async (req, res) => {
     const { adminId, adminPassword, rememberMe } = req.body;
-
 
     if (!adminId || !adminPassword) {
         return res.redirect("/adminlogin");
@@ -927,7 +861,6 @@ app.post("/loginAdmin", async (req, res) => {
     try {
         const [results] = await db.promise().query("SELECT * FROM admin WHERE adminId = ?", [adminId]);
 
-
         if (results.length === 0) {
             return res.redirect("/adminlogin");
         }
@@ -935,11 +868,9 @@ app.post("/loginAdmin", async (req, res) => {
         const admin = results[0];
         const match = await bcrypt.compare(adminPassword, admin.adminPassword);
 
-
         if (!match) {
             return res.redirect("/adminlogin");
         }
-
 
         req.session.admin = {
             adminId: admin.adminId
@@ -958,7 +889,6 @@ app.post("/loginAdmin", async (req, res) => {
 
     } catch (err) {
         console.error("Admin login error:", err);
-
         return res.redirect("/adminlogin");
     }
 });
@@ -983,20 +913,15 @@ app.post("/subscribe", (req, res) => {
     });
 });
 
-require('dotenv').config();
-const { MailerSend, EmailParams } = require("mailersend");
-
 const mailersend = new MailerSend({
     api_key: process.env.MAILERSEND_API_KEY
 });
-
 
 app.post("/admin/sendNewsletter", async (req, res) => {
     const { subject, message } = req.body;
     if (!subject || !message) return res.json({ message: "Both subject and message are required." });
 
     try {
-
         const [subscribers] = await db.promise().query("SELECT email FROM newsletter WHERE status = 'Permitted'");
         if (subscribers.length === 0) return res.json({ message: "No subscribers to send to." });
 
@@ -1030,7 +955,6 @@ app.post("/admin/sendNewsletter", async (req, res) => {
     }
 });
 
-
 app.get("/admin/subscribers", (req, res) => {
     db.query("SELECT * FROM newsletter", (err, results) => {
         if (err) return res.json([]);
@@ -1046,7 +970,6 @@ app.delete("/admin/subscribers/:id", (req, res) => {
     });
 });
 
-
 app.put("/admin/subscribers/approve/:id", (req, res) => {
     const id = req.params.id;
     db.query("UPDATE newsletter SET status = 'Permitted' WHERE id = ?", [id], (err) => {
@@ -1055,7 +978,6 @@ app.put("/admin/subscribers/approve/:id", (req, res) => {
     });
 });
 
-
 app.post('/forgotpassword', async (req, res) => {
     const { email } = req.body;
 
@@ -1063,7 +985,7 @@ app.post('/forgotpassword', async (req, res) => {
     if (users.length === 0) return res.status(400).json({ message: "No user found with this email." });
 
     const token = jwt.sign({ email }, SESSION_SECRET, { expiresIn: '1h' });
-    const resetLink = `http://localhost:3000/resetpassword/${token}`;
+    const resetLink = `https://${req.headers.host}/resetpassword/${token}`; // VERCEL: Use dynamic host
 
     try {
         await mailersend.email.send({
@@ -1085,9 +1007,6 @@ app.post('/forgotpassword', async (req, res) => {
     }
 });
 
-
-
-
 app.post("/resetpassword/:token", async (req, res) => {
     const { token } = req.params;
     const { newPassword, confirmPassword } = req.body;
@@ -1096,7 +1015,6 @@ app.post("/resetpassword/:token", async (req, res) => {
     if (newPassword !== confirmPassword) return res.status(400).json({ message: "Passwords do not match" });
 
     try {
-
         const decoded = jwt.verify(token, SESSION_SECRET);
         const email = decoded.email;
 
@@ -1109,9 +1027,6 @@ app.post("/resetpassword/:token", async (req, res) => {
         res.status(400).json({ message: "Invalid or expired token." });
     }
 });
-
-
-
 
 app.post("/book-room", async (req, res) => {
     try {
@@ -1134,7 +1049,6 @@ app.post("/book-room", async (req, res) => {
             roomTags
         } = req.body;
 
-
         if (
             !roomType || !beddingType || !noOfRooms ||
             !mealPlan || !checkIn || !checkOut
@@ -1143,7 +1057,6 @@ app.post("/book-room", async (req, res) => {
                 message: "All reservation fields are required."
             });
         }
-
 
         let roomTagValue;
         if (roomTags && Array.isArray(roomTags) && roomTags.length > 0) {
@@ -1161,14 +1074,11 @@ app.post("/book-room", async (req, res) => {
         const mealPrice = parseInt(mealPlan) || 0;
         const roomsCount = parseInt(noOfRooms) || 1;
 
-
         const checkInDate = new Date(checkIn);
         const checkOutDate = new Date(checkOut);
         const nights = Math.max(1, Math.floor((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)));
 
-
         const totalAmount = (roomPrice + beddingPrice + mealPrice) * roomsCount * nights;
-
 
         const [guestRow] = await db.promise().query(
             "SELECT guest_id FROM guestdetails WHERE email = ? LIMIT 1",
@@ -1182,7 +1092,6 @@ app.post("/book-room", async (req, res) => {
         }
 
         const guestId = guestRow[0].guest_id;
-
 
         const insertReservationSql = `
             INSERT INTO reservationsdetails
@@ -1249,7 +1158,6 @@ app.post("/book-room", async (req, res) => {
     }
 });
 
-
 app.put("/api/guestdetails/update", async (req, res) => {
     try {
         if (!req.session.user) {
@@ -1302,7 +1210,6 @@ app.put("/api/guestdetails/update", async (req, res) => {
         res.status(500).json({ message: "Failed to update guest details." });
     }
 });
-
 
 app.post("/api/guestdetails/save", async (req, res) => {
     try {
@@ -1359,9 +1266,6 @@ app.post("/api/guestdetails/save", async (req, res) => {
     }
 });
 
-
-
-
 app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
     try {
         const limit = req.query.limit || 5;
@@ -1394,8 +1298,6 @@ app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
             LEFT JOIN guestdetails gd ON r.guest_id = gd.guest_id
             -- Only show bookings that are still active (check_out date is in the future)
             WHERE r.check_out >= CURDATE()
-            -- OR if you want to show completed bookings for a short period after checkout:
-            -- WHERE r.check_out >= DATE_SUB(CURDATE(), INTERVAL 2 DAY)
             ORDER BY r.created_at DESC
             LIMIT ?
         `;
@@ -1453,7 +1355,6 @@ app.get("/api/available-rooms", async (req, res) => {
             });
         }
 
-
         const query = `
             SELECT roomTag 
             FROM reservationsdetails 
@@ -1479,12 +1380,10 @@ app.get("/api/available-rooms", async (req, res) => {
             checkIn, checkOut
         ]);
 
-
         const bookedTags = new Set();
 
         bookedReservations.forEach(reservation => {
             if (reservation.roomTag) {
-
                 const tags = reservation.roomTag.split(',').map(tag => tag.trim());
                 tags.forEach(tag => {
                     if (tag) bookedTags.add(tag);
@@ -1492,9 +1391,7 @@ app.get("/api/available-rooms", async (req, res) => {
             }
         });
 
-
         const bookedTagsArray = Array.from(bookedTags);
-
 
         const [allRooms] = await db.promise().query(
             "SELECT roomTag FROM rooms ORDER BY roomTag ASC"
@@ -1522,7 +1419,6 @@ app.get("/api/available-rooms", async (req, res) => {
     }
 });
 
-
 app.get("/api/room-availability/:roomTag", async (req, res) => {
     try {
         const { roomTag } = req.params;
@@ -1534,7 +1430,6 @@ app.get("/api/room-availability/:roomTag", async (req, res) => {
                 message: "Room tag, check-in and check-out dates are required"
             });
         }
-
 
         const query = `
             SELECT COUNT(*) as count 
@@ -1589,8 +1484,6 @@ app.get("/api/room-availability/:roomTag", async (req, res) => {
     }
 });
 
-
-
 app.get("/api/payment/:reservationId", (req, res) => {
     const { reservationId } = req.params;
 
@@ -1642,7 +1535,6 @@ app.get("/api/payment/:reservationId", (req, res) => {
     });
 });
 
-
 app.put("/api/payment/:paymentId/status", (req, res) => {
     const { paymentId } = req.params;
     const { status } = req.body;
@@ -1659,7 +1551,6 @@ app.put("/api/payment/:paymentId/status", (req, res) => {
         res.json({ message: "Payment status updated successfully." });
     });
 });
-
 
 app.get("/api/reservations/:id", (req, res) => {
     const id = req.params.id;
@@ -1703,9 +1594,6 @@ app.put("/api/reservations/:id/status", (req, res) => {
         });
 });
 
-
-
-
 app.get("/api/guestdetails", async (req, res) => {
     if (!req.session.user) {
         return res.status(401).json({ message: "Not logged in" });
@@ -1725,10 +1613,6 @@ app.get("/api/guestdetails", async (req, res) => {
     res.json(rows[0]);
 });
 
-
-
-
-
 app.post("/api/payment/:reservationId/complete", async (req, res) => {
     const { reservationId } = req.params;
     const { phoneNumber, amount } = req.body;
@@ -1737,7 +1621,6 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
         return res.status(400).json({ message: "Phone number and amount are required." });
     }
 
-
     const phone = phoneNumber.startsWith("0") ? "254" + phoneNumber.slice(1) : phoneNumber;
 
     const time = new Date();
@@ -1745,9 +1628,7 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
     const password = Buffer.from(MPESA_SHORTCODE + MPESA_PASSKEY + timestamp).toString("base64");
 
     try {
-
         const token = await getAccessToken();
-
 
         const mpesaRes = await axios.post(
             `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
@@ -1767,7 +1648,6 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
-
         res.json({
             success: true,
             message: "STK Push initiated. Check your phone for the M-Pesa prompt.",
@@ -1779,7 +1659,6 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
     }
 });
 
-
 app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
     const { reservationId } = req.params;
     const { amount, phone } = req.body;
@@ -1789,7 +1668,6 @@ app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
     }
 
     try {
-
         const [reservationRows] = await db.promise().query(
             "SELECT guest_id FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
@@ -1801,14 +1679,12 @@ app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
 
         const guestId = reservationRows[0].guest_id;
 
-
         const [existingPayments] = await db.promise().query(
             "SELECT payment_id, amount_paid FROM payments WHERE reservation_id = ? AND status = 'Pending'",
             [reservationId]
         );
 
         if (existingPayments.length === 0) {
-
             await db.promise().query(
                 `INSERT INTO payments (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
                  VALUES (?, ?, 0.00, 'Mpesa', 'Pending', NOW())`,
@@ -1820,7 +1696,6 @@ app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
         }
 
         const mpesaPhone = phone.startsWith("0") ? "254" + phone.substring(1) : phone;
-
 
         const time = new Date();
         const timestamp = time.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
@@ -1871,7 +1746,6 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
     }
 
     try {
-
         const [reservationRows] = await db.promise().query(
             "SELECT guest_id FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
@@ -1883,7 +1757,6 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
 
         const guestId = reservationRows[0].guest_id;
 
-
         const [existingPayments] = await db.promise().query(
             "SELECT * FROM payments WHERE reservation_id = ? AND status = 'Paid'",
             [reservationId]
@@ -1892,7 +1765,6 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
         let paymentId;
 
         if (existingPayments.length > 0) {
-
             await db.promise().query(
                 `UPDATE payments 
                  SET amount_paid = amount_paid + ?,
@@ -1902,7 +1774,6 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
             );
             paymentId = existingPayments[0].payment_id;
         } else {
-
             const [paymentResult] = await db.promise().query(
                 `INSERT INTO payments 
                  (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
@@ -1911,7 +1782,6 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
             );
             paymentId = paymentResult.insertId;
         }
-
 
         await db.promise().query(
             `UPDATE reservationsdetails 
@@ -1933,9 +1803,6 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
     }
 });
 
-
-
-
 async function getAccessToken() {
     const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString("base64");
     const res = await axios.get(
@@ -1944,8 +1811,6 @@ async function getAccessToken() {
     );
     return res.data.access_token;
 }
-
-
 
 app.post("/pay/mpesa", async (req, res) => {
     if (!req.session.user) {
@@ -1962,7 +1827,6 @@ app.post("/pay/mpesa", async (req, res) => {
     try {
         console.log("Initiating STK Push:", { reservationId, phoneNumber, amount, email });
 
-
         const [rows] = await db.promise().execute(
             `SELECT r.reservation_id
              FROM reservationsdetails r
@@ -1976,7 +1840,6 @@ app.post("/pay/mpesa", async (req, res) => {
             return res.status(403).json({ success: false, message: "You can only pay for your own reservations" });
         }
 
-
         const [guestRows] = await db.promise().query(
             "SELECT guest_id FROM guestdetails WHERE email = ? LIMIT 1",
             [email]
@@ -1988,14 +1851,12 @@ app.post("/pay/mpesa", async (req, res) => {
 
         const guestId = guestRows[0].guest_id;
 
-
         const [existingPayments] = await db.promise().query(
             "SELECT payment_id FROM payments WHERE reservation_id = ? AND status = 'Pending'",
             [reservationId]
         );
 
         if (existingPayments.length === 0) {
-
             await db.promise().query(
                 `INSERT INTO payments (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
                  VALUES (?, ?, 0.00, 'Mpesa', 'Pending', NOW())`,
@@ -2004,16 +1865,12 @@ app.post("/pay/mpesa", async (req, res) => {
             console.log(`Created payment record for reservation ${reservationId}`);
         }
 
-
         const phone = phoneNumber.startsWith("0") ? "254" + phoneNumber.slice(1) : phoneNumber;
-
 
         const timestamp = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
         const password = Buffer.from(MPESA_SHORTCODE + MPESA_PASSKEY + timestamp).toString("base64");
 
-
         const token = await getAccessToken();
-
 
         const mpesaResponse = await axios.post(
             `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
@@ -2064,7 +1921,6 @@ app.post("/mpesa/callback", async (req, res) => {
         console.log("STK Callback received:", { ResultCode, ResultDesc, accountRef, amount, mpesaReceipt });
 
         if (ResultCode === 0 && accountRef) {
-
             const [reservationRows] = await db.promise().query(
                 "SELECT guest_id FROM reservationsdetails WHERE reservation_id = ?",
                 [accountRef]
@@ -2073,14 +1929,12 @@ app.post("/mpesa/callback", async (req, res) => {
             if (reservationRows.length > 0) {
                 const guestId = reservationRows[0].guest_id;
 
-
                 const [existingPayments] = await db.promise().query(
                     "SELECT * FROM payments WHERE reservation_id = ?",
                     [accountRef]
                 );
 
                 if (existingPayments.length > 0) {
-
                     await db.promise().query(
                         `UPDATE payments 
                          SET amount_paid = amount_paid + ?, 
@@ -2092,7 +1946,6 @@ app.post("/mpesa/callback", async (req, res) => {
                         [amount, mpesaReceipt, accountRef]
                     );
                 } else {
-
                     await db.promise().query(
                         `INSERT INTO payments 
                          (reservation_id, guest_id, amount_paid, payment_method, status, 
@@ -2101,7 +1954,6 @@ app.post("/mpesa/callback", async (req, res) => {
                         [accountRef, guestId, amount, mpesaReceipt]
                     );
                 }
-
 
                 await db.promise().query(
                     "UPDATE reservationsdetails SET status = 'Permitted' WHERE reservation_id = ?",
@@ -2112,7 +1964,6 @@ app.post("/mpesa/callback", async (req, res) => {
             }
         } else {
             console.warn("Payment failed or cancelled", stkCallback);
-
 
             await db.promise().query(
                 "UPDATE payments SET status = 'Failed' WHERE reservation_id = ? AND status = 'Pending'",
@@ -2127,7 +1978,6 @@ app.post("/mpesa/callback", async (req, res) => {
         res.status(500).json({ ResultCode: 1, ResultDesc: "Internal server error" });
     }
 });
-
 
 app.get("/api/payments", requireAdmin, async (req, res) => {
     try {
@@ -2196,14 +2046,12 @@ app.get("/api/payments", requireAdmin, async (req, res) => {
         baseQuery += ` ORDER BY p.payment_date DESC LIMIT ? OFFSET ?`;
         queryParams.push(parseInt(limit), offset);
 
-
         const [countResult] = await db.promise().query(countQuery, countParams);
         const total = countResult[0]?.total || 0;
 
         const [payments] = await db.promise().query(baseQuery, queryParams);
 
         const paymentsWithDetails = payments.map(payment => {
-
             const roomRent = parseNumericValue(payment.room_type);
             const bedRent = parseNumericValue(payment.bedding_type);
             const mealCost = parseNumericValue(payment.meal_plan);
@@ -2246,20 +2094,16 @@ app.get("/api/payments", requireAdmin, async (req, res) => {
     }
 });
 
-
 function parseNumericValue(value) {
     if (!value) return 0;
-
 
     if (!isNaN(value) && !isNaN(parseFloat(value))) {
         return parseFloat(value);
     }
 
-
     const numericMatch = String(value).match(/(\d+(\.\d+)?)/);
     return numericMatch ? parseFloat(numericMatch[1]) : 0;
 }
-
 
 app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) => {
     try {
@@ -2307,7 +2151,6 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
         }
 
         const payment = results[0];
-
 
         const roomRent = parseNumericValue(payment.room_type);
         const bedRent = parseNumericValue(payment.bedding_type);
@@ -2381,7 +2224,6 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
     }
 });
 
-
 function formatDateForReceipt(dateString) {
     if (!dateString) return 'N/A';
     try {
@@ -2424,16 +2266,13 @@ function getMealPlanDescription(value) {
     return descriptions[value] || `Meal Plan (${value})`;
 }
 
-
 app.get("/api/payment-statistics", requireAdmin, async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
         const thisMonth = new Date().getMonth() + 1;
         const thisYear = new Date().getFullYear();
 
-
         const queries = [
-
             db.promise().query(
                 `SELECT 
                     COUNT(*) as count,
@@ -2442,8 +2281,6 @@ app.get("/api/payment-statistics", requireAdmin, async (req, res) => {
                  WHERE DATE(payment_date) = ? AND status = 'Paid'`,
                 [today]
             ),
-
-
             db.promise().query(
                 `SELECT 
                     COUNT(*) as count,
@@ -2452,16 +2289,12 @@ app.get("/api/payment-statistics", requireAdmin, async (req, res) => {
                  WHERE MONTH(payment_date) = ? AND YEAR(payment_date) = ? AND status = 'Paid'`,
                 [thisMonth, thisYear]
             ),
-
-
             db.promise().query(
                 `SELECT 
                     COUNT(*) as total_count,
                     COALESCE(SUM(amount_paid), 0) as overall_total
                  FROM payments WHERE status = 'Paid'`
             ),
-
-
             db.promise().query(
                 `SELECT 
                     payment_method,
@@ -2472,8 +2305,6 @@ app.get("/api/payment-statistics", requireAdmin, async (req, res) => {
                  GROUP BY payment_method
                  ORDER BY total DESC`
             ),
-
-
             db.promise().query(
                 `SELECT 
                     DATE(payment_date) as date,
@@ -2519,7 +2350,6 @@ app.get("/api/payment-statistics", requireAdmin, async (req, res) => {
     }
 });
 
-
 app.get("/api/payments/export", requireAdmin, async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
@@ -2558,7 +2388,6 @@ app.get("/api/payments/export", requireAdmin, async (req, res) => {
         query += ` ORDER BY p.payment_date DESC`;
 
         const [payments] = await db.promise().query(query, params);
-
 
         const csvHeaders = [
             'Payment ID', 'Reservation ID', 'Guest Name', 'Email', 'Room Tag',
@@ -2602,7 +2431,6 @@ app.get("/api/payments/export", requireAdmin, async (req, res) => {
         });
     }
 });
-
 
 app.delete("/api/payments/:paymentId", requireAdmin, async (req, res) => {
     try {
@@ -2680,7 +2508,6 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
 
         const payment = results[0];
 
-
         const roomRent = parseFloat(payment.room_type) || 0;
         const bedRent = parseFloat(payment.bedding_type) || 0;
         const mealCost = parseFloat(payment.meal_plan) || 0;
@@ -2701,17 +2528,14 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
             meal_plan: getMealPlanLabel(payment.meal_plan),
             no_of_rooms: payment.no_of_rooms,
 
-
             room_rent_per_night: roomRent,
             bed_rent_per_night: bedRent,
             meal_cost_per_night: mealCost,
-
 
             total_room_rent: (roomRent * payment.no_of_rooms * payment.nights).toFixed(2),
             total_bed_rent: (bedRent * payment.no_of_rooms * payment.nights).toFixed(2),
             total_meals: (mealCost * payment.no_of_rooms * payment.nights).toFixed(2),
             grand_total: parseFloat(payment.total_amount).toFixed(2),
-
 
             amount_paid: parseFloat(payment.amount_paid).toFixed(2),
             payment_method: payment.payment_method,
@@ -2733,7 +2557,6 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
         });
     }
 });
-
 
 function getRoomTypeLabel(value) {
     const roomTypes = {
@@ -2765,11 +2588,9 @@ function getMealPlanLabel(value) {
     return mealPlans[value] || value;
 }
 
-
 app.get("/api/notifications/count", requireLogin, async (req, res) => {
     try {
         const email = req.session.user.email;
-
 
         const [rows] = await db.promise().query(
             `SELECT COUNT(*) as count FROM notifications 
@@ -2793,7 +2614,6 @@ app.get("/api/notifications/count", requireLogin, async (req, res) => {
     }
 });
 
-
 app.get("/api/payment-summary", requireAdmin, async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
@@ -2801,28 +2621,21 @@ app.get("/api/payment-summary", requireAdmin, async (req, res) => {
         const thisYear = new Date().getFullYear();
 
         const queries = [
-
             db.promise().query(
                 `SELECT COALESCE(SUM(amount_paid), 0) as today_total 
                  FROM payments 
                  WHERE DATE(payment_date) = ? AND status = 'Paid'`,
                 [today]
             ),
-
-
             db.promise().query(
                 `SELECT COALESCE(SUM(amount_paid), 0) as month_total 
                  FROM payments 
                  WHERE MONTH(payment_date) = ? AND YEAR(payment_date) = ? AND status = 'Paid'`,
                 [thisMonth, thisYear]
             ),
-
-
             db.promise().query(
                 `SELECT COUNT(*) as total_count FROM payments WHERE status = 'Paid'`
             ),
-
-
             db.promise().query(
                 `SELECT COUNT(*) as pending_count FROM payments WHERE status = 'Pending'`
             )
@@ -2849,12 +2662,8 @@ app.get("/api/payment-summary", requireAdmin, async (req, res) => {
     }
 });
 
-
-
-
 app.get("/api/profit-statistics", requireAdmin, async (req, res) => {
     try {
-
         const query = `
             SELECT 
                 DATE(p.payment_date) as date,
@@ -2868,16 +2677,13 @@ app.get("/api/profit-statistics", requireAdmin, async (req, res) => {
 
         const [profitData] = await db.promise().query(query);
 
-
         const today = new Date();
         const last7Days = [];
-
 
         for (let i = 6; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
             const dateStr = date.toISOString().split('T')[0];
-
 
             const dayProfit = profitData
                 .filter(item => item.date.toISOString().split('T')[0] === dateStr)
@@ -2905,22 +2711,17 @@ app.get("/api/profit-statistics", requireAdmin, async (req, res) => {
     }
 });
 
-
-
 app.get("/api/dashboard-stats", requireAdmin, async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
 
         const queries = [
-
             db.promise().query(
                 `SELECT COALESCE(SUM(amount_paid), 0) as today_revenue 
                  FROM payments 
                  WHERE DATE(payment_date) = ? AND status = 'Paid'`,
                 [today]
             ),
-
-
             db.promise().query(
                 `SELECT 
                     COUNT(*) as active_bookings_count,
@@ -2934,13 +2735,9 @@ app.get("/api/dashboard-stats", requireAdmin, async (req, res) => {
                  WHERE status IN ('Pending', 'Permitted') 
                  AND check_in >= CURDATE()`
             ),
-
-
             db.promise().query(
                 `SELECT COUNT(*) as total_rooms FROM rooms`
             ),
-
-
             db.promise().query(
                 `SELECT 
                     COUNT(DISTINCT room_tag_split) as booked_rooms_count
@@ -2994,10 +2791,8 @@ app.get("/api/dashboard-stats", requireAdmin, async (req, res) => {
     }
 });
 
-
 app.get("/api/revenue-weekly", requireAdmin, async (req, res) => {
     try {
-
         const query = `
             SELECT 
                 DATE(payment_date) as date,
@@ -3015,11 +2810,9 @@ app.get("/api/revenue-weekly", requireAdmin, async (req, res) => {
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         const revenueData = {};
 
-
         days.forEach(day => {
             revenueData[day] = 0;
         });
-
 
         results.forEach(item => {
             const dayName = item.day.substring(0, 3);
@@ -3027,7 +2820,6 @@ app.get("/api/revenue-weekly", requireAdmin, async (req, res) => {
                 revenueData[dayName] = parseFloat(item.revenue);
             }
         });
-
 
         const chartData = days.map(day => revenueData[day]);
 
@@ -3046,7 +2838,6 @@ app.get("/api/revenue-weekly", requireAdmin, async (req, res) => {
         });
     }
 });
-
 
 app.get("/api/room-distribution", requireAdmin, async (req, res) => {
     try {
@@ -3108,7 +2899,6 @@ app.get("/api/room-distribution", requireAdmin, async (req, res) => {
     }
 });
 
-
 app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
     try {
         const limit = req.query.limit || 5;
@@ -3153,7 +2943,6 @@ app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
                 '18000': 'Family Suite'
             };
 
-
             let roomCount = 1;
             if (booking.roomTag) {
                 const rooms = booking.roomTag.split(',').map(r => r.trim()).filter(r => r);
@@ -3184,6 +2973,5 @@ app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
     }
 });
 
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// VERCEL: DO NOT USE app.listen() - Export the Express app instead
+module.exports = app;
