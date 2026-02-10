@@ -1,25 +1,50 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/index" },
-    { "source": "/homePage", "destination": "/index" },
-    { "source": "/roombooking", "destination": "/roombooking" },
-    { "source": "/bookings", "destination": "/roombooking" },
-    { "source": "/adminstatus", "destination": "/admin" },
-    { "source": "/newsletter", "destination": "/news" },
-    { "source": "/payment", "destination": "/payment" },
-    { "source": "/profit", "destination": "/profit" },
-    { "source": "/manageRooms", "destination": "/adminaddroom" },
-    { "source": "/manageAdmins", "destination": "/adminadd" },
-    { "source": "/adminlogin", "destination": "/Adminlogin" },
-    { "source": "/guestregistration", "destination": "/register" },
-    { "source": "/guestlogin", "destination": "/login" },
-    { "source": "/passwordreset", "destination": "/forgot" },
-    { "source": "/reservation", "destination": "/reservation" },
-    { "source": "/book-table", "destination": "/table" },
-    { "source": "/activitystatus", "destination": "/activity" },
-    { "source": "/frequentlyaskedquestions", "destination": "/faq" },
-    { "source": "/notifications", "destination": "/notifications" },
-    { "source": "/admin-simple", "destination": "/admindashboard" }
-  ]
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/Styles/(.*)",
+      "dest": "/Styles/$1"
+    },
+    {
+      "src": "/vid/(.*)",
+      "dest": "/vid/$1"
+    },
+    {
+      "src": "/Images/(.*)",
+      "dest": "/images/$1"
+    },
+    {
+      "src": "/icons/(.*)",
+      "dest": "/icons/$1"
+    },
+    {
+      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|svg|ico))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/server.js"
+    },
+    {
+      "src": "/mpesa/callback",
+      "dest": "/api/server.js"
+    },
+    {
+      "src": "/(login|guestlogin|adminlogin|logout|adminlogout|add-guest|add-room|subscribe|admin|loginAdmin|loginGuest|book-room|book-table|forgotpassword|resetpassword/.*|pay/mpesa|admin/sendNewsletter)",
+      "dest": "/api/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/server.js"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
