@@ -1,7 +1,8 @@
-// api/server.js - FULLY INTACT VERCEL VERSION
 require('dotenv').config();
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
+
+
 
 const express = require("express");
 const path = require("path");
@@ -14,10 +15,23 @@ const jwt = require("jsonwebtoken");
 const dns = require("dns");
 dns.setDefaultResultOrder("ipv4first");
 const cors = require('cors');
-const { MailerSend, EmailParams } = require("mailersend");
 
-// FOR VERCEL: Use memory store for sessions
-const MemoryStore = require('memorystore')(session);
+
+// ADD THESE LINES FOR VERCEL SESSIONS
+const RedisStore = require("connect-redis")(session);
+const { createClient } = require("redis");
+
+// Initialize Redis client for production
+let redisClient;
+if (process.env.NODE_ENV === 'production') {
+    redisClient = createClient({
+        url: process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL
+    });
+    redisClient.connect().catch(err => {
+        console.error('Redis connection failed:', err);
+    });
+}
+
 
 const MPESA_BASE_URL = process.env.MPESA_BASE_URL || "https://sandbox.safaricom.co.ke";
 const MPESA_SHORTCODE = process.env.MPESA_SHORTCODE;
@@ -25,32 +39,37 @@ const MPESA_PASSKEY = process.env.MPESA_PASSKEY;
 const MPESA_CONSUMER_KEY = process.env.MPESA_CONSUMER_KEY;
 const MPESA_CONSUMER_SECRET = process.env.MPESA_CONSUMER_SECRET;
 
+
 const app = express();
 
-// VERCEL REQUIRED: Trust proxy for proper session handling
-app.set('trust proxy', 1);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
 
 app.use((req, res, next) => {
     res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
     next();
 });
 
-// VERCEL SESSION CONFIG - Using MemoryStore
+
+
+// Session configuration - works on both local and Vercel
 app.use(session({
-    store: new MemoryStore({
-        checkPeriod: 86400000 // Clean up expired entries every 24h
-    }),
+    store: process.env.NODE_ENV === 'production' && redisClient
+        ? new RedisStore({ client: redisClient })
+        : undefined, // Use memory store for local development
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // true on Vercel
+        secure: process.env.NODE_ENV === 'production', // HTTPS only on Vercel
         sameSite: 'lax',
+        httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+    },
+    proxy: process.env.NODE_ENV === 'production' // Trust Vercel proxy
 }));
 
 function requireLogin(req, res, next) {
@@ -82,16 +101,25 @@ function requireAdmin(req, res, next) {
     next();
 }
 
+
 app.use(cors({
     origin: true,
     credentials: true
 }));
 
-// VERCEL: Update paths to go up one level from /api folder
-app.use("/Styles", express.static(path.join(__dirname, "..", "Styles")));
-app.use("/vid", express.static(path.join(__dirname, "..", "vid")));
-app.use("/Images", express.static(path.join(__dirname, "..", "images")));
-app.use("/icons", express.static(path.join(__dirname, "..", "icons")));
+
+
+
+
+// Serve static files - works on both local and Vercel
+const staticDirs = ['Styles', 'vid', 'images', 'icons'];
+staticDirs.forEach(dir => {
+    const dirPath = path.join(process.cwd(), dir);
+    app.use(`/${dir}`, express.static(dirPath, {
+        fallthrough: true // Don't error if directory doesn't exist
+    }));
+});
+
 
 const htmlFiles = {
     "/": "index.html",
@@ -116,11 +144,13 @@ const htmlFiles = {
     "/admin-simple": "admindashboard.html"
 };
 
+
 const publicPages = [
     "/", "/homePage", "/book-table", "/frequentlyaskedquestions",
     "/guestlogin", "/guestregistration", "/passwordreset",
     "/newsletter", "/adminlogin"
 ];
+
 
 const userProtectedPages = [
     "/reservation",
@@ -129,6 +159,7 @@ const userProtectedPages = [
     "/book-table",
     "/notifications"
 ];
+
 
 const adminProtectedPages = [
     "/profit",
@@ -140,60 +171,313 @@ const adminProtectedPages = [
     "/payment"
 ];
 
-// Serve HTML files with updated paths for Vercel
+
+// ============================================
+// FIXED: Public Pages Routes - VERCEL COMPATIBLE
+// ============================================
 publicPages.forEach(route => {
     app.get(route, (req, res) => {
+        const fileName = htmlFiles[route];
+
+        if (!fileName) {
+            console.error(`[Vercel] No file mapping for route: ${route}`);
+            return res.status(404).send('Page not found');
+        }
+
+        // VERCEL FIX: Use process.cwd() instead of __dirname
+        const filePath = path.join(process.cwd(), fileName);
+
+        // Cache headers for login pages
         if (route === "/adminlogin" || route === "/guestlogin") {
-            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
             res.setHeader('Pragma', 'no-cache');
             res.setHeader('Expires', '0');
         }
-        // VERCEL: Path goes up one level from /api folder
-        res.sendFile(path.join(__dirname, "..", htmlFiles[route]));
+
+        // Send file with error handling for Vercel
+        res.sendFile(filePath, (err) => {
+            if (err) {
+                console.error(`[Vercel] Failed to send ${fileName}:`, err.message);
+
+                // Try alternate paths for Vercel deployment
+                if (err.code === 'ENOENT') {
+                    const altPaths = [
+                        path.join(process.cwd(), 'public', fileName),
+                        path.join(process.cwd(), 'views', fileName),
+                        path.join(process.cwd(), '..', fileName),
+                        path.join(process.cwd(), '..', 'public', fileName)
+                    ];
+
+                    let attempt = 0;
+                    function tryNextPath() {
+                        if (attempt >= altPaths.length) {
+                            return res.status(404).send(`Page ${route} not found`);
+                        }
+
+                        res.sendFile(altPaths[attempt], (altErr) => {
+                            if (altErr) {
+                                attempt++;
+                                tryNextPath();
+                            }
+                        });
+                    }
+                    tryNextPath();
+                } else {
+                    res.status(500).send('Error loading page');
+                }
+            }
+        });
     });
 });
 
+// ============================================
+// FIXED: User Protected Pages Routes - VERCEL COMPATIBLE
+// ============================================
 userProtectedPages.forEach(route => {
     app.get(route, requireLogin, (req, res) => {
+        const fileName = htmlFiles[route];
+
+        if (!fileName) {
+            console.error(`[Vercel] No file mapping for route: ${route}`);
+            return res.status(404).send('Page not found');
+        }
+
+        // VERCEL FIX: Use process.cwd() instead of __dirname
+        const filePath = path.join(process.cwd(), fileName);
+
+        // Cache headers
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
-        res.sendFile(path.join(__dirname, "..", htmlFiles[route]));
+
+        // Send file with error handling for Vercel
+        res.sendFile(filePath, (err) => {
+            if (err) {
+                console.error(`[Vercel] Failed to send protected file ${fileName}:`, err.message);
+
+                // Try alternate paths for Vercel deployment
+                if (err.code === 'ENOENT') {
+                    const altPaths = [
+                        path.join(process.cwd(), 'public', fileName),
+                        path.join(process.cwd(), 'views', fileName),
+                        path.join(process.cwd(), '..', fileName),
+                        path.join(process.cwd(), '..', 'public', fileName)
+                    ];
+
+                    let attempt = 0;
+                    function tryNextPath() {
+                        if (attempt >= altPaths.length) {
+                            return res.status(404).send(`Page ${route} not found`);
+                        }
+
+                        res.sendFile(altPaths[attempt], (altErr) => {
+                            if (altErr) {
+                                attempt++;
+                                tryNextPath();
+                            }
+                        });
+                    }
+                    tryNextPath();
+                } else {
+                    res.status(500).send('Error loading page');
+                }
+            }
+        });
     });
 });
 
+// ============================================
+// FIXED: Admin Protected Pages Routes - VERCEL COMPATIBLE
+// ============================================
 adminProtectedPages.forEach(route => {
     app.get(route, requireAdmin, (req, res) => {
+        const fileName = htmlFiles[route];
+
+        if (!fileName) {
+            console.error(`[Vercel] No file mapping for route: ${route}`);
+            return res.status(404).send('Page not found');
+        }
+
+        // VERCEL FIX: Use process.cwd() instead of __dirname
+        const filePath = path.join(process.cwd(), fileName);
+
+        // Cache headers
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
-        res.sendFile(path.join(__dirname, "..", htmlFiles[route]));
+
+        // Send file with error handling for Vercel
+        res.sendFile(filePath, (err) => {
+            if (err) {
+                console.error(`[Vercel] Failed to send admin file ${fileName}:`, err.message);
+
+                // Try alternate paths for Vercel deployment
+                if (err.code === 'ENOENT') {
+                    const altPaths = [
+                        path.join(process.cwd(), 'public', fileName),
+                        path.join(process.cwd(), 'views', fileName),
+                        path.join(process.cwd(), '..', fileName),
+                        path.join(process.cwd(), '..', 'public', fileName)
+                    ];
+
+                    let attempt = 0;
+                    function tryNextPath() {
+                        if (attempt >= altPaths.length) {
+                            return res.status(404).send(`Page ${route} not found`);
+                        }
+
+                        res.sendFile(altPaths[attempt], (altErr) => {
+                            if (altErr) {
+                                attempt++;
+                                tryNextPath();
+                            }
+                        });
+                    }
+                    tryNextPath();
+                } else {
+                    res.status(500).send('Error loading page');
+                }
+            }
+        });
     });
 });
 
-// ALL YOUR API ROUTES - COMPLETELY INTACT
+// ============================================
+// FIXED: API Routes - VERCEL COMPATIBLE
+// ============================================
+
+/**
+ * @route GET /api/session-user
+ * @desc Get current session user data
+ * @access Private
+ */
 app.get("/api/session-user", (req, res) => {
-    if (req.session && req.session.user) {
-        return res.json(req.session.user);
+    try {
+        // VERCEL FIX: Check if session exists and has user
+        if (req.session && req.session.user) {
+            return res.json({
+                success: true,
+                user: req.session.user
+            });
+        }
+        return res.status(401).json({
+            success: false,
+            message: "Not logged in"
+        });
+    } catch (error) {
+        console.error("[Vercel] Session user error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Session error"
+        });
     }
-    return res.status(401).json({ message: "Not logged in" });
 });
 
+/**
+ * @route GET /api/admin/check
+ * @desc Check if admin is logged in
+ * @access Public
+ */
 app.get("/api/admin/check", (req, res) => {
-    if (req.session.admin) {
-        res.json({ loggedIn: true, adminId: req.session.admin.adminId });
-    } else {
-        res.json({ loggedIn: false });
+    try {
+        // VERCEL FIX: Add proper error handling
+        if (req.session && req.session.admin) {
+            return res.json({
+                loggedIn: true,
+                adminId: req.session.admin.adminId
+            });
+        }
+        return res.json({
+            loggedIn: false,
+            message: "No admin session found"
+        });
+    } catch (error) {
+        console.error("[Vercel] Admin check error:", error);
+        res.status(500).json({
+            loggedIn: false,
+            message: "Session error"
+        });
     }
 });
 
+/**
+ * @route GET /api/user/check
+ * @desc Check if user is logged in
+ * @access Public
+ */
 app.get("/api/user/check", (req, res) => {
-    if (req.session.user) {
-        res.json({ loggedIn: true, email: req.session.user.email });
-    } else {
-        res.json({ loggedIn: false });
+    try {
+        // VERCEL FIX: Add proper error handling
+        if (req.session && req.session.user) {
+            return res.json({
+                loggedIn: true,
+                email: req.session.user.email,
+                username: req.session.user.username,
+                guest_id: req.session.user.guest_id
+            });
+        }
+        return res.json({
+            loggedIn: false,
+            message: "No user session found"
+        });
+    } catch (error) {
+        console.error("[Vercel] User check error:", error);
+        res.status(500).json({
+            loggedIn: false,
+            message: "Session error"
+        });
     }
 });
+
+// ============================================
+// ADD THIS: 404 Handler for undefined routes
+// ============================================
+app.use((req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+
+    // Skip static files
+    const staticExtensions = ['.css', '.js', '.jpg', '.png', '.gif', '.svg', '.ico', '.webp', '.json'];
+    if (staticExtensions.some(ext => req.path.endsWith(ext))) {
+        return next();
+    }
+
+    // Check if it's an HTML file request without extension
+    const possibleHtmlFile = `${req.path.slice(1)}.html`;
+    const filePath = path.join(process.cwd(), possibleHtmlFile);
+
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            // Try 404 page
+            const notFoundPath = path.join(process.cwd(), '404.html');
+            res.status(404).sendFile(notFoundPath, (notFoundErr) => {
+                if (notFoundErr) {
+                    res.status(404).send('Page not found');
+                }
+            });
+        }
+    });
+});
+
+// ============================================
+// ADD THIS: Debug route to check file locations (REMOVE IN PRODUCTION)
+// ============================================
+if (process.env.NODE_ENV !== 'production') {
+    app.get("/debug/paths", (req, res) => {
+        res.json({
+            cwd: process.cwd(),
+            dirname: __dirname,
+            files: Object.keys(htmlFiles).map(route => ({
+                route,
+                file: htmlFiles[route],
+                exists: require('fs').existsSync(path.join(process.cwd(), htmlFiles[route]))
+            }))
+        });
+    });
+}
+
 
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
@@ -208,8 +492,10 @@ app.post("/login", async (req, res) => {
 
         const guest = rows[0];
 
+
         const passwordMatch = await bcrypt.compare(password, guest.password);
         if (!passwordMatch) return res.status(401).json({ message: "Invalid credentials" });
+
 
         req.session.user = {
             guest_id: guest.guest_id,
@@ -224,16 +510,31 @@ app.post("/login", async (req, res) => {
     }
 });
 
+
+// ============================================
+// FIXED: Admin Logout - VERCEL COMPATIBLE
+// ============================================
 app.get("/adminlogout", (req, res) => {
     req.session.destroy(err => {
         if (err) {
-            console.error("Error destroying session:", err);
-            return res.status(500).send("Logout failed");
+            console.error("[Vercel] Error destroying admin session:", err);
+
+            // VERCEL FIX: Still try to clear cookies even if session destroy fails
+            res.clearCookie("connect.sid", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+            res.clearCookie("session", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+            res.clearCookie("sessionId", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+
+            return res.redirect("/adminlogin");
         }
 
-        res.clearCookie("connect.sid");
-        res.clearCookie("session");
-        res.clearCookie("sessionId");
+        // VERCEL FIX: Specify cookie options when clearing
+        res.clearCookie("connect.sid", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie("session", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie("sessionId", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
@@ -243,16 +544,30 @@ app.get("/adminlogout", (req, res) => {
     });
 });
 
+// ============================================
+// FIXED: User Logout - VERCEL COMPATIBLE
+// ============================================
 app.get("/logout", (req, res) => {
     req.session.destroy(err => {
         if (err) {
-            console.error("Logout error:", err);
-            return res.status(500).send("Failed to logout");
+            console.error("[Vercel] Error destroying user session:", err);
+
+            // VERCEL FIX: Still try to clear cookies even if session destroy fails
+            res.clearCookie("connect.sid", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+            res.clearCookie("session", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+            res.clearCookie("sessionId", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
+
+            return res.redirect("/guestlogin");
         }
 
-        res.clearCookie("connect.sid");
-        res.clearCookie("session");
-        res.clearCookie("sessionId");
+        // VERCEL FIX: Specify cookie options when clearing
+        res.clearCookie("connect.sid", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie("session", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie("sessionId", { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
         res.setHeader('Pragma', 'no-cache');
@@ -262,105 +577,104 @@ app.get("/logout", (req, res) => {
     });
 });
 
-app.get("/api/reservations", (req, res) => {
-    if (!req.session.user)
-        return res.status(401).json({ message: "Not logged in" });
-
-    const email = req.session.user.email;
-
-    const sql = `
-        SELECT 
-            r.reservation_id,
-            r.room_type,
-            r.bedding_type,
-            r.no_of_rooms,
-            r.meal_plan,
-            r.check_in,
-            r.check_out,
-            r.roomTag,
-            r.status AS reservation_status,
-            r.total_amount,
-            r.created_at,
-            -- Only sum PAID payments
-            COALESCE(
-                (SELECT SUM(p2.amount_paid) 
-                 FROM payments p2 
-                 WHERE p2.reservation_id = r.reservation_id 
-                 AND p2.status = 'Paid'), 
-            0.00) AS amount_paid,
-            -- Calculate amount due
-            (r.total_amount - COALESCE(
-                (SELECT SUM(p2.amount_paid) 
-                 FROM payments p2 
-                 WHERE p2.reservation_id = r.reservation_id 
-                 AND p2.status = 'Paid'), 
-            0.00)) AS amount_due,
-            -- Get latest payment status (but only consider Paid status for payment purposes)
-            CASE 
-                WHEN EXISTS (
-                    SELECT 1 FROM payments p3 
-                    WHERE p3.reservation_id = r.reservation_id 
-                    AND p3.status = 'Paid'
-                ) THEN 'Paid'
-                ELSE 'Pending'
-            END AS payment_status,
-            -- Get latest payment method from paid payments
-            COALESCE(
-                (SELECT p4.payment_method 
-                 FROM payments p4 
-                 WHERE p4.reservation_id = r.reservation_id 
-                 AND p4.status = 'Paid'
-                 ORDER BY p4.payment_date DESC 
-                 LIMIT 1), 
-            NULL) AS payment_method,
-            -- Time-based calculations for pending reservations
-            CASE 
-                WHEN r.status = 'Pending' 
-                     AND NOT EXISTS (
-                         SELECT 1 FROM payments p5 
-                         WHERE p5.reservation_id = r.reservation_id 
-                         AND p5.status = 'Paid'
-                     )
-                     AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) >= 60
-                     AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) < 120
-                THEN TRUE 
-                ELSE FALSE 
-            END AS needs_payment_reminder,
-            -- Calculate if 2 hours have passed (expired)
-            CASE 
-                WHEN r.status = 'Pending' 
-                     AND NOT EXISTS (
-                         SELECT 1 FROM payments p6 
-                         WHERE p6.reservation_id = r.reservation_id 
-                         AND p6.status = 'Paid'
-                     )
-                     AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) >= 120
-                THEN TRUE 
-                ELSE FALSE 
-            END AS is_expired,
-            -- Calculate time left for pending reservations without payment
-            CASE 
-                WHEN r.status = 'Pending' 
-                     AND NOT EXISTS (
-                         SELECT 1 FROM payments p7 
-                         WHERE p7.reservation_id = r.reservation_id 
-                         AND p7.status = 'Paid'
-                     )
-                     AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) < 120
-                THEN 120 - TIMESTAMPDIFF(MINUTE, r.created_at, NOW())
-                ELSE NULL 
-            END AS minutes_left
-        FROM reservationsdetails r
-        JOIN guestdetails gd ON r.guest_id = gd.guest_id
-        WHERE gd.email = ?
-        ORDER BY r.reservation_id DESC
-    `;
-
-    db.query(sql, [email], (err, results) => {
-        if (err) {
-            console.error("Reservations fetch error:", err);
-            return res.status(500).json({ message: "Database error" });
+// ============================================
+// FIXED: Get User Reservations - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/reservations", async (req, res) => {
+    try {
+        // VERCEL FIX: Check session with error handling
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Not logged in"
+            });
         }
+
+        const email = req.session.user.email;
+
+        // VERCEL FIX: Use async/await instead of callback
+        const sql = `
+            SELECT 
+                r.reservation_id,
+                r.room_type,
+                r.bedding_type,
+                r.no_of_rooms,
+                r.meal_plan,
+                r.check_in,
+                r.check_out,
+                r.roomTag,
+                r.status AS reservation_status,
+                r.total_amount,
+                r.created_at,
+                COALESCE(
+                    (SELECT SUM(p2.amount_paid) 
+                     FROM payments p2 
+                     WHERE p2.reservation_id = r.reservation_id 
+                     AND p2.status = 'Paid'), 
+                0.00) AS amount_paid,
+                (r.total_amount - COALESCE(
+                    (SELECT SUM(p2.amount_paid) 
+                     FROM payments p2 
+                     WHERE p2.reservation_id = r.reservation_id 
+                     AND p2.status = 'Paid'), 
+                0.00)) AS amount_due,
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 FROM payments p3 
+                        WHERE p3.reservation_id = r.reservation_id 
+                        AND p3.status = 'Paid'
+                    ) THEN 'Paid'
+                    ELSE 'Pending'
+                END AS payment_status,
+                COALESCE(
+                    (SELECT p4.payment_method 
+                     FROM payments p4 
+                     WHERE p4.reservation_id = r.reservation_id 
+                     AND p4.status = 'Paid'
+                     ORDER BY p4.payment_date DESC 
+                     LIMIT 1), 
+                NULL) AS payment_method,
+                CASE 
+                    WHEN r.status = 'Pending' 
+                         AND NOT EXISTS (
+                             SELECT 1 FROM payments p5 
+                             WHERE p5.reservation_id = r.reservation_id 
+                             AND p5.status = 'Paid'
+                         )
+                         AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) >= 60
+                         AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) < 120
+                    THEN TRUE 
+                    ELSE FALSE 
+                END AS needs_payment_reminder,
+                CASE 
+                    WHEN r.status = 'Pending' 
+                         AND NOT EXISTS (
+                             SELECT 1 FROM payments p6 
+                             WHERE p6.reservation_id = r.reservation_id 
+                             AND p6.status = 'Paid'
+                         )
+                         AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) >= 120
+                    THEN TRUE 
+                    ELSE FALSE 
+                END AS is_expired,
+                CASE 
+                    WHEN r.status = 'Pending' 
+                         AND NOT EXISTS (
+                             SELECT 1 FROM payments p7 
+                             WHERE p7.reservation_id = r.reservation_id 
+                             AND p7.status = 'Paid'
+                         )
+                         AND TIMESTAMPDIFF(MINUTE, r.created_at, NOW()) < 120
+                    THEN 120 - TIMESTAMPDIFF(MINUTE, r.created_at, NOW())
+                    ELSE NULL 
+                END AS minutes_left
+            FROM reservationsdetails r
+            JOIN guestdetails gd ON r.guest_id = gd.guest_id
+            WHERE gd.email = ?
+            ORDER BY r.reservation_id DESC
+        `;
+
+        const [results] = await db.promise().query(sql, [email]);
 
         const formattedResults = results.map(reservation => {
             const minutesLeft = reservation.minutes_left;
@@ -380,52 +694,74 @@ app.get("/api/reservations", (req, res) => {
                 ...reservation,
                 time_left_formatted: timeLeftFormatted,
                 needs_payment_reminder: Boolean(reservation.needs_payment_reminder),
-                is_expired: Boolean(reservation.is_expired)
+                is_expired: Boolean(reservation.is_expired),
+                amount_paid: parseFloat(reservation.amount_paid || 0).toFixed(2),
+                amount_due: parseFloat(reservation.amount_due || 0).toFixed(2),
+                total_amount: parseFloat(reservation.total_amount || 0).toFixed(2)
             };
         });
 
-        res.json(formattedResults);
-    });
+        res.json({
+            success: true,
+            reservations: formattedResults
+        });
+
+    } catch (err) {
+        console.error("[Vercel] Reservations fetch error:", err);
+        res.status(500).json({
+            success: false,
+            message: "Database error",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
 
-app.get("/api/new-bookings", requireAdmin, (req, res) => {
-    const limit = req.query.limit;
-    let sql = `
-        SELECT 
-            r.reservation_id,
-            gd.first_name,
-            gd.last_name,
-            gd.email,
-            gd.nationality,
-            r.room_type,
-            r.bedding_type,
-            r.meal_plan,
-            r.no_of_rooms,
-            r.check_in,
-            r.check_out,
-            r.roomTag,
-            r.status,
-            r.total_amount,
-            r.created_at,
-            -- Add calculated fields
-            CASE 
-                WHEN r.no_of_rooms > 1 THEN CONCAT(r.no_of_rooms, ' rooms')
-                ELSE '1 room'
-            END as rooms_display
-        FROM reservationsdetails r
-        LEFT JOIN guestdetails gd ON r.guest_id = gd.guest_id
-        ORDER BY r.created_at DESC
-    `;
+// ============================================
+// FIXED: Get New Bookings (Admin) - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/new-bookings", requireAdmin, async (req, res) => {
+    try {
+        const limit = req.query.limit;
+        let sql = `
+            SELECT 
+                r.reservation_id,
+                gd.first_name,
+                gd.last_name,
+                gd.email,
+                gd.nationality,
+                r.room_type,
+                r.bedding_type,
+                r.meal_plan,
+                r.no_of_rooms,
+                r.check_in,
+                r.check_out,
+                r.roomTag,
+                r.status,
+                r.total_amount,
+                r.created_at,
+                CASE 
+                    WHEN r.no_of_rooms > 1 THEN CONCAT(r.no_of_rooms, ' rooms')
+                    ELSE '1 room'
+                END as rooms_display,
+                COALESCE(
+                    (SELECT p.status 
+                     FROM payments p 
+                     WHERE p.reservation_id = r.reservation_id 
+                     ORDER BY p.payment_date DESC 
+                     LIMIT 1), 
+                'Pending') as payment_status
+            FROM reservationsdetails r
+            LEFT JOIN guestdetails gd ON r.guest_id = gd.guest_id
+            ORDER BY r.created_at DESC
+        `;
 
-    if (limit && !isNaN(limit)) {
-        sql += ` LIMIT ${parseInt(limit)}`;
-    }
-
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Bookings fetch error:", err);
-            return res.status(500).json({ error: "Database error", details: err });
+        const queryParams = [];
+        if (limit && !isNaN(limit)) {
+            sql += ` LIMIT ?`;
+            queryParams.push(parseInt(limit));
         }
+
+        const [results] = await db.promise().query(sql, queryParams);
 
         const enhancedResults = results.map(booking => {
             let roomCount = 1;
@@ -446,32 +782,63 @@ app.get("/api/new-bookings", requireAdmin, (req, res) => {
                 ...booking,
                 room_count: roomCount,
                 rooms_array: roomsArray,
-                has_multiple_rooms: roomCount > 1
+                has_multiple_rooms: roomCount > 1,
+                guest_name: `${booking.first_name || ''} ${booking.last_name || ''}`.trim() || 'N/A',
+                total_amount: parseFloat(booking.total_amount || 0).toFixed(2)
             };
         });
 
-        res.json(enhancedResults);
-    });
+        res.json({
+            success: true,
+            bookings: enhancedResults
+        });
+
+    } catch (err) {
+        console.error("[Vercel] Bookings fetch error:", err);
+        res.status(500).json({
+            success: false,
+            error: "Database error",
+            details: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
 
-app.get("/api/bookedRooms", (req, res) => {
-    const sql = `SELECT reservation_id, roomTag, room_type FROM reservationsdetails ORDER BY reservation_id DESC`;
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("BookedRooms error:", err);
-            return res.status(500).send("Error fetching booked rooms");
-        }
-        res.json(results);
-    });
+// ============================================
+// FIXED: Get Booked Rooms - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/bookedRooms", async (req, res) => {
+    try {
+        const sql = `SELECT reservation_id, roomTag, room_type FROM reservationsdetails ORDER BY reservation_id DESC`;
+        const [results] = await db.promise().query(sql);
+
+        res.json({
+            success: true,
+            rooms: results
+        });
+    } catch (err) {
+        console.error("[Vercel] BookedRooms error:", err);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching booked rooms",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
 
+// ============================================
+// FIXED: Permit Reservation (Admin) - VERCEL COMPATIBLE
+// ============================================
 app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
     const reservationId = req.params.id;
+    let connection;
 
     try {
-        await db.promise().query("START TRANSACTION");
+        // VERCEL FIX: Get connection from pool for transaction
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-        const [reservationRows] = await db.promise().query(
+        // Get reservation details
+        const [reservationRows] = await connection.query(
             `SELECT r.reservation_id, r.guest_id, r.total_amount, 
                     gd.first_name, gd.last_name, gd.email
              FROM reservationsdetails r
@@ -481,8 +848,12 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
         );
 
         if (reservationRows.length === 0) {
-            await db.promise().query("ROLLBACK");
-            return res.status(404).json({ message: "Reservation not found" });
+            await connection.rollback();
+            connection.release();
+            return res.status(404).json({
+                success: false,
+                message: "Reservation not found"
+            });
         }
 
         const reservation = reservationRows[0];
@@ -490,9 +861,10 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
         const totalAmount = reservation.total_amount;
         const paymentMethod = 'Cash';
 
-        console.log(`Permitting reservation ${reservationId} for guest ${guestId}, amount: ${totalAmount}`);
+        console.log(`[Vercel] Permitting reservation ${reservationId} for guest ${guestId}, amount: ${totalAmount}`);
 
-        const [existingPayments] = await db.promise().query(
+        // Check for existing payments
+        const [existingPayments] = await connection.query(
             "SELECT payment_id FROM payments WHERE reservation_id = ?",
             [reservationId]
         );
@@ -500,7 +872,8 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
         let paymentId;
 
         if (existingPayments.length > 0) {
-            await db.promise().query(
+            // Update existing payment
+            await connection.query(
                 `UPDATE payments 
                  SET status = 'Paid', 
                      amount_paid = ?,
@@ -510,43 +883,53 @@ app.patch("/api/reservations/:id/permit", requireAdmin, async (req, res) => {
                 [totalAmount, paymentMethod, reservationId]
             );
             paymentId = existingPayments[0].payment_id;
-            console.log(`Updated existing payment ${paymentId} to Paid`);
+            console.log(`[Vercel] Updated existing payment ${paymentId} to Paid`);
         } else {
-            const [paymentResult] = await db.promise().query(
+            // Create new payment record
+            const [paymentResult] = await connection.query(
                 `INSERT INTO payments 
                  (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
                  VALUES (?, ?, ?, ?, 'Paid', NOW())`,
                 [reservationId, guestId, totalAmount, paymentMethod]
             );
             paymentId = paymentResult.insertId;
-            console.log(`Created new payment ${paymentId} with amount ${totalAmount}`);
+            console.log(`[Vercel] Created new payment ${paymentId} with amount ${totalAmount}`);
         }
 
-        const [updateResult] = await db.promise().query(
+        // Update reservation status
+        await connection.query(
             "UPDATE reservationsdetails SET status = 'Permitted' WHERE reservation_id = ?",
             [reservationId]
         );
 
-        await db.promise().query("COMMIT");
+        // Commit transaction
+        await connection.commit();
+        connection.release();
 
         res.json({
             success: true,
             message: "Reservation permitted and payment recorded successfully",
             reservationId: reservationId,
             paymentId: paymentId,
-            paymentAmount: totalAmount,
+            paymentAmount: parseFloat(totalAmount).toFixed(2),
             paymentMethod: paymentMethod,
             guestName: `${reservation.first_name} ${reservation.last_name}`,
             guestEmail: reservation.email
         });
 
     } catch (err) {
-        console.error("Permit error:", err);
-        await db.promise().query("ROLLBACK");
+        // VERCEL FIX: Proper error handling with transaction rollback
+        console.error("[Vercel] Permit error:", err);
+
+        if (connection) {
+            await connection.rollback();
+            connection.release();
+        }
+
         res.status(500).json({
             success: false,
             message: "Server error",
-            error: err.message
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
         });
     }
 });
@@ -565,6 +948,8 @@ app.patch("/api/reservations/:id/reject", requireAdmin, async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
+
+
 
 app.post("/add-guest", async (req, res) => {
     const { username, email, password, confirmpassword } = req.body;
@@ -616,11 +1001,13 @@ app.post("/guestlogin", async (req, res) => {
         email: guest.email
     };
 
+
     const returnTo = req.session.returnTo || "/reservation";
     delete req.session.returnTo;
 
     res.json({ success: true, redirectTo: returnTo });
 });
+
 
 app.post("/loginGuest", async (req, res) => {
     const { email, password, rememberMe } = req.body;
@@ -628,18 +1015,22 @@ app.post("/loginGuest", async (req, res) => {
     try {
         const [results] = await db.promise().query("SELECT * FROM guest WHERE email = ?", [email]);
 
+
         if (results.length === 0) return res.redirect("/guestlogin");
 
         const guest = results[0];
         const match = await bcrypt.compare(password, guest.password);
 
+
         if (!match) return res.redirect("/guestlogin");
+
 
         req.session.user = {
             guest_id: guest.guest_id,
             username: guest.username,
             email: guest.email
         };
+
 
         if (rememberMe) {
             req.session.cookie.maxAge = 7 * 24 * 60 * 60 * 1000;
@@ -655,17 +1046,70 @@ app.post("/loginGuest", async (req, res) => {
     }
 });
 
-app.get("/api/guestlogin", (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ message: "Not logged in" });
-    }
 
-    res.json({
-        guest_id: req.session.user.guest_id,
-        username: req.session.user.username,
-        email: req.session.user.email
-    });
+
+// ============================================
+// FIXED: Get Guest Login Status - Enhanced - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/guestlogin", (req, res) => {
+    try {
+        // VERCEL FIX: Comprehensive session check
+        if (!req.session) {
+            console.error("[Vercel] /api/guestlogin - Session is undefined");
+            return res.status(500).json({
+                success: false,
+                message: "Session not initialized",
+                code: "SESSION_MISSING"
+            });
+        }
+
+        // Check if session contains user
+        if (!req.session.user) {
+            console.log("[Vercel] /api/guestlogin - No user in session");
+            return res.status(401).json({
+                success: false,
+                message: "Not logged in",
+                code: "NOT_LOGGED_IN"
+            });
+        }
+
+        // VERCEL FIX: Validate user object has required fields
+        const { guest_id, username, email } = req.session.user;
+
+        if (!guest_id || !email) {
+            console.error("[Vercel] /api/guestlogin - Invalid user object:", req.session.user);
+            return res.status(500).json({
+                success: false,
+                message: "Invalid session data",
+                code: "INVALID_SESSION"
+            });
+        }
+
+        // Log successful authentication (useful for debugging)
+        console.log(`[Vercel] /api/guestlogin - User authenticated: ${email}`);
+
+        // Return user data
+        res.json({
+            success: true,
+            guest_id: guest_id,
+            username: username || '',
+            email: email,
+            // Add session ID for debugging (optional)
+            sessionId: req.session.id
+        });
+
+    } catch (error) {
+        console.error("[Vercel] /api/guestlogin - Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            code: "SERVER_ERROR",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
 });
+
+
 
 app.post("/add-room", (req, res) => {
     const { roomTag, roomType } = req.body;
@@ -685,26 +1129,97 @@ app.post("/add-room", (req, res) => {
     );
 });
 
-app.get("/api/rooms", (req, res) => {
-    db.query("SELECT * FROM rooms ORDER BY roomTag ASC", (err, results) => {
-        if (err) {
-            console.error("Fetch rooms error:", err);
-            return res.status(500).send("Error fetching rooms");
-        }
-        res.json(results);
-    });
+// ============================================
+// FIXED: Get All Rooms - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/rooms", async (req, res) => {
+    try {
+        // VERCEL FIX: Convert callback to async/await
+        const [results] = await db.promise().query(
+            "SELECT * FROM rooms ORDER BY roomTag ASC"
+        );
+
+        // VERCEL FIX: Return consistent response format
+        res.json({
+            success: true,
+            rooms: results,
+            count: results.length
+        });
+
+    } catch (err) {
+        console.error("[Vercel] Fetch rooms error:", err);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching rooms",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
 
+// ============================================
+// FIXED: Admin Simple Dashboard Page - VERCEL COMPATIBLE
+// ============================================
 app.get("/admin-simple", requireAdmin, (req, res) => {
-    res.sendFile(path.join(__dirname, "..", "admindashboard.html"));
+    try {
+        // VERCEL FIX: Use process.cwd() instead of __dirname
+        const fileName = "admin-simple.html";
+        const filePath = path.join(process.cwd(), fileName);
+
+        // Set cache headers
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
+        // Send file with error handling for Vercel
+        res.sendFile(filePath, (err) => {
+            if (err) {
+                console.error(`[Vercel] Failed to send ${fileName}:`, err.message);
+
+                // Try alternate paths for Vercel deployment
+                if (err.code === 'ENOENT') {
+                    const altPaths = [
+                        path.join(process.cwd(), 'public', fileName),
+                        path.join(process.cwd(), 'views', fileName),
+                        path.join(process.cwd(), '..', fileName),
+                        path.join(process.cwd(), '..', 'public', fileName)
+                    ];
+
+                    let attempt = 0;
+                    function tryNextPath() {
+                        if (attempt >= altPaths.length) {
+                            return res.status(404).send(`Admin dashboard page not found`);
+                        }
+
+                        res.sendFile(altPaths[attempt], (altErr) => {
+                            if (altErr) {
+                                console.error(`[Vercel] Failed at path ${altPaths[attempt]}:`, altErr.message);
+                                attempt++;
+                                tryNextPath();
+                            }
+                        });
+                    }
+                    tryNextPath();
+                } else {
+                    res.status(500).send('Error loading admin dashboard');
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("[Vercel] Admin-simple route error:", error);
+        res.status(500).send('Server error');
+    }
 });
 
 publicPages.push("/admin-simple");
+
+
 
 app.delete("/api/bookedRooms/:reservationId", requireAdmin, async (req, res) => {
     const { reservationId } = req.params;
 
     try {
+
         const [bookingResult] = await db.promise().query(
             "SELECT roomTag FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
@@ -719,10 +1234,12 @@ app.delete("/api/bookedRooms/:reservationId", requireAdmin, async (req, res) => 
 
         const roomTag = bookingResult[0].roomTag;
 
+
         await db.promise().query(
             "DELETE FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
         );
+
 
         await db.promise().query(
             "DELETE FROM payments WHERE reservation_id = ?",
@@ -747,6 +1264,9 @@ app.delete("/api/bookedRooms/:reservationId", requireAdmin, async (req, res) => 
     }
 });
 
+
+
+
 app.post("/book-table", async (req, res) => {
     const { fullName, emailAddress, phoneNumber, bookingDate, bookingTime, guests, specialRequests } = req.body;
 
@@ -768,16 +1288,58 @@ app.post("/book-table", async (req, res) => {
     }
 });
 
-app.get("/api/table-bookings", (req, res) => {
-    const sql = "SELECT * FROM table_bookings ORDER BY created_at DESC";
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Fetch table bookings error:", err);
-            return res.status(500).json({ message: "Database error" });
-        }
-        res.json(results);
-    });
+
+// ============================================
+// FIXED: Get All Table Bookings - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/table-bookings", requireAdmin, async (req, res) => {
+    try {
+        // VERCEL FIX: Convert callback to async/await
+        const sql = "SELECT * FROM table_bookings ORDER BY created_at DESC";
+        const [results] = await db.promise().query(sql);
+
+        // VERCEL FIX: Format dates and add computed fields
+        const formattedResults = results.map(booking => ({
+            ...booking,
+            // Format dates for consistent display
+            booking_date: booking.bookingDate ? new Date(booking.bookingDate).toISOString().split('T')[0] : null,
+            booking_time: booking.bookingTime,
+            created_at_formatted: booking.created_at ? new Date(booking.created_at).toLocaleString() : null,
+            // Add full name for easy display
+            full_name: booking.fullName || `${booking.firstName || ''} ${booking.lastName || ''}`.trim(),
+            // Ensure guests is a number
+            guests: parseInt(booking.guests) || 0,
+            // Add status badge info
+            status_badge: booking.status || 'pending',
+            status_color: getTableBookingStatusColor(booking.status)
+        }));
+
+        res.json({
+            success: true,
+            bookings: formattedResults,
+            count: formattedResults.length
+        });
+
+    } catch (err) {
+        console.error("[Vercel] Fetch table bookings error:", err);
+        res.status(500).json({
+            success: false,
+            message: "Database error",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
+
+// Helper function for status colors (add this outside the route)
+function getTableBookingStatusColor(status) {
+    const colors = {
+        'pending': 'yellow',
+        'confirmed': 'green',
+        'cancelled': 'red',
+        'completed': 'blue'
+    };
+    return colors[status?.toLowerCase()] || 'gray';
+}
 
 app.delete("/api/table-bookings/:id", (req, res) => {
     const bookingId = req.params.id;
@@ -792,8 +1354,12 @@ app.delete("/api/table-bookings/:id", (req, res) => {
     });
 });
 
+
+
+
 app.delete("/api/deleteRoom/:roomTag", (req, res) => {
     const roomTag = req.params.roomTag;
+
 
     const deleteRoomQuery = `
         DELETE FROM rooms
@@ -818,6 +1384,9 @@ app.delete("/api/deleteRoom/:roomTag", (req, res) => {
         });
     });
 });
+
+
+
 
 app.post("/admin", async (req, res) => {
     const { adminId, adminPassword, action } = req.body;
@@ -851,8 +1420,10 @@ app.post("/admin", async (req, res) => {
     }
 });
 
+
 app.post("/loginAdmin", async (req, res) => {
     const { adminId, adminPassword, rememberMe } = req.body;
+
 
     if (!adminId || !adminPassword) {
         return res.redirect("/adminlogin");
@@ -861,6 +1432,7 @@ app.post("/loginAdmin", async (req, res) => {
     try {
         const [results] = await db.promise().query("SELECT * FROM admin WHERE adminId = ?", [adminId]);
 
+
         if (results.length === 0) {
             return res.redirect("/adminlogin");
         }
@@ -868,9 +1440,11 @@ app.post("/loginAdmin", async (req, res) => {
         const admin = results[0];
         const match = await bcrypt.compare(adminPassword, admin.adminPassword);
 
+
         if (!match) {
             return res.redirect("/adminlogin");
         }
+
 
         req.session.admin = {
             adminId: admin.adminId
@@ -889,6 +1463,7 @@ app.post("/loginAdmin", async (req, res) => {
 
     } catch (err) {
         console.error("Admin login error:", err);
+
         return res.redirect("/adminlogin");
     }
 });
@@ -913,15 +1488,20 @@ app.post("/subscribe", (req, res) => {
     });
 });
 
+require('dotenv').config();
+const { MailerSend, EmailParams } = require("mailersend");
+
 const mailersend = new MailerSend({
     api_key: process.env.MAILERSEND_API_KEY
 });
+
 
 app.post("/admin/sendNewsletter", async (req, res) => {
     const { subject, message } = req.body;
     if (!subject || !message) return res.json({ message: "Both subject and message are required." });
 
     try {
+
         const [subscribers] = await db.promise().query("SELECT email FROM newsletter WHERE status = 'Permitted'");
         if (subscribers.length === 0) return res.json({ message: "No subscribers to send to." });
 
@@ -955,12 +1535,69 @@ app.post("/admin/sendNewsletter", async (req, res) => {
     }
 });
 
-app.get("/admin/subscribers", (req, res) => {
-    db.query("SELECT * FROM newsletter", (err, results) => {
-        if (err) return res.json([]);
-        res.json(results);
-    });
+
+// ============================================
+// FIXED: Get Newsletter Subscribers - VERCEL COMPATIBLE
+// ============================================
+app.get("/admin/subscribers", requireAdmin, async (req, res) => {
+    try {
+        // VERCEL FIX: Convert callback to async/await
+        const sql = "SELECT * FROM newsletter ORDER BY date_subscribed DESC";
+        const [results] = await db.promise().query(sql);
+
+        // VERCEL FIX: Format dates and add computed fields
+        const formattedResults = results.map(subscriber => ({
+            id: subscriber.id,
+            name: subscriber.name || subscriber.fullName || '',
+            phone: subscriber.phone || subscriber.phoneNumber || '',
+            email: subscriber.email,
+            status: subscriber.status || 'Pending',
+            // Format dates for consistent display
+            date_subscribed: subscriber.date_subscribed
+                ? new Date(subscriber.date_subscribed).toISOString().split('T')[0]
+                : null,
+            date_subscribed_formatted: subscriber.date_subscribed
+                ? new Date(subscriber.date_subscribed).toLocaleString()
+                : null,
+            // Add status badge color
+            status_color: getSubscriberStatusColor(subscriber.status),
+            // Add timestamp for sorting
+            timestamp: subscriber.date_subscribed ? new Date(subscriber.date_subscribed).getTime() : 0
+        }));
+
+        res.json({
+            success: true,
+            subscribers: formattedResults,
+            count: formattedResults.length,
+            pending_count: formattedResults.filter(s => s.status?.toLowerCase() === 'pending').length,
+            permitted_count: formattedResults.filter(s => s.status?.toLowerCase() === 'permitted').length
+        });
+
+    } catch (err) {
+        console.error("[Vercel] Fetch subscribers error:", err);
+
+        // VERCEL FIX: Return empty array with error info instead of just []
+        res.status(500).json({
+            success: false,
+            subscribers: [],
+            count: 0,
+            message: "Failed to fetch subscribers",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
+
+// Helper function for status colors
+function getSubscriberStatusColor(status) {
+    const colors = {
+        'pending': 'yellow',
+        'permitted': 'green',
+        'approved': 'green',
+        'rejected': 'red',
+        'unsubscribed': 'gray'
+    };
+    return colors[status?.toLowerCase()] || 'gray';
+}
 
 app.delete("/admin/subscribers/:id", (req, res) => {
     const id = req.params.id;
@@ -970,6 +1607,7 @@ app.delete("/admin/subscribers/:id", (req, res) => {
     });
 });
 
+
 app.put("/admin/subscribers/approve/:id", (req, res) => {
     const id = req.params.id;
     db.query("UPDATE newsletter SET status = 'Permitted' WHERE id = ?", [id], (err) => {
@@ -978,6 +1616,7 @@ app.put("/admin/subscribers/approve/:id", (req, res) => {
     });
 });
 
+
 app.post('/forgotpassword', async (req, res) => {
     const { email } = req.body;
 
@@ -985,7 +1624,7 @@ app.post('/forgotpassword', async (req, res) => {
     if (users.length === 0) return res.status(400).json({ message: "No user found with this email." });
 
     const token = jwt.sign({ email }, SESSION_SECRET, { expiresIn: '1h' });
-    const resetLink = `https://${req.headers.host}/resetpassword/${token}`; // VERCEL: Use dynamic host
+    const resetLink = `http://localhost:3000/resetpassword/${token}`;
 
     try {
         await mailersend.email.send({
@@ -1007,6 +1646,9 @@ app.post('/forgotpassword', async (req, res) => {
     }
 });
 
+
+
+
 app.post("/resetpassword/:token", async (req, res) => {
     const { token } = req.params;
     const { newPassword, confirmPassword } = req.body;
@@ -1015,6 +1657,7 @@ app.post("/resetpassword/:token", async (req, res) => {
     if (newPassword !== confirmPassword) return res.status(400).json({ message: "Passwords do not match" });
 
     try {
+
         const decoded = jwt.verify(token, SESSION_SECRET);
         const email = decoded.email;
 
@@ -1027,6 +1670,9 @@ app.post("/resetpassword/:token", async (req, res) => {
         res.status(400).json({ message: "Invalid or expired token." });
     }
 });
+
+
+
 
 app.post("/book-room", async (req, res) => {
     try {
@@ -1049,6 +1695,7 @@ app.post("/book-room", async (req, res) => {
             roomTags
         } = req.body;
 
+
         if (
             !roomType || !beddingType || !noOfRooms ||
             !mealPlan || !checkIn || !checkOut
@@ -1057,6 +1704,7 @@ app.post("/book-room", async (req, res) => {
                 message: "All reservation fields are required."
             });
         }
+
 
         let roomTagValue;
         if (roomTags && Array.isArray(roomTags) && roomTags.length > 0) {
@@ -1074,11 +1722,14 @@ app.post("/book-room", async (req, res) => {
         const mealPrice = parseInt(mealPlan) || 0;
         const roomsCount = parseInt(noOfRooms) || 1;
 
+
         const checkInDate = new Date(checkIn);
         const checkOutDate = new Date(checkOut);
         const nights = Math.max(1, Math.floor((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)));
 
+
         const totalAmount = (roomPrice + beddingPrice + mealPrice) * roomsCount * nights;
+
 
         const [guestRow] = await db.promise().query(
             "SELECT guest_id FROM guestdetails WHERE email = ? LIMIT 1",
@@ -1092,6 +1743,7 @@ app.post("/book-room", async (req, res) => {
         }
 
         const guestId = guestRow[0].guest_id;
+
 
         const insertReservationSql = `
             INSERT INTO reservationsdetails
@@ -1158,6 +1810,7 @@ app.post("/book-room", async (req, res) => {
     }
 });
 
+
 app.put("/api/guestdetails/update", async (req, res) => {
     try {
         if (!req.session.user) {
@@ -1210,6 +1863,7 @@ app.put("/api/guestdetails/update", async (req, res) => {
         res.status(500).json({ message: "Failed to update guest details." });
     }
 });
+
 
 app.post("/api/guestdetails/save", async (req, res) => {
     try {
@@ -1266,9 +1920,15 @@ app.post("/api/guestdetails/save", async (req, res) => {
     }
 });
 
+
+
+
+// ============================================
+// FIXED: Dashboard Recent Bookings - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
     try {
-        const limit = req.query.limit || 5;
+        const limit = parseInt(req.query.limit) || 5;
 
         const query = `
             SELECT 
@@ -1293,60 +1953,94 @@ app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
                      WHERE p.reservation_id = r.reservation_id 
                      ORDER BY p.payment_date DESC 
                      LIMIT 1), 
-                'Pending') as payment_status
+                'Pending') as payment_status,
+                COALESCE(
+                    (SELECT SUM(p2.amount_paid) 
+                     FROM payments p2 
+                     WHERE p2.reservation_id = r.reservation_id 
+                     AND p2.status = 'Paid'), 
+                0.00) AS amount_paid
             FROM reservationsdetails r
             LEFT JOIN guestdetails gd ON r.guest_id = gd.guest_id
-            -- Only show bookings that are still active (check_out date is in the future)
             WHERE r.check_out >= CURDATE()
             ORDER BY r.created_at DESC
             LIMIT ?
         `;
 
-        const [results] = await db.promise().query(query, [parseInt(limit)]);
+        const [results] = await db.promise().query(query, [limit]);
+
+        const roomTypeMap = {
+            '5000': 'Standard',
+            '7500': 'Deluxe',
+            '12000': 'Suite',
+            '18000': 'Family Suite'
+        };
 
         const bookings = results.map(booking => {
-            const roomTypeMap = {
-                '5000': 'Standard',
-                '7500': 'Deluxe',
-                '12000': 'Suite',
-                '18000': 'Family Suite'
-            };
-
+            // Calculate room count from roomTag
             let roomCount = 1;
+            let roomsArray = [];
             if (booking.roomTag) {
-                const rooms = booking.roomTag.split(',').map(r => r.trim()).filter(r => r);
-                roomCount = rooms.length;
+                roomsArray = booking.roomTag.split(',').map(r => r.trim()).filter(r => r);
+                roomCount = roomsArray.length;
             }
 
-            return {
-                ...booking,
-                room_type_label: roomTypeMap[booking.room_type] || `Room (${booking.room_type})`,
-                guest_name: `${booking.first_name || ''} ${booking.last_name || ''}`.trim(),
-                booking_date: booking.created_at,
-                room_count: roomCount,
-                rooms_display: booking.roomTag,
+            // VERCEL FIX: Proper date handling for serverless
+            const checkIn = booking.check_in ? new Date(booking.check_in) : null;
+            const checkOut = booking.check_out ? new Date(booking.check_out) : null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-                is_active: new Date(booking.check_out) >= new Date()
+            return {
+                reservation_id: booking.reservation_id,
+                guest_name: `${booking.first_name || ''} ${booking.last_name || ''}`.trim() || 'N/A',
+                guest_email: booking.email,
+                nationality: booking.nationality || 'N/A',
+                room_type: booking.room_type,
+                room_type_label: roomTypeMap[booking.room_type] || `Room Type ${booking.room_type}`,
+                bedding_type: booking.bedding_type,
+                meal_plan: booking.meal_plan,
+                no_of_rooms: booking.no_of_rooms || 1,
+                room_count: roomCount,
+                rooms_array: roomsArray,
+                rooms_display: booking.roomTag || 'Not assigned',
+                check_in: checkIn ? checkIn.toISOString().split('T')[0] : null,
+                check_out: checkOut ? checkOut.toISOString().split('T')[0] : null,
+                status: booking.status || 'Pending',
+                payment_status: booking.payment_status || 'Pending',
+                total_amount: parseFloat(booking.total_amount || 0).toFixed(2),
+                amount_paid: parseFloat(booking.amount_paid || 0).toFixed(2),
+                amount_due: (parseFloat(booking.total_amount || 0) - parseFloat(booking.amount_paid || 0)).toFixed(2),
+                booking_date: booking.created_at ? new Date(booking.created_at).toISOString() : null,
+                booking_date_formatted: booking.created_at ? new Date(booking.created_at).toLocaleString() : null,
+                is_active: checkOut ? checkOut >= today : false,
+                nights: checkIn && checkOut ? Math.max(1, Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24))) : 0
             };
         });
 
         res.json({
             success: true,
-            bookings: bookings
+            bookings: bookings,
+            count: bookings.length,
+            timestamp: new Date().toISOString()
         });
 
     } catch (error) {
-        console.error('Error fetching recent bookings:', error);
+        console.error('[Vercel] Error fetching recent bookings:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch recent bookings'
+            message: 'Failed to fetch recent bookings',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Available Rooms - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/available-rooms", async (req, res) => {
     try {
-        const { checkIn, checkOut, roomType } = req.query;
+        const { checkIn, checkOut } = req.query;
 
         if (!checkIn || !checkOut) {
             return res.status(400).json({
@@ -1355,14 +2049,24 @@ app.get("/api/available-rooms", async (req, res) => {
             });
         }
 
+        // VERCEL FIX: Validate date format
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+
+        if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid date format"
+            });
+        }
+
+        // Query to find booked rooms
         const query = `
             SELECT roomTag 
             FROM reservationsdetails 
             WHERE (
-                -- Permitted reservations (always booked)
                 (status = 'Permitted')
                 OR 
-                -- Pending reservations less than 2 hours old
                 (status = 'Pending' AND created_at >= DATE_SUB(NOW(), INTERVAL 2 HOUR))
             )
             AND (
@@ -1380,45 +2084,64 @@ app.get("/api/available-rooms", async (req, res) => {
             checkIn, checkOut
         ]);
 
+        // VERCEL FIX: Use Set for unique room tags
         const bookedTags = new Set();
 
         bookedReservations.forEach(reservation => {
             if (reservation.roomTag) {
-                const tags = reservation.roomTag.split(',').map(tag => tag.trim());
-                tags.forEach(tag => {
-                    if (tag) bookedTags.add(tag);
-                });
+                reservation.roomTag.split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag)
+                    .forEach(tag => bookedTags.add(tag));
             }
         });
 
-        const bookedTagsArray = Array.from(bookedTags);
-
+        // Get all rooms
         const [allRooms] = await db.promise().query(
-            "SELECT roomTag FROM rooms ORDER BY roomTag ASC"
+            "SELECT roomTag, roomType FROM rooms ORDER BY roomTag ASC"
         );
 
+        // Create room status array
         const roomStatus = allRooms.map(room => ({
             roomTag: room.roomTag,
-            isAvailable: !bookedTagsArray.includes(room.roomTag)
+            roomType: room.roomType,
+            isAvailable: !bookedTags.has(room.roomTag)
         }));
+
+        // VERCEL FIX: Group by availability for easier frontend use
+        const availableRoomsList = roomStatus.filter(room => room.isAvailable).map(r => r.roomTag);
+        const bookedRoomsList = Array.from(bookedTags);
 
         res.json({
             success: true,
-            bookedRooms: bookedTagsArray,
+            bookedRooms: bookedRoomsList,
+            availableRooms: availableRoomsList,
             roomStatus: roomStatus,
-            totalRooms: allRooms.length,
-            availableRooms: allRooms.length - bookedTagsArray.length
+            stats: {
+                totalRooms: allRooms.length,
+                bookedRooms: bookedTags.size,
+                availableRooms: allRooms.length - bookedTags.size,
+                occupancyRate: allRooms.length > 0 ? Math.round((bookedTags.size / allRooms.length) * 100) : 0
+            },
+            dateRange: {
+                checkIn: checkIn,
+                checkOut: checkOut
+            }
         });
 
     } catch (error) {
-        console.error('Error fetching room availability:', error);
+        console.error('[Vercel] Error fetching room availability:', error);
         res.status(500).json({
             success: false,
-            message: "Failed to check room availability"
+            message: "Failed to check room availability",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Single Room Availability - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/room-availability/:roomTag", async (req, res) => {
     try {
         const { roomTag } = req.params;
@@ -1431,14 +2154,24 @@ app.get("/api/room-availability/:roomTag", async (req, res) => {
             });
         }
 
+        // VERCEL FIX: Validate dates
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+
+        if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid date format"
+            });
+        }
+
+        // Query to check if room is booked
         const query = `
             SELECT COUNT(*) as count 
             FROM reservationsdetails 
             WHERE (
-                -- Permitted reservations (always booked)
                 (status = 'Permitted')
                 OR 
-                -- Pending reservations less than 2 hours old
                 (status = 'Pending' AND created_at >= DATE_SUB(NOW(), INTERVAL 2 HOUR))
             )
             AND (
@@ -1448,6 +2181,7 @@ app.get("/api/room-availability/:roomTag", async (req, res) => {
             )
             AND (
                 roomTag = ? 
+                OR FIND_IN_SET(?, REPLACE(roomTag, ' ', ''))
                 OR roomTag LIKE CONCAT(?, ',%')
                 OR roomTag LIKE CONCAT('%, ', ?)
                 OR roomTag LIKE CONCAT('%,', ?)
@@ -1463,77 +2197,154 @@ app.get("/api/room-availability/:roomTag", async (req, res) => {
             roomTag,
             roomTag,
             roomTag,
+            roomTag,
             roomTag
         ]);
 
-        const isAvailable = result[0].count === 0;
+        const bookedCount = parseInt(result[0].count) || 0;
+        const isAvailable = bookedCount === 0;
+
+        // VERCEL FIX: Get room details
+        const [roomDetails] = await db.promise().query(
+            "SELECT roomType FROM rooms WHERE roomTag = ?",
+            [roomTag]
+        );
 
         res.json({
             success: true,
             roomTag: roomTag,
+            roomType: roomDetails[0]?.roomType || null,
             isAvailable: isAvailable,
-            bookedCount: result[0].count
+            bookedCount: bookedCount,
+            availability: isAvailable ? 'available' : 'booked',
+            dateRange: {
+                checkIn: checkIn,
+                checkOut: checkOut
+            }
         });
 
     } catch (error) {
-        console.error('Error checking room availability:', error);
+        console.error('[Vercel] Error checking room availability:', error);
         res.status(500).json({
             success: false,
-            message: "Failed to check room availability"
+            message: "Failed to check room availability",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
-app.get("/api/payment/:reservationId", (req, res) => {
-    const { reservationId } = req.params;
+// ============================================
+// FIXED: Get Payment Details - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/payment/:reservationId", async (req, res) => {
+    try {
+        const { reservationId } = req.params;
 
-    const sql = `
-        SELECT
-            r.reservation_id,
-            r.room_type,
-            r.bedding_type,
-            r.no_of_rooms,
-            r.meal_plan,
-            r.check_in,
-            r.check_out,
-            r.roomTag,
-            -- Only sum confirmed payments
-            COALESCE(
-                (SELECT SUM(p2.amount_paid) 
-                 FROM payments p2 
-                 WHERE p2.reservation_id = r.reservation_id 
-                 AND p2.status = 'Paid'), 
-            0.00) AS amount_paid,
-            -- Get latest payment status
-            COALESCE(
-                (SELECT p3.status 
-                 FROM payments p3 
-                 WHERE p3.reservation_id = r.reservation_id 
-                 ORDER BY p3.payment_date DESC 
-                 LIMIT 1), 
-            'Pending') AS payment_status,
-            -- Get latest payment method
-            COALESCE(
-                (SELECT p4.payment_method 
-                 FROM payments p4 
-                 WHERE p4.reservation_id = r.reservation_id 
-                 ORDER BY p4.payment_date DESC 
-                 LIMIT 1), 
-            NULL) AS payment_method
-        FROM reservationsdetails r
-        WHERE r.reservation_id = ?
-        LIMIT 1
-    `;
-
-    db.query(sql, [reservationId], (err, results) => {
-        if (err) {
-            console.error("payment fetch error:", err);
-            return res.status(500).json({ message: "Database error." });
+        // VERCEL FIX: Validate reservation ID
+        if (!reservationId || isNaN(parseInt(reservationId))) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid reservation ID"
+            });
         }
-        if (results.length === 0) return res.status(404).json({ message: "Reservation not found." });
-        res.json(results[0]);
-    });
+
+        const sql = `
+            SELECT
+                r.reservation_id,
+                r.room_type,
+                r.bedding_type,
+                r.no_of_rooms,
+                r.meal_plan,
+                r.check_in,
+                r.check_out,
+                r.roomTag,
+                r.total_amount,
+                r.status as reservation_status,
+                COALESCE(
+                    (SELECT SUM(p2.amount_paid) 
+                     FROM payments p2 
+                     WHERE p2.reservation_id = r.reservation_id 
+                     AND p2.status = 'Paid'), 
+                0.00) AS amount_paid,
+                COALESCE(
+                    (SELECT p3.status 
+                     FROM payments p3 
+                     WHERE p3.reservation_id = r.reservation_id 
+                     ORDER BY p3.payment_date DESC 
+                     LIMIT 1), 
+                'Pending') AS payment_status,
+                COALESCE(
+                    (SELECT p4.payment_method 
+                     FROM payments p4 
+                     WHERE p4.reservation_id = r.reservation_id 
+                     ORDER BY p4.payment_date DESC 
+                     LIMIT 1), 
+                NULL) AS payment_method,
+                COALESCE(
+                    (SELECT p5.payment_date 
+                     FROM payments p5 
+                     WHERE p5.reservation_id = r.reservation_id 
+                     AND p5.status = 'Paid'
+                     ORDER BY p5.payment_date DESC 
+                     LIMIT 1), 
+                NULL) AS last_payment_date,
+                COALESCE(
+                    (SELECT p6.mpesa_receipt 
+                     FROM payments p6 
+                     WHERE p6.reservation_id = r.reservation_id 
+                     AND p6.mpesa_receipt IS NOT NULL
+                     ORDER BY p6.payment_date DESC 
+                     LIMIT 1), 
+                NULL) AS mpesa_receipt
+            FROM reservationsdetails r
+            WHERE r.reservation_id = ?
+        `;
+
+        const [results] = await db.promise().query(sql, [reservationId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Reservation not found."
+            });
+        }
+
+        const payment = results[0];
+
+        // VERCEL FIX: Calculate amount due and format currency
+        const totalAmount = parseFloat(payment.total_amount || 0);
+        const amountPaid = parseFloat(payment.amount_paid || 0);
+        const amountDue = totalAmount - amountPaid;
+
+        // VERCEL FIX: Format dates
+        const formattedPayment = {
+            ...payment,
+            total_amount: totalAmount.toFixed(2),
+            amount_paid: amountPaid.toFixed(2),
+            amount_due: amountDue.toFixed(2),
+            check_in: payment.check_in ? new Date(payment.check_in).toISOString().split('T')[0] : null,
+            check_out: payment.check_out ? new Date(payment.check_out).toISOString().split('T')[0] : null,
+            last_payment_date: payment.last_payment_date ? new Date(payment.last_payment_date).toISOString() : null,
+            last_payment_date_formatted: payment.last_payment_date ? new Date(payment.last_payment_date).toLocaleString() : null,
+            is_fully_paid: amountDue <= 0,
+            payment_progress: totalAmount > 0 ? Math.round((amountPaid / totalAmount) * 100) : 0
+        };
+
+        res.json({
+            success: true,
+            payment: formattedPayment
+        });
+
+    } catch (err) {
+        console.error('[Vercel] Payment fetch error:', err);
+        res.status(500).json({
+            success: false,
+            message: "Database error.",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
+
 
 app.put("/api/payment/:paymentId/status", (req, res) => {
     const { paymentId } = req.params;
@@ -1552,30 +2363,200 @@ app.put("/api/payment/:paymentId/status", (req, res) => {
     });
 });
 
-app.get("/api/reservations/:id", (req, res) => {
-    const id = req.params.id;
-    const sql = `
-        SELECT 
-          r.reservation_id,
-          r.room_type, r.bedding_type, r.no_of_rooms, r.meal_plan, r.check_in, r.check_out, r.status,
-          g.title, g.first_name, g.last_name, g.email, g.nationality, g.passport_country, g.phone_number,
-          COALESCE(p.amount_paid, 0.00) AS amount_paid,
-          p.status AS payment_status,
-          p.payment_method
-        FROM reservationsdetails r
-        LEFT JOIN guestdetails g ON r.guest_id = g.guest_id
-        LEFT JOIN payments p ON r.reservation_id = p.reservation_id
-        WHERE r.reservation_id = ?
-        LIMIT 1
-    `;
-    db.query(sql, [id], (err, results) => {
-        if (err) {
-            console.error("single reservation error:", err);
-            return res.status(500).json({ error: err.sqlMessage || err });
+
+// ============================================
+// FIXED: Get Single Reservation Details - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/reservations/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // VERCEL FIX: Validate reservation ID
+        if (!id || isNaN(parseInt(id))) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid reservation ID"
+            });
         }
-        if (results.length === 0) return res.status(404).json({ message: "Reservation not found" });
-        res.json(results[0]);
-    });
+
+        const reservationId = parseInt(id);
+
+        // VERCEL FIX: Enhanced query with better payment aggregation
+        const sql = `
+            SELECT 
+                r.reservation_id,
+                r.room_type,
+                r.bedding_type,
+                r.no_of_rooms,
+                r.meal_plan,
+                r.check_in,
+                r.check_out,
+                r.roomTag,
+                r.status AS reservation_status,
+                r.total_amount,
+                r.nights,
+                r.created_at,
+                
+                -- Guest details
+                g.title,
+                g.first_name,
+                g.last_name,
+                g.email,
+                g.nationality,
+                g.passport_country,
+                g.phone_number,
+                g.national_id,
+                g.passport_no,
+                
+                -- Payment summary
+                COALESCE(SUM(CASE WHEN p.status = 'Paid' THEN p.amount_paid ELSE 0 END), 0.00) AS amount_paid,
+                COUNT(DISTINCT CASE WHEN p.status = 'Paid' THEN p.payment_id END) AS payment_count,
+                
+                -- Latest payment details
+                (
+                    SELECT p2.status 
+                    FROM payments p2 
+                    WHERE p2.reservation_id = r.reservation_id 
+                    ORDER BY p2.payment_date DESC 
+                    LIMIT 1
+                ) AS payment_status,
+                (
+                    SELECT p3.payment_method 
+                    FROM payments p3 
+                    WHERE p3.reservation_id = r.reservation_id 
+                    ORDER BY p3.payment_date DESC 
+                    LIMIT 1
+                ) AS payment_method,
+                (
+                    SELECT p4.payment_date 
+                    FROM payments p4 
+                    WHERE p4.reservation_id = r.reservation_id 
+                    AND p4.status = 'Paid'
+                    ORDER BY p4.payment_date DESC 
+                    LIMIT 1
+                ) AS last_payment_date,
+                (
+                    SELECT p5.mpesa_receipt 
+                    FROM payments p5 
+                    WHERE p5.reservation_id = r.reservation_id 
+                    AND p5.mpesa_receipt IS NOT NULL
+                    ORDER BY p5.payment_date DESC 
+                    LIMIT 1
+                ) AS mpesa_receipt
+                
+            FROM reservationsdetails r
+            LEFT JOIN guestdetails g ON r.guest_id = g.guest_id
+            LEFT JOIN payments p ON r.reservation_id = p.reservation_id
+            WHERE r.reservation_id = ?
+            GROUP BY r.reservation_id
+            LIMIT 1
+        `;
+
+        const [results] = await db.promise().query(sql, [reservationId]);
+
+        if (results.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Reservation not found"
+            });
+        }
+
+        const reservation = results[0];
+
+        // VERCEL FIX: Calculate financial summary
+        const totalAmount = parseFloat(reservation.total_amount || 0);
+        const amountPaid = parseFloat(reservation.amount_paid || 0);
+        const amountDue = totalAmount - amountPaid;
+        const paymentProgress = totalAmount > 0 ? Math.round((amountPaid / totalAmount) * 100) : 0;
+
+        // VERCEL FIX: Calculate stay duration
+        let nights = reservation.nights || 0;
+        if (!nights && reservation.check_in && reservation.check_out) {
+            const checkIn = new Date(reservation.check_in);
+            const checkOut = new Date(reservation.check_out);
+            nights = Math.max(1, Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
+        }
+
+        // VERCEL FIX: Parse room tags
+        let roomTags = [];
+        let roomCount = 1;
+        if (reservation.roomTag) {
+            roomTags = reservation.roomTag.split(',').map(tag => tag.trim()).filter(tag => tag);
+            roomCount = roomTags.length;
+        }
+
+        // VERCEL FIX: Format dates for consistent display
+        const formattedReservation = {
+            // Reservation details
+            reservation_id: reservation.reservation_id,
+            room_type: reservation.room_type,
+            bedding_type: reservation.bedding_type,
+            no_of_rooms: parseInt(reservation.no_of_rooms || roomCount || 1),
+            meal_plan: reservation.meal_plan,
+            roomTag: reservation.roomTag,
+            room_tags: roomTags,
+            room_count: roomCount,
+
+            // Dates
+            check_in: reservation.check_in ? new Date(reservation.check_in).toISOString().split('T')[0] : null,
+            check_in_formatted: reservation.check_in ? new Date(reservation.check_in).toLocaleDateString() : null,
+            check_out: reservation.check_out ? new Date(reservation.check_out).toISOString().split('T')[0] : null,
+            check_out_formatted: reservation.check_out ? new Date(reservation.check_out).toLocaleDateString() : null,
+            nights: nights,
+            created_at: reservation.created_at ? new Date(reservation.created_at).toISOString() : null,
+            created_at_formatted: reservation.created_at ? new Date(reservation.created_at).toLocaleString() : null,
+
+            // Status
+            reservation_status: reservation.reservation_status || 'Pending',
+            payment_status: reservation.payment_status || 'Pending',
+
+            // Financial
+            total_amount: totalAmount.toFixed(2),
+            amount_paid: amountPaid.toFixed(2),
+            amount_due: amountDue.toFixed(2),
+            payment_progress: paymentProgress,
+            payment_count: reservation.payment_count || 0,
+            payment_method: reservation.payment_method,
+            last_payment_date: reservation.last_payment_date ? new Date(reservation.last_payment_date).toISOString() : null,
+            last_payment_date_formatted: reservation.last_payment_date ? new Date(reservation.last_payment_date).toLocaleString() : null,
+            mpesa_receipt: reservation.mpesa_receipt,
+
+            // Guest details
+            guest: {
+                title: reservation.title || '',
+                first_name: reservation.first_name || '',
+                last_name: reservation.last_name || '',
+                full_name: `${reservation.title || ''} ${reservation.first_name || ''} ${reservation.last_name || ''}`.trim(),
+                email: reservation.email,
+                nationality: reservation.nationality || '',
+                passport_country: reservation.passport_country || '',
+                phone_number: reservation.phone_number || '',
+                national_id: reservation.national_id || '',
+                passport_no: reservation.passport_no || ''
+            },
+
+            // Computed flags
+            is_fully_paid: amountDue <= 0,
+            is_overdue: amountDue > 0 && reservation.check_out && new Date(reservation.check_out) < new Date(),
+            is_active: reservation.reservation_status === 'Permitted' ||
+                (reservation.reservation_status === 'Pending' &&
+                    reservation.created_at &&
+                    (new Date() - new Date(reservation.created_at)) < 2 * 60 * 60 * 1000)
+        };
+
+        res.json({
+            success: true,
+            reservation: formattedReservation
+        });
+
+    } catch (err) {
+        console.error('[Vercel] Single reservation error:', err);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch reservation details",
+            error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        });
+    }
 });
 
 app.put("/api/reservations/:id/status", (req, res) => {
@@ -1594,24 +2575,121 @@ app.put("/api/reservations/:id/status", (req, res) => {
         });
 });
 
+
+
+
+// ============================================
+// FIXED: Get Guest Details - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/guestdetails", async (req, res) => {
-    if (!req.session.user) {
-        return res.status(401).json({ message: "Not logged in" });
+    try {
+        // VERCEL FIX: Add null check for req.session
+        if (!req.session) {
+            console.error("[Vercel] /api/guestdetails - Session is undefined");
+            return res.status(500).json({
+                success: false,
+                message: "Session error",
+                code: "SESSION_MISSING"
+            });
+        }
+
+        // Check if user is logged in
+        if (!req.session.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Not logged in",
+                code: "NOT_LOGGED_IN"
+            });
+        }
+
+        const email = req.session.user.email;
+
+        // VERCEL FIX: Validate email
+        if (!email) {
+            console.error("[Vercel] /api/guestdetails - No email in session:", req.session.user);
+            return res.status(400).json({
+                success: false,
+                message: "Invalid session data",
+                code: "INVALID_SESSION"
+            });
+        }
+
+        // Query guest details
+        const [rows] = await db.promise().query(
+            `SELECT 
+                guest_id,
+                email,
+                title,
+                first_name,
+                last_name,
+                nationality,
+                passport_country,
+                national_id,
+                passport_no,
+                phone_number,
+                created_at,
+                updated_at
+            FROM guestdetails 
+            WHERE email = ? 
+            LIMIT 1`,
+            [email]
+        );
+
+        if (!rows.length) {
+            return res.status(404).json({
+                success: false,
+                message: "Guest details not found. Please complete your profile.",
+                code: "GUEST_NOT_FOUND"
+            });
+        }
+
+        const guest = rows[0];
+
+        // VERCEL FIX: Format response with computed fields
+        const formattedGuest = {
+            ...guest,
+            // Full name for easy display
+            full_name: `${guest.title || ''} ${guest.first_name || ''} ${guest.last_name || ''}`.trim(),
+            // Format dates
+            created_at: guest.created_at ? new Date(guest.created_at).toISOString() : null,
+            created_at_formatted: guest.created_at ? new Date(guest.created_at).toLocaleDateString() : null,
+            updated_at: guest.updated_at ? new Date(guest.updated_at).toISOString() : null,
+            updated_at_formatted: guest.updated_at ? new Date(guest.updated_at).toLocaleDateString() : null,
+            // Boolean flags
+            has_national_id: Boolean(guest.national_id),
+            has_passport: Boolean(guest.passport_no),
+            has_phone: Boolean(guest.phone_number),
+            // Profile completion status
+            profile_complete: Boolean(
+                guest.first_name &&
+                guest.last_name &&
+                guest.nationality &&
+                (guest.national_id || guest.passport_no) &&
+                guest.phone_number
+            )
+        };
+
+        // Log successful fetch (useful for debugging)
+        console.log(`[Vercel] Guest details fetched for: ${email}`);
+
+        res.json({
+            success: true,
+            guest: formattedGuest
+        });
+
+    } catch (error) {
+        console.error("[Vercel] /api/guestdetails - Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch guest details",
+            code: "SERVER_ERROR",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
-
-    const email = req.session.user.email;
-
-    const [rows] = await db.promise().query(
-        "SELECT * FROM guestdetails WHERE email = ? LIMIT 1",
-        [email]
-    );
-
-    if (!rows.length) {
-        return res.status(404).json({ message: "Guest not found" });
-    }
-
-    res.json(rows[0]);
 });
+
+
+
 
 app.post("/api/payment/:reservationId/complete", async (req, res) => {
     const { reservationId } = req.params;
@@ -1621,6 +2699,7 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
         return res.status(400).json({ message: "Phone number and amount are required." });
     }
 
+
     const phone = phoneNumber.startsWith("0") ? "254" + phoneNumber.slice(1) : phoneNumber;
 
     const time = new Date();
@@ -1628,7 +2707,9 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
     const password = Buffer.from(MPESA_SHORTCODE + MPESA_PASSKEY + timestamp).toString("base64");
 
     try {
+
         const token = await getAccessToken();
+
 
         const mpesaRes = await axios.post(
             `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
@@ -1648,6 +2729,7 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
+
         res.json({
             success: true,
             message: "STK Push initiated. Check your phone for the M-Pesa prompt.",
@@ -1659,6 +2741,7 @@ app.post("/api/payment/:reservationId/complete", async (req, res) => {
     }
 });
 
+
 app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
     const { reservationId } = req.params;
     const { amount, phone } = req.body;
@@ -1668,6 +2751,7 @@ app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
     }
 
     try {
+
         const [reservationRows] = await db.promise().query(
             "SELECT guest_id FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
@@ -1679,12 +2763,14 @@ app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
 
         const guestId = reservationRows[0].guest_id;
 
+
         const [existingPayments] = await db.promise().query(
             "SELECT payment_id, amount_paid FROM payments WHERE reservation_id = ? AND status = 'Pending'",
             [reservationId]
         );
 
         if (existingPayments.length === 0) {
+
             await db.promise().query(
                 `INSERT INTO payments (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
                  VALUES (?, ?, 0.00, 'Mpesa', 'Pending', NOW())`,
@@ -1696,6 +2782,7 @@ app.post("/api/payment/:reservationId/mpesa", async (req, res) => {
         }
 
         const mpesaPhone = phone.startsWith("0") ? "254" + phone.substring(1) : phone;
+
 
         const time = new Date();
         const timestamp = time.toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
@@ -1746,6 +2833,7 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
     }
 
     try {
+
         const [reservationRows] = await db.promise().query(
             "SELECT guest_id FROM reservationsdetails WHERE reservation_id = ?",
             [reservationId]
@@ -1757,6 +2845,7 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
 
         const guestId = reservationRows[0].guest_id;
 
+
         const [existingPayments] = await db.promise().query(
             "SELECT * FROM payments WHERE reservation_id = ? AND status = 'Paid'",
             [reservationId]
@@ -1765,6 +2854,7 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
         let paymentId;
 
         if (existingPayments.length > 0) {
+
             await db.promise().query(
                 `UPDATE payments 
                  SET amount_paid = amount_paid + ?,
@@ -1774,6 +2864,7 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
             );
             paymentId = existingPayments[0].payment_id;
         } else {
+
             const [paymentResult] = await db.promise().query(
                 `INSERT INTO payments 
                  (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
@@ -1782,6 +2873,7 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
             );
             paymentId = paymentResult.insertId;
         }
+
 
         await db.promise().query(
             `UPDATE reservationsdetails 
@@ -1803,6 +2895,9 @@ app.patch("/api/reservations/:id/mark-paid", requireAdmin, async (req, res) => {
     }
 });
 
+
+
+
 async function getAccessToken() {
     const auth = Buffer.from(`${MPESA_CONSUMER_KEY}:${MPESA_CONSUMER_SECRET}`).toString("base64");
     const res = await axios.get(
@@ -1811,6 +2906,8 @@ async function getAccessToken() {
     );
     return res.data.access_token;
 }
+
+
 
 app.post("/pay/mpesa", async (req, res) => {
     if (!req.session.user) {
@@ -1827,6 +2924,7 @@ app.post("/pay/mpesa", async (req, res) => {
     try {
         console.log("Initiating STK Push:", { reservationId, phoneNumber, amount, email });
 
+
         const [rows] = await db.promise().execute(
             `SELECT r.reservation_id
              FROM reservationsdetails r
@@ -1840,6 +2938,7 @@ app.post("/pay/mpesa", async (req, res) => {
             return res.status(403).json({ success: false, message: "You can only pay for your own reservations" });
         }
 
+
         const [guestRows] = await db.promise().query(
             "SELECT guest_id FROM guestdetails WHERE email = ? LIMIT 1",
             [email]
@@ -1851,12 +2950,14 @@ app.post("/pay/mpesa", async (req, res) => {
 
         const guestId = guestRows[0].guest_id;
 
+
         const [existingPayments] = await db.promise().query(
             "SELECT payment_id FROM payments WHERE reservation_id = ? AND status = 'Pending'",
             [reservationId]
         );
 
         if (existingPayments.length === 0) {
+
             await db.promise().query(
                 `INSERT INTO payments (reservation_id, guest_id, amount_paid, payment_method, status, payment_date)
                  VALUES (?, ?, 0.00, 'Mpesa', 'Pending', NOW())`,
@@ -1865,12 +2966,16 @@ app.post("/pay/mpesa", async (req, res) => {
             console.log(`Created payment record for reservation ${reservationId}`);
         }
 
+
         const phone = phoneNumber.startsWith("0") ? "254" + phoneNumber.slice(1) : phoneNumber;
+
 
         const timestamp = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
         const password = Buffer.from(MPESA_SHORTCODE + MPESA_PASSKEY + timestamp).toString("base64");
 
+
         const token = await getAccessToken();
+
 
         const mpesaResponse = await axios.post(
             `${MPESA_BASE_URL}/mpesa/stkpush/v1/processrequest`,
@@ -1921,6 +3026,7 @@ app.post("/mpesa/callback", async (req, res) => {
         console.log("STK Callback received:", { ResultCode, ResultDesc, accountRef, amount, mpesaReceipt });
 
         if (ResultCode === 0 && accountRef) {
+
             const [reservationRows] = await db.promise().query(
                 "SELECT guest_id FROM reservationsdetails WHERE reservation_id = ?",
                 [accountRef]
@@ -1929,12 +3035,14 @@ app.post("/mpesa/callback", async (req, res) => {
             if (reservationRows.length > 0) {
                 const guestId = reservationRows[0].guest_id;
 
+
                 const [existingPayments] = await db.promise().query(
                     "SELECT * FROM payments WHERE reservation_id = ?",
                     [accountRef]
                 );
 
                 if (existingPayments.length > 0) {
+
                     await db.promise().query(
                         `UPDATE payments 
                          SET amount_paid = amount_paid + ?, 
@@ -1946,6 +3054,7 @@ app.post("/mpesa/callback", async (req, res) => {
                         [amount, mpesaReceipt, accountRef]
                     );
                 } else {
+
                     await db.promise().query(
                         `INSERT INTO payments 
                          (reservation_id, guest_id, amount_paid, payment_method, status, 
@@ -1954,6 +3063,7 @@ app.post("/mpesa/callback", async (req, res) => {
                         [accountRef, guestId, amount, mpesaReceipt]
                     );
                 }
+
 
                 await db.promise().query(
                     "UPDATE reservationsdetails SET status = 'Permitted' WHERE reservation_id = ?",
@@ -1964,6 +3074,7 @@ app.post("/mpesa/callback", async (req, res) => {
             }
         } else {
             console.warn("Payment failed or cancelled", stkCallback);
+
 
             await db.promise().query(
                 "UPDATE payments SET status = 'Failed' WHERE reservation_id = ? AND status = 'Pending'",
@@ -1979,78 +3090,100 @@ app.post("/mpesa/callback", async (req, res) => {
     }
 });
 
+
+// ============================================
+// FIXED: Get Payments with Pagination - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/payments", requireAdmin, async (req, res) => {
     try {
-        const { page = 1, limit = 10, search = '' } = req.query;
-        const offset = (page - 1) * limit;
+        const { page = 1, limit = 10, search = '', startDate, endDate } = req.query;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+        const pageSize = parseInt(limit);
 
-        let baseQuery = `
+        // VERCEL FIX: Build dynamic WHERE clause
+        let whereConditions = ["p.status = 'Paid'"];
+        let queryParams = [];
+        let countParams = [];
+
+        // Add search filter
+        if (search) {
+            whereConditions.push(`(
+                gd.first_name LIKE ? OR 
+                gd.last_name LIKE ? OR 
+                gd.email LIKE ? OR 
+                r.roomTag LIKE ? OR
+                p.payment_method LIKE ? OR
+                p.mpesa_receipt LIKE ?
+            )`);
+            const searchParam = `%${search}%`;
+            queryParams.push(searchParam, searchParam, searchParam, searchParam, searchParam, searchParam);
+            countParams.push(searchParam, searchParam, searchParam, searchParam, searchParam, searchParam);
+        }
+
+        // Add date range filter
+        if (startDate && endDate) {
+            whereConditions.push("DATE(p.payment_date) BETWEEN ? AND ?");
+            queryParams.push(startDate, endDate);
+            countParams.push(startDate, endDate);
+        }
+
+        const whereClause = "WHERE " + whereConditions.join(" AND ");
+
+        // Main query with pagination
+        const baseQuery = `
             SELECT 
-                r.reservation_id,
-                gd.first_name,
-                gd.last_name,
-                gd.email,
-                r.room_type,
-                r.bedding_type,
-                r.check_in,
-                r.check_out,
-                r.no_of_rooms,
-                r.meal_plan,
-                r.roomTag,
-                r.nights,
-                r.total_amount,
                 p.payment_id,
+                p.reservation_id,
                 p.amount_paid,
                 p.payment_method,
                 p.payment_date,
-                p.status as payment_status
-            FROM reservationsdetails r
+                p.status as payment_status,
+                p.mpesa_receipt,
+                p.created_at as payment_created_at,
+                
+                r.room_type,
+                r.bedding_type,
+                r.meal_plan,
+                r.check_in,
+                r.check_out,
+                r.no_of_rooms,
+                r.roomTag,
+                r.nights,
+                r.total_amount,
+                r.status as reservation_status,
+                
+                gd.first_name,
+                gd.last_name,
+                gd.email,
+                gd.phone_number,
+                gd.nationality
+                
+            FROM payments p
+            JOIN reservationsdetails r ON p.reservation_id = r.reservation_id
             JOIN guestdetails gd ON r.guest_id = gd.guest_id
-            LEFT JOIN payments p ON r.reservation_id = p.reservation_id
-            WHERE p.status = 'Paid'
+            ${whereClause}
+            ORDER BY p.payment_date DESC
+            LIMIT ? OFFSET ?
         `;
 
-        let countQuery = `
-            SELECT COUNT(*) as total
-            FROM reservationsdetails r
+        // Count query for pagination
+        const countQuery = `
+            SELECT COUNT(DISTINCT p.payment_id) as total
+            FROM payments p
+            JOIN reservationsdetails r ON p.reservation_id = r.reservation_id
             JOIN guestdetails gd ON r.guest_id = gd.guest_id
-            LEFT JOIN payments p ON r.reservation_id = p.reservation_id
-            WHERE p.status = 'Paid'
+            ${whereClause}
         `;
 
-        const queryParams = [];
-        const countParams = [];
-
-        if (search) {
-            baseQuery += ` AND (
-                gd.first_name LIKE ? OR 
-                gd.last_name LIKE ? OR 
-                gd.email LIKE ? OR 
-                r.roomTag LIKE ? OR
-                p.payment_method LIKE ?
-            )`;
-
-            countQuery += ` AND (
-                gd.first_name LIKE ? OR 
-                gd.last_name LIKE ? OR 
-                gd.email LIKE ? OR 
-                r.roomTag LIKE ? OR
-                p.payment_method LIKE ?
-            )`;
-
-            const searchParam = `%${search}%`;
-            queryParams.push(searchParam, searchParam, searchParam, searchParam, searchParam);
-            countParams.push(searchParam, searchParam, searchParam, searchParam, searchParam);
-        }
-
-        baseQuery += ` ORDER BY p.payment_date DESC LIMIT ? OFFSET ?`;
-        queryParams.push(parseInt(limit), offset);
-
+        // Execute queries
+        const queryParamsWithPagination = [...queryParams, pageSize, offset];
+        const [payments] = await db.promise().query(baseQuery, queryParamsWithPagination);
         const [countResult] = await db.promise().query(countQuery, countParams);
+
         const total = countResult[0]?.total || 0;
+        const totalPages = Math.ceil(total / pageSize);
 
-        const [payments] = await db.promise().query(baseQuery, queryParams);
-
+        // VERCEL FIX: Format payments with proper number parsing
         const paymentsWithDetails = payments.map(payment => {
             const roomRent = parseNumericValue(payment.room_type);
             const bedRent = parseNumericValue(payment.bedding_type);
@@ -2058,60 +3191,120 @@ app.get("/api/payments", requireAdmin, async (req, res) => {
             const nights = parseInt(payment.nights) || 1;
             const rooms = parseInt(payment.no_of_rooms) || 1;
 
-            const roomTotal = (roomRent * rooms * nights).toFixed(2);
-            const bedTotal = (bedRent * rooms * nights).toFixed(2);
-            const mealTotal = (mealCost * rooms * nights).toFixed(2);
+            // Calculate breakdown
+            const roomTotal = roomRent * rooms * nights;
+            const bedTotal = bedRent * rooms * nights;
+            const mealTotal = mealCost * rooms * nights;
+            const subtotal = parseFloat(payment.total_amount || 0);
+            const amountPaid = parseFloat(payment.amount_paid || 0);
 
             return {
-                ...payment,
-                name: `${payment.first_name} ${payment.last_name}`,
-                email: payment.email,
-                room_rent: roomTotal,
-                bed_rent: bedTotal,
-                meals: mealTotal,
-                gr_total: parseFloat(payment.amount_paid || payment.total_amount || 0).toFixed(2),
+                // Payment details
+                payment_id: payment.payment_id,
+                reservation_id: payment.reservation_id,
+                amount_paid: amountPaid.toFixed(2),
                 payment_method: payment.payment_method || 'Mpesa',
-                payment_date: payment.payment_date
+                payment_date: payment.payment_date ? new Date(payment.payment_date).toISOString() : null,
+                payment_date_formatted: payment.payment_date ? new Date(payment.payment_date).toLocaleString() : null,
+                mpesa_receipt: payment.mpesa_receipt || 'N/A',
+                payment_status: payment.payment_status,
+
+                // Guest info
+                guest_name: `${payment.first_name || ''} ${payment.last_name || ''}`.trim() || 'N/A',
+                guest_email: payment.email,
+                guest_phone: payment.phone_number,
+                guest_nationality: payment.nationality,
+
+                // Booking details
+                room_type: payment.room_type,
+                bedding_type: payment.bedding_type,
+                meal_plan: payment.meal_plan,
+                room_tag: payment.roomTag,
+                check_in: payment.check_in ? new Date(payment.check_in).toISOString().split('T')[0] : null,
+                check_out: payment.check_out ? new Date(payment.check_out).toISOString().split('T')[0] : null,
+                nights: nights,
+                rooms: rooms,
+
+                // Financial breakdown
+                room_rent_per_night: roomRent.toFixed(2),
+                bed_rent_per_night: bedRent.toFixed(2),
+                meal_cost_per_night: mealCost.toFixed(2),
+                room_total: roomTotal.toFixed(2),
+                bed_total: bedTotal.toFixed(2),
+                meal_total: mealTotal.toFixed(2),
+                subtotal: subtotal.toFixed(2),
+                gr_total: amountPaid.toFixed(2),
+
+                // Reservation status
+                reservation_status: payment.reservation_status,
+
+                // Timestamps
+                created_at: payment.payment_created_at ? new Date(payment.payment_created_at).toISOString() : null
             };
         });
+
+        // VERCEL FIX: Add payment summary statistics
+        const totalAmount = paymentsWithDetails.reduce((sum, p) => sum + parseFloat(p.amount_paid), 0);
+        const paymentMethods = paymentsWithDetails.reduce((acc, p) => {
+            acc[p.payment_method] = (acc[p.payment_method] || 0) + 1;
+            return acc;
+        }, {});
 
         res.json({
             success: true,
             payments: paymentsWithDetails,
-            total,
-            page: parseInt(page),
-            totalPages: Math.ceil(total / limit),
-            limit: parseInt(limit)
+            pagination: {
+                page: parseInt(page),
+                limit: pageSize,
+                total,
+                totalPages,
+                hasNext: parseInt(page) < totalPages,
+                hasPrev: parseInt(page) > 1
+            },
+            summary: {
+                total_amount: totalAmount.toFixed(2),
+                payment_methods: paymentMethods,
+                count: paymentsWithDetails.length
+            },
+            filters: {
+                search: search || null,
+                startDate: startDate || null,
+                endDate: endDate || null
+            }
         });
 
     } catch (error) {
-        console.error('Error fetching payments:', error);
+        console.error('[Vercel] Error fetching payments:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to fetch payment records',
-            error: error.message
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
-function parseNumericValue(value) {
-    if (!value) return 0;
-
-    if (!isNaN(value) && !isNaN(parseFloat(value))) {
-        return parseFloat(value);
-    }
-
-    const numericMatch = String(value).match(/(\d+(\.\d+)?)/);
-    return numericMatch ? parseFloat(numericMatch[1]) : 0;
-}
-
+// ============================================
+// FIXED: Get Payment Receipt - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) => {
     try {
         const { reservationId } = req.params;
 
+        // VERCEL FIX: Validate reservation ID
+        if (!reservationId || isNaN(parseInt(reservationId))) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid reservation ID'
+            });
+        }
+
+        // VERCEL FIX: Enhanced receipt query with more details
         const query = `
             SELECT 
                 r.reservation_id,
+                r.created_at as booking_date,
+                
+                -- Guest details
                 gd.title,
                 gd.first_name,
                 gd.last_name,
@@ -2120,6 +3313,9 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
                 gd.national_id,
                 gd.passport_no,
                 gd.nationality,
+                gd.passport_country,
+                
+                -- Booking details
                 r.room_type,
                 r.bedding_type,
                 r.check_in,
@@ -2129,13 +3325,20 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
                 r.roomTag,
                 r.nights,
                 r.total_amount,
+                r.status as reservation_status,
+                
+                -- Payment details
+                p.payment_id,
                 p.amount_paid,
                 p.payment_method,
                 p.payment_date,
-                p.status as payment_status
+                p.status as payment_status,
+                p.mpesa_receipt,
+                p.created_at as payment_created_at
+                
             FROM reservationsdetails r
             JOIN guestdetails gd ON r.guest_id = gd.guest_id
-            LEFT JOIN payments p ON r.reservation_id = p.reservation_id
+            JOIN payments p ON r.reservation_id = p.reservation_id
             WHERE r.reservation_id = ? AND p.status = 'Paid'
             ORDER BY p.payment_date DESC
             LIMIT 1
@@ -2146,220 +3349,391 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
         if (results.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'Payment receipt not found'
+                message: 'Payment receipt not found',
+                code: 'RECEIPT_NOT_FOUND'
             });
         }
 
         const payment = results[0];
 
+        // Parse numeric values
         const roomRent = parseNumericValue(payment.room_type);
         const bedRent = parseNumericValue(payment.bedding_type);
         const mealCost = parseNumericValue(payment.meal_plan);
         const nights = parseInt(payment.nights) || 1;
         const rooms = parseInt(payment.no_of_rooms) || 1;
 
-        const receipt = {
-            reservation_id: payment.reservation_id,
-            receipt_date: new Date().toISOString().split('T')[0],
-            hotel_name: "THE JACKS' HOTEL",
-            hotel_address: "123 Hotel Street, Nairobi, Kenya",
-            hotel_phone: "+254 700 000 000",
-            hotel_email: "info@thejacks.com",
+        // Calculate totals
+        const roomTotal = roomRent * rooms * nights;
+        const bedTotal = bedRent * rooms * nights;
+        const mealTotal = mealCost * rooms * nights;
+        const subtotal = parseFloat(payment.total_amount || 0);
+        const amountPaid = parseFloat(payment.amount_paid || 0);
+        const taxRate = 0.16; // 16% VAT
+        const taxAmount = subtotal * taxRate;
+        const grandTotal = subtotal + taxAmount;
 
-            guest_info: {
+        // VERCEL FIX: Generate unique receipt number
+        const receiptNumber = `RCP-${payment.reservation_id}-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}${String(payment.payment_id).padStart(6, '0')}`;
+
+        const receipt = {
+            // Receipt metadata
+            receipt_number: receiptNumber,
+            receipt_date: new Date().toISOString(),
+            receipt_date_formatted: formatDateForReceipt(new Date()),
+
+            // Hotel information
+            hotel: {
+                name: "THE JACKS' HOTEL",
+                address: "123 Hotel Street, Nairobi, Kenya",
+                phone: "+254 700 000 000",
+                email: "info@thejacks.com",
+                website: "www.thejacks.com",
+                vat_reg: "P051-1234-5678"
+            },
+
+            // Guest information
+            guest: {
                 name: `${payment.title || ''} ${payment.first_name} ${payment.last_name}`.trim(),
                 email: payment.email,
                 phone: payment.phone_number,
                 nationality: payment.nationality,
-                id_number: payment.national_id || payment.passport_no || 'N/A'
+                id_type: payment.national_id ? 'National ID' : 'Passport',
+                id_number: payment.national_id || payment.passport_no || 'N/A',
+                id_country: payment.passport_country || 'Kenya'
             },
 
-            booking_info: {
+            // Booking information
+            booking: {
+                reservation_id: payment.reservation_id,
+                booking_date: payment.booking_date ? formatDateForReceipt(payment.booking_date) : 'N/A',
                 check_in: formatDateForReceipt(payment.check_in),
                 check_out: formatDateForReceipt(payment.check_out),
                 nights: nights,
-                room_tag: payment.roomTag,
+                rooms: rooms,
+                room_tag: payment.roomTag || 'Not assigned',
                 room_type: getRoomTypeDescription(payment.room_type),
                 bed_type: getBedTypeDescription(payment.bedding_type),
                 meal_plan: getMealPlanDescription(payment.meal_plan),
-                no_of_rooms: rooms
+                status: payment.reservation_status
             },
 
+            // Pricing breakdown
             pricing: {
-                room_rate: roomRent,
-                bed_rate: bedRent,
-                meal_rate: mealCost,
+                items: [
+                    {
+                        description: `Room (${getRoomTypeLabel(payment.room_type)})`,
+                        quantity: rooms,
+                        nights: nights,
+                        rate: roomRent,
+                        amount: roomTotal
+                    },
+                    {
+                        description: `Bed (${getBedTypeLabel(payment.bedding_type)})`,
+                        quantity: rooms,
+                        nights: nights,
+                        rate: bedRent,
+                        amount: bedTotal
+                    },
+                    {
+                        description: `Meal Plan (${getMealPlanLabel(payment.meal_plan)})`,
+                        quantity: rooms,
+                        nights: nights,
+                        rate: mealCost,
+                        amount: mealTotal
+                    }
+                ].filter(item => item.amount > 0),
 
-                room_total: (roomRent * rooms * nights).toFixed(2),
-                bed_total: (bedRent * rooms * nights).toFixed(2),
-                meal_total: (mealCost * rooms * nights).toFixed(2),
+                subtotal: subtotal,
+                tax_rate: "16%",
+                tax_amount: taxAmount,
+                grand_total: grandTotal,
 
-                subtotal: payment.total_amount,
-                tax_rate: "0%",
-                tax_amount: "0.00",
-                grand_total: parseFloat(payment.amount_paid || payment.total_amount || 0).toFixed(2)
+                // Formatted for display
+                subtotal_formatted: subtotal.toFixed(2),
+                tax_amount_formatted: taxAmount.toFixed(2),
+                grand_total_formatted: grandTotal.toFixed(2)
             },
 
-            payment_info: {
-                amount_paid: parseFloat(payment.amount_paid || 0).toFixed(2),
+            // Payment information
+            payment: {
+                payment_id: payment.payment_id,
+                amount_paid: amountPaid,
+                amount_paid_formatted: amountPaid.toFixed(2),
                 payment_method: payment.payment_method || 'Mpesa',
                 payment_date: formatDateForReceipt(payment.payment_date),
-                payment_status: payment.payment_status || 'Paid',
-                transaction_id: `PAY-${payment.reservation_id}-${Date.now()}`
+                payment_time: payment.payment_date ? new Date(payment.payment_date).toLocaleTimeString() : 'N/A',
+                transaction_id: payment.mpesa_receipt || `TXN-${payment.payment_id}`,
+                payment_status: payment.payment_status,
+                balance_due: (grandTotal - amountPaid).toFixed(2),
+                is_fully_paid: amountPaid >= grandTotal
+            },
+
+            // Footer
+            footer: {
+                thank_you: "Thank you for choosing THE JACKS' HOTEL!",
+                policy: "This is an electronically generated receipt. Valid without signature.",
+                generated_by: req.session.admin?.adminId || 'Admin',
+                generated_at: new Date().toISOString()
             }
         };
 
         res.json({
             success: true,
-            receipt
+            receipt,
+            meta: {
+                version: "1.0",
+                timestamp: new Date().toISOString()
+            }
         });
 
     } catch (error) {
-        console.error('Error generating receipt:', error);
+        console.error('[Vercel] Error generating receipt:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to generate receipt',
-            error: error.message
+            code: 'RECEIPT_GENERATION_FAILED',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
-function formatDateForReceipt(dateString) {
-    if (!dateString) return 'N/A';
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    } catch (e) {
-        return dateString;
-    }
-}
-
-function getRoomTypeDescription(value) {
-    const descriptions = {
-        '300': 'Standard Room - Queen bed, AC, TV',
-        '500': 'Deluxe Room - King bed, AC, TV, Mini-bar',
-        '800': 'Suite - King bed, Living area, Jacuzzi',
-        '1200': 'Executive Suite - Two bedrooms, Kitchenette, Balcony'
-    };
-    return descriptions[value] || `Room Type (${value})`;
-}
-
-function getBedTypeDescription(value) {
-    const descriptions = {
-        '100': 'Single Bed',
-        '150': 'Double Bed',
-        '200': 'King Size Bed'
-    };
-    return descriptions[value] || `Bed Type (${value})`;
-}
-
-function getMealPlanDescription(value) {
-    const descriptions = {
-        '50': 'Breakfast Only - Continental breakfast',
-        '100': 'Half Board - Breakfast & Dinner',
-        '150': 'Full Board - Breakfast, Lunch & Dinner'
-    };
-    return descriptions[value] || `Meal Plan (${value})`;
-}
-
+// ============================================
+// FIXED: Get Payment Statistics - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/payment-statistics", requireAdmin, async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
         const thisMonth = new Date().getMonth() + 1;
         const thisYear = new Date().getFullYear();
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - 7);
+        const startOfMonth = new Date();
+        startOfMonth.setDate(1);
+        const startOfYear = new Date();
+        startOfYear.setMonth(0, 1);
 
-        const queries = [
+        // VERCEL FIX: Execute all queries in parallel with better error handling
+        const [
+            todayStats,
+            weekStats,
+            monthStats,
+            yearStats,
+            overallStats,
+            methodStats,
+            dailyStats,
+            topPayments
+        ] = await Promise.all([
+            // Today's payments
             db.promise().query(
                 `SELECT 
                     COUNT(*) as count,
                     COALESCE(SUM(amount_paid), 0) as total
                  FROM payments 
-                 WHERE DATE(payment_date) = ? AND status = 'Paid'`,
-                [today]
+                 WHERE DATE(payment_date) = CURDATE() AND status = 'Paid'`
             ),
+
+            // This week's payments
             db.promise().query(
                 `SELECT 
                     COUNT(*) as count,
                     COALESCE(SUM(amount_paid), 0) as total
                  FROM payments 
-                 WHERE MONTH(payment_date) = ? AND YEAR(payment_date) = ? AND status = 'Paid'`,
+                 WHERE payment_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) 
+                 AND status = 'Paid'`
+            ),
+
+            // This month's payments
+            db.promise().query(
+                `SELECT 
+                    COUNT(*) as count,
+                    COALESCE(SUM(amount_paid), 0) as total
+                 FROM payments 
+                 WHERE MONTH(payment_date) = ? AND YEAR(payment_date) = ? 
+                 AND status = 'Paid'`,
                 [thisMonth, thisYear]
             ),
+
+            // This year's payments
+            db.promise().query(
+                `SELECT 
+                    COUNT(*) as count,
+                    COALESCE(SUM(amount_paid), 0) as total
+                 FROM payments 
+                 WHERE YEAR(payment_date) = ? AND status = 'Paid'`,
+                [thisYear]
+            ),
+
+            // Overall statistics
             db.promise().query(
                 `SELECT 
                     COUNT(*) as total_count,
-                    COALESCE(SUM(amount_paid), 0) as overall_total
-                 FROM payments WHERE status = 'Paid'`
+                    COALESCE(SUM(amount_paid), 0) as overall_total,
+                    AVG(amount_paid) as average_payment,
+                    MIN(amount_paid) as min_payment,
+                    MAX(amount_paid) as max_payment,
+                    COUNT(DISTINCT reservation_id) as unique_reservations,
+                    COUNT(DISTINCT guest_id) as unique_guests
+                 FROM payments 
+                 WHERE status = 'Paid'`
             ),
+
+            // Payment method breakdown
             db.promise().query(
                 `SELECT 
-                    payment_method,
+                    COALESCE(payment_method, 'Unknown') as payment_method,
                     COUNT(*) as count,
-                    COALESCE(SUM(amount_paid), 0) as total
+                    COALESCE(SUM(amount_paid), 0) as total,
+                    AVG(amount_paid) as average,
+                    COUNT(DISTINCT reservation_id) as reservations
                  FROM payments 
                  WHERE status = 'Paid'
                  GROUP BY payment_method
                  ORDER BY total DESC`
             ),
+
+            // Daily statistics for last 30 days
             db.promise().query(
                 `SELECT 
                     DATE(payment_date) as date,
+                    DAYNAME(payment_date) as day_name,
                     COUNT(*) as count,
-                    COALESCE(SUM(amount_paid), 0) as total
+                    COALESCE(SUM(amount_paid), 0) as total,
+                    AVG(amount_paid) as average
                  FROM payments 
-                 WHERE payment_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND status = 'Paid'
-                 GROUP BY DATE(payment_date)
+                 WHERE payment_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) 
+                 AND status = 'Paid'
+                 GROUP BY DATE(payment_date), DAYNAME(payment_date)
                  ORDER BY date DESC`
+            ),
+
+            // Top 5 largest payments
+            db.promise().query(
+                `SELECT 
+                    p.payment_id,
+                    p.amount_paid,
+                    p.payment_method,
+                    p.payment_date,
+                    CONCAT(gd.first_name, ' ', gd.last_name) as guest_name,
+                    r.reservation_id
+                 FROM payments p
+                 JOIN reservationsdetails r ON p.reservation_id = r.reservation_id
+                 JOIN guestdetails gd ON r.guest_id = gd.guest_id
+                 WHERE p.status = 'Paid'
+                 ORDER BY p.amount_paid DESC
+                 LIMIT 5`
             )
-        ];
+        ]);
 
-        const results = await Promise.all(queries);
-
+        // VERCEL FIX: Process and format statistics
         const statistics = {
-            today: {
-                count: results[0][0][0].count,
-                total: parseFloat(results[0][0][0].total).toFixed(2)
+            periods: {
+                today: {
+                    count: todayStats[0][0]?.count || 0,
+                    total: parseFloat(todayStats[0][0]?.total || 0).toFixed(2)
+                },
+                this_week: {
+                    count: weekStats[0][0]?.count || 0,
+                    total: parseFloat(weekStats[0][0]?.total || 0).toFixed(2)
+                },
+                this_month: {
+                    count: monthStats[0][0]?.count || 0,
+                    total: parseFloat(monthStats[0][0]?.total || 0).toFixed(2)
+                },
+                this_year: {
+                    count: yearStats[0][0]?.count || 0,
+                    total: parseFloat(yearStats[0][0]?.total || 0).toFixed(2)
+                },
+                overall: {
+                    count: overallStats[0][0]?.total_count || 0,
+                    total: parseFloat(overallStats[0][0]?.overall_total || 0).toFixed(2),
+                    average: parseFloat(overallStats[0][0]?.average_payment || 0).toFixed(2),
+                    min_payment: parseFloat(overallStats[0][0]?.min_payment || 0).toFixed(2),
+                    max_payment: parseFloat(overallStats[0][0]?.max_payment || 0).toFixed(2),
+                    unique_reservations: overallStats[0][0]?.unique_reservations || 0,
+                    unique_guests: overallStats[0][0]?.unique_guests || 0
+                }
             },
-            this_month: {
-                count: results[1][0][0].count,
-                total: parseFloat(results[1][0][0].total).toFixed(2)
-            },
-            overall: {
-                count: results[2][0][0].total_count,
-                total: parseFloat(results[2][0][0].overall_total).toFixed(2)
-            },
-            methods: results[3][0],
-            recent_days: results[4][0]
+
+            payment_methods: methodStats[0].map(method => ({
+                method: method.payment_method,
+                count: method.count,
+                total: parseFloat(method.total).toFixed(2),
+                average: parseFloat(method.average || 0).toFixed(2),
+                reservations: method.reservations,
+                percentage: overallStats[0][0]?.overall_total > 0
+                    ? ((method.total / overallStats[0][0].overall_total) * 100).toFixed(1)
+                    : 0
+            })),
+
+            daily: dailyStats[0].map(day => ({
+                date: day.date,
+                day_name: day.day_name,
+                count: day.count,
+                total: parseFloat(day.total).toFixed(2),
+                average: parseFloat(day.average || 0).toFixed(2)
+            })),
+
+            top_payments: topPayments[0].map(payment => ({
+                payment_id: payment.payment_id,
+                reservation_id: payment.reservation_id,
+                amount: parseFloat(payment.amount_paid).toFixed(2),
+                method: payment.payment_method,
+                date: new Date(payment.payment_date).toISOString(),
+                guest_name: payment.guest_name
+            })),
+
+            summary: {
+                total_revenue: parseFloat(overallStats[0][0]?.overall_total || 0).toFixed(2),
+                total_transactions: overallStats[0][0]?.total_count || 0,
+                average_transaction: parseFloat(overallStats[0][0]?.average_payment || 0).toFixed(2),
+                successful_rate: "100%", // Since we only query Paid status
+                currency: "KES"
+            }
         };
 
         res.json({
             success: true,
-            statistics
+            statistics,
+            timestamp: new Date().toISOString()
         });
 
     } catch (error) {
-        console.error('Error fetching payment statistics:', error);
+        console.error('[Vercel] Error fetching payment statistics:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch payment statistics'
+            message: 'Failed to fetch payment statistics',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Export Payments to CSV - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/payments/export", requireAdmin, async (req, res) => {
     try {
-        const { startDate, endDate } = req.query;
+        const { startDate, endDate, format = 'csv' } = req.query;
 
+        // VERCEL FIX: Enhanced export query with more fields
         let query = `
             SELECT 
                 p.payment_id,
                 p.reservation_id,
+                p.amount_paid,
+                p.payment_method,
+                p.payment_date,
+                p.status,
+                p.mpesa_receipt,
+                p.created_at as payment_created_at,
+                
                 CONCAT(gd.first_name, ' ', gd.last_name) as guest_name,
-                gd.email,
+                gd.email as guest_email,
+                gd.phone_number as guest_phone,
+                gd.nationality as guest_nationality,
+                gd.national_id,
+                gd.passport_no,
+                
                 r.roomTag,
                 r.room_type,
                 r.bedding_type,
@@ -2368,10 +3742,10 @@ app.get("/api/payments/export", requireAdmin, async (req, res) => {
                 r.check_out,
                 r.nights,
                 r.no_of_rooms,
-                p.amount_paid,
-                p.payment_method,
-                p.payment_date,
-                p.status
+                r.total_amount as booking_total,
+                r.status as reservation_status,
+                r.created_at as booking_date
+                
             FROM payments p
             JOIN reservationsdetails r ON p.reservation_id = r.reservation_id
             JOIN guestdetails gd ON r.guest_id = gd.guest_id
@@ -2389,48 +3763,197 @@ app.get("/api/payments/export", requireAdmin, async (req, res) => {
 
         const [payments] = await db.promise().query(query, params);
 
+        if (payments.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No payment data found for export'
+            });
+        }
+
+        // VERCEL FIX: Enhanced CSV headers with better organization
         const csvHeaders = [
-            'Payment ID', 'Reservation ID', 'Guest Name', 'Email', 'Room Tag',
-            'Room Type', 'Bed Type', 'Meal Plan', 'Check In', 'Check Out',
-            'Nights', 'Rooms', 'Amount Paid', 'Payment Method', 'Payment Date', 'Status'
+            // Payment Information
+            'Payment ID', 'Reservation ID', 'Transaction ID', 'Amount (KES)',
+            'Payment Method', 'Payment Date', 'Payment Time', 'Payment Status',
+
+            // Guest Information
+            'Guest Name', 'Guest Email', 'Guest Phone', 'Nationality',
+            'ID Type', 'ID Number',
+
+            // Booking Information
+            'Room Tag(s)', 'Room Type', 'Bed Type', 'Meal Plan',
+            'Check In Date', 'Check Out Date', 'Nights', 'Number of Rooms',
+            'Booking Total (KES)', 'Booking Status', 'Booking Date',
+
+            // Additional
+            'Created At'
         ];
 
-        const csvRows = payments.map(p => [
-            p.payment_id,
-            p.reservation_id,
-            `"${p.guest_name}"`,
-            p.email,
-            p.roomTag,
-            p.room_type,
-            p.bedding_type,
-            p.meal_plan,
-            p.check_in,
-            p.check_out,
-            p.nights,
-            p.no_of_rooms,
-            p.amount_paid,
-            p.payment_method,
-            p.payment_date,
-            p.status
-        ]);
+        const csvRows = payments.map(p => {
+            const paymentDate = p.payment_date ? new Date(p.payment_date) : null;
+            const checkIn = p.check_in ? new Date(p.check_in) : null;
+            const checkOut = p.check_out ? new Date(p.check_out) : null;
 
+            return [
+                // Payment Information
+                p.payment_id,
+                p.reservation_id,
+                p.mpesa_receipt || `PAY-${p.payment_id}`,
+                parseFloat(p.amount_paid || 0).toFixed(2),
+                p.payment_method || 'Mpesa',
+                paymentDate ? paymentDate.toISOString().split('T')[0] : 'N/A',
+                paymentDate ? paymentDate.toLocaleTimeString() : 'N/A',
+                p.status,
+
+                // Guest Information
+                `"${p.guest_name || 'N/A'}"`,
+                p.guest_email || 'N/A',
+                p.guest_phone || 'N/A',
+                p.guest_nationality || 'N/A',
+                p.national_id ? 'National ID' : (p.passport_no ? 'Passport' : 'N/A'),
+                p.national_id || p.passport_no || 'N/A',
+
+                // Booking Information
+                `"${p.roomTag || 'N/A'}"`,
+                p.room_type || 'N/A',
+                p.bedding_type || 'N/A',
+                p.meal_plan || 'N/A',
+                checkIn ? checkIn.toISOString().split('T')[0] : 'N/A',
+                checkOut ? checkOut.toISOString().split('T')[0] : 'N/A',
+                p.nights || 1,
+                p.no_of_rooms || 1,
+                parseFloat(p.booking_total || 0).toFixed(2),
+                p.reservation_status || 'N/A',
+                p.booking_date ? new Date(p.booking_date).toISOString().split('T')[0] : 'N/A',
+
+                // Additional
+                p.payment_created_at ? new Date(p.payment_created_at).toISOString() : 'N/A'
+            ];
+        });
+
+        // Generate filename with date range
+        const dateStr = startDate && endDate
+            ? `${startDate}_to_${endDate}`
+            : new Date().toISOString().split('T')[0];
+
+        const filename = `payments_export_${dateStr}.csv`;
+
+        // Create CSV content
         const csvContent = [
             csvHeaders.join(','),
             ...csvRows.map(row => row.join(','))
         ].join('\n');
 
-        res.setHeader('Content-Type', 'text/csv');
-        res.setHeader('Content-Disposition', 'attachment; filename=payments_export.csv');
+        // VERCEL FIX: Set proper headers for file download
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Content-Length', Buffer.byteLength(csvContent, 'utf8'));
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+
         res.send(csvContent);
 
     } catch (error) {
-        console.error('Error exporting payments:', error);
+        console.error('[Vercel] Error exporting payments:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to export payment data'
+            message: 'Failed to export payment data',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
+
+// ============================================
+// HELPER FUNCTIONS - VERCEL COMPATIBLE
+// ============================================
+
+function parseNumericValue(value) {
+    if (!value) return 0;
+    if (!isNaN(value) && !isNaN(parseFloat(value))) {
+        return parseFloat(value);
+    }
+    const numericMatch = String(value).match(/(\d+(\.\d+)?)/);
+    return numericMatch ? parseFloat(numericMatch[1]) : 0;
+}
+
+function formatDateForReceipt(dateString) {
+    if (!dateString) return 'N/A';
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (e) {
+        return dateString;
+    }
+}
+
+function getRoomTypeDescription(value) {
+    const descriptions = {
+        '5000': 'Standard Room - Queen bed, AC, TV, Workspace',
+        '7500': 'Deluxe Room - King bed, AC, TV, Mini-bar, City view',
+        '12000': 'Suite - King bed, Living area, Jacuzzi, Garden view',
+        '18000': 'Family Suite - Two bedrooms, Kitchenette, Balcony, Pool view'
+    };
+    return descriptions[value] || `Room Type (${value})`;
+}
+
+function getBedTypeDescription(value) {
+    const descriptions = {
+        '0': 'No bed option selected',
+        '100': 'Single Bed - 90x190cm',
+        '150': 'Double Bed - 140x190cm',
+        '200': 'King Size Bed - 180x200cm',
+        '250': 'Twin Beds - 2x Single beds'
+    };
+    return descriptions[value] || `Bed Type (${value})`;
+}
+
+function getMealPlanDescription(value) {
+    const descriptions = {
+        '0': 'No meals included',
+        '500': 'Breakfast Only - Continental breakfast buffet',
+        '1200': 'Half Board - Breakfast & Dinner',
+        '2000': 'Full Board - Breakfast, Lunch & Dinner'
+    };
+    return descriptions[value] || `Meal Plan (${value})`;
+}
+
+function getRoomTypeLabel(value) {
+    const labels = {
+        '5000': 'Standard Room',
+        '7500': 'Deluxe Room',
+        '12000': 'Suite',
+        '18000': 'Family Suite'
+    };
+    return labels[value] || `Room ${value}`;
+}
+
+function getBedTypeLabel(value) {
+    const labels = {
+        '0': 'None',
+        '100': 'Single',
+        '150': 'Double',
+        '200': 'King',
+        '250': 'Twin'
+    };
+    return labels[value] || `Bed ${value}`;
+}
+
+function getMealPlanLabel(value) {
+    const labels = {
+        '0': 'None',
+        '500': 'Breakfast',
+        '1200': 'Half Board',
+        '2000': 'Full Board'
+    };
+    return labels[value] || `Meal ${value}`;
+}
+
 
 app.delete("/api/payments/:paymentId", requireAdmin, async (req, res) => {
     try {
@@ -2462,13 +3985,28 @@ app.delete("/api/payments/:paymentId", requireAdmin, async (req, res) => {
     }
 });
 
+// ============================================
+// FIXED: Payment Receipt - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) => {
     try {
         const { reservationId } = req.params;
 
+        // VERCEL FIX: Validate reservation ID
+        if (!reservationId || isNaN(parseInt(reservationId))) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid reservation ID',
+                code: 'INVALID_ID'
+            });
+        }
+
         const query = `
             SELECT 
                 r.reservation_id,
+                r.created_at as booking_date,
+                
+                -- Guest details
                 gd.title,
                 gd.first_name,
                 gd.last_name,
@@ -2476,6 +4014,10 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
                 gd.phone_number,
                 gd.national_id,
                 gd.passport_no,
+                gd.nationality,
+                gd.passport_country,
+                
+                -- Booking details
                 r.room_type,
                 r.bedding_type,
                 r.check_in,
@@ -2485,15 +4027,22 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
                 r.roomTag,
                 r.nights,
                 r.total_amount,
+                r.status as reservation_status,
+                
+                -- Payment details
+                p.payment_id,
                 p.amount_paid,
                 p.payment_method,
                 p.payment_date,
                 p.mpesa_receipt,
-                p.status as payment_status
+                p.status as payment_status,
+                p.created_at as payment_created_at
+                
             FROM reservationsdetails r
             JOIN guestdetails gd ON r.guest_id = gd.guest_id
             JOIN payments p ON r.reservation_id = p.reservation_id
             WHERE r.reservation_id = ? AND p.status = 'Paid'
+            ORDER BY p.payment_date DESC
             LIMIT 1
         `;
 
@@ -2502,248 +4051,407 @@ app.get("/api/payment/receipt/:reservationId", requireAdmin, async (req, res) =>
         if (results.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'Payment receipt not found'
+                message: 'Payment receipt not found',
+                code: 'RECEIPT_NOT_FOUND'
             });
         }
 
         const payment = results[0];
 
+        // VERCEL FIX: Parse numeric values safely
         const roomRent = parseFloat(payment.room_type) || 0;
         const bedRent = parseFloat(payment.bedding_type) || 0;
         const mealCost = parseFloat(payment.meal_plan) || 0;
+        const nights = parseInt(payment.nights) || 1;
+        const rooms = parseInt(payment.no_of_rooms) || 1;
+        const totalAmount = parseFloat(payment.total_amount) || 0;
+        const amountPaid = parseFloat(payment.amount_paid) || 0;
+
+        // VERCEL FIX: Calculate totals
+        const totalRoomRent = roomRent * rooms * nights;
+        const totalBedRent = bedRent * rooms * nights;
+        const totalMeals = mealCost * rooms * nights;
+        const calculatedTotal = totalRoomRent + totalBedRent + totalMeals;
+
+        // VERCEL FIX: Generate unique receipt number
+        const receiptNumber = `RCP-${payment.reservation_id}-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, '0')}`;
 
         const receipt = {
+            // Receipt metadata
+            receipt_number: receiptNumber,
+            receipt_date: new Date().toISOString(),
+            receipt_date_formatted: new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }),
+
+            // Reservation info
             reservation_id: payment.reservation_id,
-            receipt_date: new Date().toISOString().split('T')[0],
-            guest_name: `${payment.title} ${payment.first_name} ${payment.last_name}`,
-            guest_email: payment.email,
-            guest_phone: payment.phone_number,
-            guest_id: payment.national_id || payment.passport_no || 'N/A',
-            check_in: payment.check_in,
-            check_out: payment.check_out,
-            nights: payment.nights,
-            room_tag: payment.roomTag,
-            room_type: getRoomTypeLabel(payment.room_type),
-            bed_type: getBedTypeLabel(payment.bedding_type),
-            meal_plan: getMealPlanLabel(payment.meal_plan),
-            no_of_rooms: payment.no_of_rooms,
+            booking_date: payment.booking_date ? new Date(payment.booking_date).toLocaleDateString() : 'N/A',
 
-            room_rent_per_night: roomRent,
-            bed_rent_per_night: bedRent,
-            meal_cost_per_night: mealCost,
+            // Guest information
+            guest: {
+                name: `${payment.title || ''} ${payment.first_name || ''} ${payment.last_name || ''}`.trim() || 'N/A',
+                email: payment.email || 'N/A',
+                phone: payment.phone_number || 'N/A',
+                nationality: payment.nationality || 'N/A',
+                id_type: payment.national_id ? 'National ID' : (payment.passport_no ? 'Passport' : 'N/A'),
+                id_number: payment.national_id || payment.passport_no || 'N/A',
+                id_country: payment.passport_country || 'Kenya'
+            },
 
-            total_room_rent: (roomRent * payment.no_of_rooms * payment.nights).toFixed(2),
-            total_bed_rent: (bedRent * payment.no_of_rooms * payment.nights).toFixed(2),
-            total_meals: (mealCost * payment.no_of_rooms * payment.nights).toFixed(2),
-            grand_total: parseFloat(payment.total_amount).toFixed(2),
+            // Booking information
+            booking: {
+                check_in: payment.check_in ? new Date(payment.check_in).toLocaleDateString() : 'N/A',
+                check_out: payment.check_out ? new Date(payment.check_out).toLocaleDateString() : 'N/A',
+                nights: nights,
+                rooms: rooms,
+                room_tag: payment.roomTag || 'Not assigned',
+                room_type: getRoomTypeLabel(payment.room_type),
+                bed_type: getBedTypeLabel(payment.bedding_type),
+                meal_plan: getMealPlanLabel(payment.meal_plan),
+                status: payment.reservation_status || 'N/A'
+            },
 
-            amount_paid: parseFloat(payment.amount_paid).toFixed(2),
-            payment_method: payment.payment_method,
-            payment_date: payment.payment_date,
-            transaction_id: payment.mpesa_receipt || 'N/A',
-            payment_status: payment.payment_status
+            // Pricing breakdown
+            pricing: {
+                per_night: {
+                    room: roomRent.toFixed(2),
+                    bed: bedRent.toFixed(2),
+                    meal: mealCost.toFixed(2)
+                },
+                totals: {
+                    room: totalRoomRent.toFixed(2),
+                    bed: totalBedRent.toFixed(2),
+                    meals: totalMeals.toFixed(2),
+                    subtotal: totalAmount.toFixed(2),
+                    calculated_total: calculatedTotal.toFixed(2)
+                }
+            },
+
+            // Payment information
+            payment: {
+                payment_id: payment.payment_id,
+                amount_paid: amountPaid.toFixed(2),
+                payment_method: payment.payment_method || 'Mpesa',
+                payment_date: payment.payment_date ? new Date(payment.payment_date).toLocaleString() : 'N/A',
+                transaction_id: payment.mpesa_receipt || `TXN-${payment.payment_id}`,
+                payment_status: payment.payment_status,
+                balance_due: (totalAmount - amountPaid).toFixed(2),
+                is_fully_paid: amountPaid >= totalAmount
+            },
+
+            // Hotel information
+            hotel: {
+                name: "THE JACKS' HOTEL",
+                address: "123 Hotel Street, Nairobi, Kenya",
+                phone: "+254 700 000 000",
+                email: "info@thejacks.com",
+                website: "www.thejacks.com"
+            }
         };
 
         res.json({
             success: true,
-            receipt
+            receipt,
+            meta: {
+                generated_at: new Date().toISOString(),
+                generated_by: req.session.admin?.adminId || 'Admin'
+            }
         });
 
     } catch (error) {
-        console.error('Error generating receipt:', error);
+        console.error('[Vercel] Error generating receipt:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to generate receipt'
+            message: 'Failed to generate receipt',
+            code: 'RECEIPT_GENERATION_FAILED',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
-function getRoomTypeLabel(value) {
-    const roomTypes = {
-        '5000': 'Standard Room',
-        '7500': 'Deluxe Room',
-        '12000': 'Suite',
-        '18000': 'Family Suite'
-    };
-    return roomTypes[value] || value;
-}
-
-function getBedTypeLabel(value) {
-    const bedTypes = {
-        '0': 'Single',
-        '100': 'Twin',
-        '200': 'Double',
-        '300': 'King'
-    };
-    return bedTypes[value] || value;
-}
-
-function getMealPlanLabel(value) {
-    const mealPlans = {
-        '0': 'None',
-        '500': 'Breakfast Only',
-        '1200': 'Half Board',
-        '2000': 'Full Board'
-    };
-    return mealPlans[value] || value;
-}
-
+// ============================================
+// FIXED: Notifications Count - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/notifications/count", requireLogin, async (req, res) => {
     try {
+        // VERCEL FIX: Add session validation
+        if (!req.session || !req.session.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Not logged in",
+                code: "UNAUTHORIZED"
+            });
+        }
+
         const email = req.session.user.email;
 
-        const [rows] = await db.promise().query(
-            `SELECT COUNT(*) as count FROM notifications 
-             WHERE email = ? AND is_read = 0`,
-            [email]
-        );
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid session data",
+                code: "INVALID_SESSION"
+            });
+        }
 
-        const count = rows[0]?.count || 0;
+        // VERCEL FIX: Check if notifications table exists, if not return 0
+        try {
+            const [rows] = await db.promise().query(
+                `SELECT COUNT(*) as count FROM notifications 
+                 WHERE email = ? AND is_read = 0`,
+                [email]
+            );
 
-        res.json({
-            success: true,
-            count: count
-        });
+            const count = rows[0]?.count || 0;
+
+            res.json({
+                success: true,
+                count: count,
+                has_notifications: count > 0
+            });
+        } catch (dbError) {
+            // VERCEL FIX: If table doesn't exist, return 0 gracefully
+            if (dbError.code === 'ER_NO_SUCH_TABLE') {
+                console.log('[Vercel] Notifications table does not exist');
+                return res.json({
+                    success: true,
+                    count: 0,
+                    has_notifications: false,
+                    table_exists: false
+                });
+            }
+            throw dbError;
+        }
 
     } catch (error) {
-        console.error("Error fetching notification count:", error);
+        console.error('[Vercel] Error fetching notification count:', error);
         res.status(500).json({
             success: false,
-            message: "Failed to fetch notification count"
+            message: "Failed to fetch notification count",
+            code: "SERVER_ERROR",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Payment Summary - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/payment-summary", requireAdmin, async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
         const thisMonth = new Date().getMonth() + 1;
         const thisYear = new Date().getFullYear();
 
-        const queries = [
+        // VERCEL FIX: Execute queries in parallel with error handling for each
+        const [
+            todayResult,
+            monthResult,
+            paidResult,
+            pendingResult,
+            uniqueGuestsResult,
+            averageResult
+        ] = await Promise.all([
+            // Today's total
             db.promise().query(
-                `SELECT COALESCE(SUM(amount_paid), 0) as today_total 
+                `SELECT COALESCE(SUM(amount_paid), 0) as today_total,
+                        COUNT(*) as today_count
                  FROM payments 
-                 WHERE DATE(payment_date) = ? AND status = 'Paid'`,
-                [today]
+                 WHERE DATE(payment_date) = CURDATE() AND status = 'Paid'`
             ),
+
+            // This month's total
             db.promise().query(
-                `SELECT COALESCE(SUM(amount_paid), 0) as month_total 
+                `SELECT COALESCE(SUM(amount_paid), 0) as month_total,
+                        COUNT(*) as month_count
                  FROM payments 
-                 WHERE MONTH(payment_date) = ? AND YEAR(payment_date) = ? AND status = 'Paid'`,
+                 WHERE MONTH(payment_date) = ? AND YEAR(payment_date) = ? 
+                 AND status = 'Paid'`,
                 [thisMonth, thisYear]
             ),
-            db.promise().query(
-                `SELECT COUNT(*) as total_count FROM payments WHERE status = 'Paid'`
-            ),
-            db.promise().query(
-                `SELECT COUNT(*) as pending_count FROM payments WHERE status = 'Pending'`
-            )
-        ];
 
-        const results = await Promise.all(queries);
+            // Total paid transactions
+            db.promise().query(
+                `SELECT COUNT(*) as total_count, 
+                        COALESCE(SUM(amount_paid), 0) as lifetime_total
+                 FROM payments 
+                 WHERE status = 'Paid'`
+            ),
+
+            // Pending payments
+            db.promise().query(
+                `SELECT COUNT(*) as pending_count,
+                        COALESCE(SUM(amount_paid), 0) as pending_amount
+                 FROM payments 
+                 WHERE status = 'Pending'`
+            ),
+
+            // Unique paying guests
+            db.promise().query(
+                `SELECT COUNT(DISTINCT guest_id) as unique_guests
+                 FROM payments 
+                 WHERE status = 'Paid'`
+            ),
+
+            // Average payment amount
+            db.promise().query(
+                `SELECT COALESCE(AVG(amount_paid), 0) as average_payment
+                 FROM payments 
+                 WHERE status = 'Paid'`
+            )
+        ]);
 
         res.json({
             success: true,
             summary: {
-                today_total: parseFloat(results[0][0][0].today_total).toFixed(2),
-                month_total: parseFloat(results[1][0][0].month_total).toFixed(2),
-                total_count: results[2][0][0].total_count,
-                pending_count: results[3][0][0].pending_count
-            }
+                today: {
+                    total: parseFloat(todayResult[0][0].today_total || 0).toFixed(2),
+                    count: parseInt(todayResult[0][0].today_count || 0)
+                },
+                this_month: {
+                    total: parseFloat(monthResult[0][0].month_total || 0).toFixed(2),
+                    count: parseInt(monthResult[0][0].month_count || 0)
+                },
+                lifetime: {
+                    total: parseFloat(paidResult[0][0].lifetime_total || 0).toFixed(2),
+                    count: parseInt(paidResult[0][0].total_count || 0),
+                    unique_guests: parseInt(uniqueGuestsResult[0][0].unique_guests || 0),
+                    average: parseFloat(averageResult[0][0].average_payment || 0).toFixed(2)
+                },
+                pending: {
+                    count: parseInt(pendingResult[0][0].pending_count || 0),
+                    amount: parseFloat(pendingResult[0][0].pending_amount || 0).toFixed(2)
+                }
+            },
+            timestamp: new Date().toISOString()
         });
 
     } catch (error) {
-        console.error('Error fetching payment summary:', error);
+        console.error('[Vercel] Error fetching payment summary:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch payment summary'
+            message: 'Failed to fetch payment summary',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Profit Statistics - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/profit-statistics", requireAdmin, async (req, res) => {
     try {
+        // VERCEL FIX: Get last 7 days with proper date handling
         const query = `
+            WITH RECURSIVE dates AS (
+                SELECT CURDATE() - INTERVAL 6 DAY as date
+                UNION ALL
+                SELECT date + INTERVAL 1 DAY
+                FROM dates
+                WHERE date < CURDATE()
+            )
             SELECT 
-                DATE(p.payment_date) as date,
-                COALESCE(SUM(p.amount_paid), 0) as profit
-            FROM payments p
-            WHERE p.status = 'Paid'
-            GROUP BY DATE(p.payment_date)
-            ORDER BY date DESC
-            LIMIT 7
+                dates.date,
+                COALESCE(SUM(p.amount_paid), 0) as profit,
+                COALESCE(COUNT(p.payment_id), 0) as transaction_count
+            FROM dates
+            LEFT JOIN payments p ON DATE(p.payment_date) = dates.date AND p.status = 'Paid'
+            GROUP BY dates.date
+            ORDER BY dates.date ASC
         `;
 
         const [profitData] = await db.promise().query(query);
 
-        const today = new Date();
-        const last7Days = [];
+        // VERCEL FIX: Format for chart display
+        const chartData = profitData.map(day => ({
+            date: day.date.toISOString().split('T')[0],
+            day_name: new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),
+            profit: parseFloat(day.profit || 0).toFixed(2),
+            transaction_count: parseInt(day.transaction_count || 0),
+            formatted_date: new Date(day.date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            })
+        }));
 
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            const dateStr = date.toISOString().split('T')[0];
-
-            const dayProfit = profitData
-                .filter(item => item.date.toISOString().split('T')[0] === dateStr)
-                .reduce((sum, item) => sum + parseFloat(item.profit), 0);
-
-            last7Days.push({
-                date: dateStr,
-                profit: dayProfit
-            });
-        }
+        // VERCEL FIX: Calculate totals
+        const totalProfit = chartData.reduce((sum, day) => sum + parseFloat(day.profit), 0);
+        const averageProfit = chartData.length > 0 ? totalProfit / chartData.length : 0;
+        const bestDay = chartData.reduce((best, day) =>
+            parseFloat(day.profit) > parseFloat(best?.profit || 0) ? day : best, chartData[0]);
 
         res.json({
             success: true,
             data: {
-                chartData: last7Days
+                daily: chartData,
+                summary: {
+                    total_profit: totalProfit.toFixed(2),
+                    average_daily_profit: averageProfit.toFixed(2),
+                    total_transactions: chartData.reduce((sum, day) => sum + day.transaction_count, 0),
+                    best_day: bestDay ? {
+                        date: bestDay.date,
+                        profit: bestDay.profit,
+                        transactions: bestDay.transaction_count
+                    } : null
+                }
             }
         });
 
     } catch (error) {
-        console.error('Error fetching profit statistics:', error);
+        console.error('[Vercel] Error fetching profit statistics:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch profit data'
+            message: 'Failed to fetch profit data',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Dashboard Stats - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/dashboard-stats", requireAdmin, async (req, res) => {
     try {
         const today = new Date().toISOString().split('T')[0];
 
+        // VERCEL FIX: Optimized queries with better error handling
         const queries = [
+            // Today's revenue
             db.promise().query(
-                `SELECT COALESCE(SUM(amount_paid), 0) as today_revenue 
+                `SELECT COALESCE(SUM(amount_paid), 0) as today_revenue,
+                        COUNT(*) as today_transactions
                  FROM payments 
-                 WHERE DATE(payment_date) = ? AND status = 'Paid'`,
-                [today]
+                 WHERE DATE(payment_date) = CURDATE() AND status = 'Paid'`
             ),
+
+            // Active bookings
             db.promise().query(
                 `SELECT 
-                    COUNT(*) as active_bookings_count,
-                    SUM(
+                    COUNT(DISTINCT reservation_id) as active_bookings_count,
+                    COALESCE(SUM(
                         CASE 
                             WHEN no_of_rooms IS NULL OR no_of_rooms = '' THEN 1
                             ELSE CAST(no_of_rooms AS UNSIGNED)
                         END
-                    ) as total_rooms_booked
+                    ), 0) as total_rooms_booked,
+                    COUNT(DISTINCT guest_id) as unique_guests
                  FROM reservationsdetails 
                  WHERE status IN ('Pending', 'Permitted') 
-                 AND check_in >= CURDATE()`
+                 AND check_out >= CURDATE()`
             ),
+
+            // Total rooms
             db.promise().query(
                 `SELECT COUNT(*) as total_rooms FROM rooms`
             ),
+
+            // Currently occupied rooms
             db.promise().query(
-                `SELECT 
-                    COUNT(DISTINCT room_tag_split) as booked_rooms_count
+                `SELECT COUNT(DISTINCT room_tag_split) as booked_rooms_count
                  FROM (
-                     SELECT 
-                         TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.roomTag, ',', n.n), ',', -1)) as room_tag_split
+                     SELECT TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(r.roomTag, ',', n.n), ',', -1)) as room_tag_split
                      FROM reservationsdetails r
                      CROSS JOIN (
                          SELECT 1 as n UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 
@@ -2756,108 +4464,331 @@ app.get("/api/dashboard-stats", requireAdmin, async (req, res) => {
                      AND n.n <= 1 + (LENGTH(r.roomTag) - LENGTH(REPLACE(r.roomTag, ',', '')))
                  ) as split_rooms
                  WHERE room_tag_split != ''`
+            ),
+
+            // Pending approvals
+            db.promise().query(
+                `SELECT COUNT(*) as pending_approvals
+                 FROM reservationsdetails 
+                 WHERE status = 'Pending' 
+                 AND created_at >= DATE_SUB(NOW(), INTERVAL 2 HOUR)`
+            ),
+
+            // Monthly revenue
+            db.promise().query(
+                `SELECT COALESCE(SUM(amount_paid), 0) as month_revenue
+                 FROM payments 
+                 WHERE MONTH(payment_date) = MONTH(CURDATE()) 
+                 AND YEAR(payment_date) = YEAR(CURDATE())
+                 AND status = 'Paid'`
             )
         ];
 
         const results = await Promise.all(queries);
 
-        const todayRevenue = parseFloat(results[0][0][0].today_revenue);
-        const activeBookings = results[1][0][0].active_bookings_count;
-        const totalRoomsBooked = results[1][0][0].total_rooms_booked || activeBookings;
-        const totalRooms = results[2][0][0].total_rooms;
-        const bookedRooms = results[3][0][0].booked_rooms_count || 0;
+        // Parse results
+        const todayRevenue = parseFloat(results[0][0][0].today_revenue || 0);
+        const todayTransactions = parseInt(results[0][0][0].today_transactions || 0);
+        const activeBookings = parseInt(results[1][0][0].active_bookings_count || 0);
+        const totalRoomsBooked = parseInt(results[1][0][0].total_rooms_booked || 0);
+        const uniqueGuests = parseInt(results[1][0][0].unique_guests || 0);
+        const totalRooms = parseInt(results[2][0][0].total_rooms || 0);
+        const bookedRooms = parseInt(results[3][0][0].booked_rooms_count || 0);
+        const pendingApprovals = parseInt(results[4][0][0].pending_approvals || 0);
+        const monthRevenue = parseFloat(results[5][0][0].month_revenue || 0);
+
         const availableRooms = totalRooms - bookedRooms;
         const occupancyRate = totalRooms > 0 ? Math.round((bookedRooms / totalRooms) * 100) : 0;
 
         res.json({
             success: true,
             stats: {
-                today_revenue: todayRevenue,
-                active_bookings: totalRoomsBooked,
-                total_bookings: activeBookings,
-                available_rooms: availableRooms,
-                occupancy_rate: occupancyRate,
-                total_rooms: totalRooms,
-                booked_rooms: bookedRooms
-            }
+                revenue: {
+                    today: todayRevenue.toFixed(2),
+                    this_month: monthRevenue.toFixed(2),
+                    today_transactions: todayTransactions
+                },
+                bookings: {
+                    active: activeBookings,
+                    total_rooms_booked: totalRoomsBooked,
+                    pending_approvals: pendingApprovals,
+                    unique_guests: uniqueGuests
+                },
+                rooms: {
+                    total: totalRooms,
+                    booked: bookedRooms,
+                    available: availableRooms,
+                    occupancy_rate: occupancyRate
+                }
+            },
+            timestamp: new Date().toISOString()
         });
 
     } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
+        console.error('[Vercel] Error fetching dashboard stats:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch dashboard statistics'
+            message: 'Failed to fetch dashboard statistics',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Weekly Revenue - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/revenue-weekly", requireAdmin, async (req, res) => {
     try {
+        // VERCEL FIX: Ensure consistent day ordering
         const query = `
+            WITH RECURSIVE week_days AS (
+                SELECT DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) as date
+                UNION ALL
+                SELECT date + INTERVAL 1 DAY
+                FROM week_days
+                WHERE date < DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) + INTERVAL 6 DAY
+            )
             SELECT 
-                DATE(payment_date) as date,
-                DAYNAME(payment_date) as day,
-                COALESCE(SUM(amount_paid), 0) as revenue
-            FROM payments 
-            WHERE payment_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-            AND status = 'Paid'
-            GROUP BY DATE(payment_date), DAYNAME(payment_date)
-            ORDER BY date
+                week_days.date,
+                DAYNAME(week_days.date) as day_name,
+                DAYOFWEEK(week_days.date) as day_of_week,
+                COALESCE(SUM(p.amount_paid), 0) as revenue,
+                COALESCE(COUNT(p.payment_id), 0) as transaction_count
+            FROM week_days
+            LEFT JOIN payments p ON DATE(p.payment_date) = week_days.date AND p.status = 'Paid'
+            GROUP BY week_days.date
+            ORDER BY week_days.date ASC
         `;
 
         const [results] = await db.promise().query(query);
 
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const revenueData = {};
+        // VERCEL FIX: Map to day abbreviations
+        const dayMap = {
+            'Monday': 'Mon',
+            'Tuesday': 'Tue',
+            'Wednesday': 'Wed',
+            'Thursday': 'Thu',
+            'Friday': 'Fri',
+            'Saturday': 'Sat',
+            'Sunday': 'Sun'
+        };
 
-        days.forEach(day => {
-            revenueData[day] = 0;
+        const labels = [];
+        const revenueData = [];
+        const transactionData = [];
+
+        results.forEach(day => {
+            const dayAbbr = dayMap[day.day_name] || day.day_name.substring(0, 3);
+            labels.push(dayAbbr);
+            revenueData.push(parseFloat(day.revenue || 0));
+            transactionData.push(parseInt(day.transaction_count || 0));
         });
 
-        results.forEach(item => {
-            const dayName = item.day.substring(0, 3);
-            if (days.includes(dayName)) {
-                revenueData[dayName] = parseFloat(item.revenue);
-            }
-        });
-
-        const chartData = days.map(day => revenueData[day]);
+        // VERCEL FIX: Calculate totals
+        const totalRevenue = revenueData.reduce((sum, val) => sum + val, 0);
+        const averageRevenue = revenueData.length > 0 ? totalRevenue / revenueData.length : 0;
+        const peakDay = results.reduce((peak, day) =>
+            parseFloat(day.revenue) > parseFloat(peak?.revenue || 0) ? day : peak, results[0]);
 
         res.json({
             success: true,
-            labels: days,
-            data: chartData,
+            labels: labels,
+            data: revenueData,
+            transaction_counts: transactionData,
+            summary: {
+                total_revenue: totalRevenue.toFixed(2),
+                average_daily_revenue: averageRevenue.toFixed(2),
+                total_transactions: transactionData.reduce((sum, val) => sum + val, 0),
+                peak_day: peakDay ? {
+                    date: peakDay.date.toISOString().split('T')[0],
+                    day: peakDay.day_name,
+                    revenue: parseFloat(peakDay.revenue || 0).toFixed(2),
+                    transactions: peakDay.transaction_count
+                } : null
+            },
             rawData: results
         });
 
     } catch (error) {
-        console.error('Error fetching weekly revenue:', error);
+        console.error('[Vercel] Error fetching weekly revenue:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch revenue data'
+            message: 'Failed to fetch revenue data',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
+// ============================================
+// FIXED: Room Distribution - VERCEL COMPATIBLE
+// ============================================
 app.get("/api/room-distribution", requireAdmin, async (req, res) => {
     try {
+        const period = req.query.period || 30; // Default to 30 days
+
         const query = `
             SELECT 
                 r.room_type,
+                COUNT(DISTINCT r.reservation_id) as booking_count,
                 SUM(
                     CASE 
                         WHEN r.no_of_rooms IS NULL OR r.no_of_rooms = '' THEN 1
                         ELSE CAST(r.no_of_rooms AS UNSIGNED)
                     END
-                ) as total_rooms
+                ) as total_rooms,
+                SUM(r.total_amount) as total_revenue,
+                AVG(
+                    CASE 
+                        WHEN r.no_of_rooms IS NULL OR r.no_of_rooms = '' THEN 1
+                        ELSE CAST(r.no_of_rooms AS UNSIGNED)
+                    END
+                ) as avg_rooms_per_booking
             FROM reservationsdetails r
             WHERE r.status IN ('Permitted', 'Pending')
-            AND r.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            AND r.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
             GROUP BY r.room_type
-            ORDER BY r.room_type
+            ORDER BY total_rooms DESC
         `;
 
-        const [results] = await db.promise().query(query);
+        const [results] = await db.promise().query(query, [parseInt(period)]);
+
+        const roomTypeMap = {
+            '5000': { name: 'Standard', color: 'rgb(52, 152, 219)' },
+            '7500': { name: 'Deluxe', color: 'rgb(39, 174, 96)' },
+            '12000': { name: 'Suite', color: 'rgb(243, 156, 18)' },
+            '18000': { name: 'Family Suite', color: 'rgb(155, 89, 182)' }
+        };
+
+        const labels = [];
+        const roomData = [];
+        const revenueData = [];
+        const bookingCountData = [];
+        const backgroundColor = [];
+        const colors = [];
+
+        results.forEach((item, index) => {
+            const roomInfo = roomTypeMap[item.room_type] || {
+                name: `Room Type ${item.room_type}`,
+                color: `hsl(${index * 60}, 70%, 60%)`
+            };
+
+            labels.push(roomInfo.name);
+            roomData.push(parseInt(item.total_rooms || 0));
+            revenueData.push(parseFloat(item.total_revenue || 0).toFixed(2));
+            bookingCountData.push(parseInt(item.booking_count || 0));
+            backgroundColor.push(roomInfo.color);
+            colors.push(roomInfo.color.replace('rgb', 'rgba').replace(')', ', 0.2)'));
+        });
+
+        // If no data, provide sample data for UI
+        if (labels.length === 0) {
+            Object.entries(roomTypeMap).forEach(([key, value]) => {
+                labels.push(value.name);
+                roomData.push(0);
+                revenueData.push('0.00');
+                bookingCountData.push(0);
+                backgroundColor.push(value.color);
+                colors.push(value.color.replace('rgb', 'rgba').replace(')', ', 0.2)'));
+            });
+        }
+
+        // Calculate totals
+        const totalRooms = roomData.reduce((sum, val) => sum + val, 0);
+        const totalRevenue = revenueData.reduce((sum, val) => sum + parseFloat(val), 0);
+        const totalBookings = bookingCountData.reduce((sum, val) => sum + val, 0);
+
+        res.json({
+            success: true,
+            labels: labels,
+            data: roomData,
+            revenue_data: revenueData,
+            booking_counts: bookingCountData,
+            backgroundColor: backgroundColor,
+            borderColor: backgroundColor,
+            hoverBackgroundColor: colors,
+            summary: {
+                total_rooms: totalRooms,
+                total_revenue: totalRevenue.toFixed(2),
+                total_bookings: totalBookings,
+                period_days: period,
+                average_rooms_per_booking: totalBookings > 0 ? (totalRooms / totalBookings).toFixed(1) : 0
+            },
+            rawData: results,
+            note: "Data shows room type distribution for the selected period"
+        });
+
+    } catch (error) {
+        console.error('[Vercel] Error fetching room distribution:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch room distribution data',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+});
+
+// ============================================
+// FIXED: Dashboard Recent Bookings - VERCEL COMPATIBLE
+// ============================================
+app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+
+        // VERCEL FIX: Enhanced query with more details
+        const query = `
+            SELECT 
+                r.reservation_id,
+                gd.first_name,
+                gd.last_name,
+                gd.email,
+                gd.nationality,
+                gd.phone_number,
+                
+                r.room_type,
+                r.bedding_type,
+                r.meal_plan,
+                r.no_of_rooms,
+                r.check_in,
+                r.check_out,
+                r.roomTag,
+                r.status,
+                r.total_amount,
+                r.created_at,
+                r.nights,
+                
+                COALESCE(
+                    (SELECT p.amount_paid 
+                     FROM payments p 
+                     WHERE p.reservation_id = r.reservation_id 
+                     AND p.status = 'Paid'
+                     ORDER BY p.payment_date DESC 
+                     LIMIT 1), 
+                0.00) as amount_paid,
+                
+                COALESCE(
+                    (SELECT p.status 
+                     FROM payments p 
+                     WHERE p.reservation_id = r.reservation_id 
+                     ORDER BY p.payment_date DESC 
+                     LIMIT 1), 
+                'Pending') as payment_status,
+                
+                COALESCE(
+                    (SELECT p.payment_method 
+                     FROM payments p 
+                     WHERE p.reservation_id = r.reservation_id 
+                     AND p.status = 'Paid'
+                     ORDER BY p.payment_date DESC 
+                     LIMIT 1), 
+                NULL) as payment_method
+                
+            FROM reservationsdetails r
+            LEFT JOIN guestdetails gd ON r.guest_id = gd.guest_id
+            ORDER BY r.created_at DESC
+            LIMIT ?
+        `;
+
+        const [results] = await db.promise().query(query, [limit]);
 
         const roomTypeMap = {
             '5000': 'Standard',
@@ -2866,112 +4797,155 @@ app.get("/api/room-distribution", requireAdmin, async (req, res) => {
             '18000': 'Family Suite'
         };
 
-        const labels = [];
-        const data = [];
-        const backgroundColor = ['rgb(52, 152, 219)', 'rgb(39, 174, 96)', 'rgb(243, 156, 18)', 'rgb(155, 89, 182)'];
-
-        results.forEach((item, index) => {
-            const roomType = roomTypeMap[item.room_type] || `Type ${item.room_type}`;
-            labels.push(roomType);
-            data.push(item.total_rooms || 0);
-        });
-
-        if (labels.length === 0) {
-            labels.push(...Object.values(roomTypeMap));
-            data.push(...[10, 10, 10, 10]);
-        }
-
-        res.json({
-            success: true,
-            labels: labels,
-            data: data,
-            backgroundColor: backgroundColor.slice(0, labels.length),
-            rawData: results,
-            note: "Data shows total rooms (accounts for multiple rooms per booking)"
-        });
-
-    } catch (error) {
-        console.error('Error fetching room distribution:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to fetch room distribution data'
-        });
-    }
-});
-
-app.get("/api/dashboard/recent-bookings", requireAdmin, async (req, res) => {
-    try {
-        const limit = req.query.limit || 5;
-
-        const query = `
-            SELECT 
-                r.reservation_id,
-                gd.first_name,
-                gd.last_name,
-                gd.email,
-                gd.nationality,
-                r.room_type,
-                r.bedding_type,
-                r.meal_plan,
-                r.no_of_rooms,
-                r.check_in,
-                r.check_out,
-                r.roomTag,  -- Make sure this is included
-                r.status,
-                r.total_amount,
-                r.created_at,
-                COALESCE(
-                    (SELECT p.status 
-                     FROM payments p 
-                     WHERE p.reservation_id = r.reservation_id 
-                     ORDER BY p.payment_date DESC 
-                     LIMIT 1), 
-                'Pending') as payment_status
-            FROM reservationsdetails r
-            LEFT JOIN guestdetails gd ON r.guest_id = gd.guest_id
-            ORDER BY r.created_at DESC
-            LIMIT ?
-        `;
-
-        const [results] = await db.promise().query(query, [parseInt(limit)]);
-
         const bookings = results.map(booking => {
-            const roomTypeMap = {
-                '5000': 'Standard',
-                '7500': 'Deluxe',
-                '12000': 'Suite',
-                '18000': 'Family Suite'
-            };
-
+            // Parse room tags
             let roomCount = 1;
+            let roomsArray = [];
             if (booking.roomTag) {
-                const rooms = booking.roomTag.split(',').map(r => r.trim()).filter(r => r);
-                roomCount = rooms.length;
+                roomsArray = booking.roomTag.split(',')
+                    .map(r => r.trim())
+                    .filter(r => r);
+                roomCount = roomsArray.length;
             }
 
+            // Calculate stay duration
+            let nights = booking.nights || 0;
+            if (!nights && booking.check_in && booking.check_out) {
+                const checkIn = new Date(booking.check_in);
+                const checkOut = new Date(booking.check_out);
+                nights = Math.max(1, Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24)));
+            }
+
+            // Calculate financials
+            const totalAmount = parseFloat(booking.total_amount || 0);
+            const amountPaid = parseFloat(booking.amount_paid || 0);
+            const amountDue = totalAmount - amountPaid;
+
             return {
-                ...booking,
-                room_type_label: roomTypeMap[booking.room_type] || `Room (${booking.room_type})`,
-                guest_name: `${booking.first_name || ''} ${booking.last_name || ''}`.trim(),
-                booking_date: booking.created_at,
-                room_count: roomCount,
-                rooms_display: booking.roomTag
+                // Core booking info
+                reservation_id: booking.reservation_id,
+
+                // Guest info
+                guest: {
+                    name: `${booking.first_name || ''} ${booking.last_name || ''}`.trim() || 'N/A',
+                    email: booking.email || 'N/A',
+                    nationality: booking.nationality || 'N/A',
+                    phone: booking.phone_number || 'N/A'
+                },
+
+                // Room details
+                room: {
+                    type: booking.room_type,
+                    type_label: roomTypeMap[booking.room_type] || `Room ${booking.room_type}`,
+                    bedding: booking.bedding_type,
+                    meal_plan: booking.meal_plan,
+                    tags: roomsArray,
+                    tag_display: booking.roomTag || 'Not assigned',
+                    room_count: roomCount,
+                    booked_rooms: booking.no_of_rooms || 1
+                },
+
+                // Dates
+                dates: {
+                    check_in: booking.check_in ? new Date(booking.check_in).toISOString().split('T')[0] : null,
+                    check_in_formatted: booking.check_in ? new Date(booking.check_in).toLocaleDateString() : 'N/A',
+                    check_out: booking.check_out ? new Date(booking.check_out).toISOString().split('T')[0] : null,
+                    check_out_formatted: booking.check_out ? new Date(booking.check_out).toLocaleDateString() : 'N/A',
+                    nights: nights,
+                    booked_at: booking.created_at ? new Date(booking.created_at).toISOString() : null,
+                    booked_at_formatted: booking.created_at ? new Date(booking.created_at).toLocaleString() : 'N/A'
+                },
+
+                // Status
+                status: {
+                    reservation: booking.status || 'Pending',
+                    payment: booking.payment_status || 'Pending',
+                    payment_method: booking.payment_method
+                },
+
+                // Financial
+                financial: {
+                    total_amount: totalAmount.toFixed(2),
+                    amount_paid: amountPaid.toFixed(2),
+                    amount_due: amountDue.toFixed(2),
+                    is_fully_paid: amountDue <= 0,
+                    payment_progress: totalAmount > 0 ? Math.round((amountPaid / totalAmount) * 100) : 0
+                },
+
+                // Computed flags
+                is_active: booking.status === 'Permitted' ||
+                    (booking.status === 'Pending' &&
+                        booking.created_at &&
+                        (new Date() - new Date(booking.created_at)) < 2 * 60 * 60 * 1000),
+                is_urgent: booking.status === 'Pending' &&
+                    booking.created_at &&
+                    (new Date() - new Date(booking.created_at)) >= 1.5 * 60 * 60 * 1000
             };
         });
 
+        // Calculate summary statistics
+        const summary = {
+            total_bookings: bookings.length,
+            total_revenue: bookings.reduce((sum, b) => sum + parseFloat(b.financial.amount_paid), 0).toFixed(2),
+            pending_payments: bookings.filter(b => b.status.payment === 'Pending').length,
+            active_bookings: bookings.filter(b => b.is_active).length
+        };
+
         res.json({
             success: true,
-            bookings: bookings
+            bookings: bookings,
+            summary: summary,
+            meta: {
+                limit: limit,
+                timestamp: new Date().toISOString()
+            }
         });
 
     } catch (error) {
-        console.error('Error fetching recent bookings:', error);
+        console.error('[Vercel] Error fetching recent bookings:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch recent bookings'
+            message: 'Failed to fetch recent bookings',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
-// VERCEL: DO NOT USE app.listen() - Export the Express app instead
+// ============================================
+// HELPER FUNCTIONS - Keep these at the bottom
+// ============================================
+
+function getRoomTypeLabel(value) {
+    const roomTypes = {
+        '5000': 'Standard Room',
+        '7500': 'Deluxe Room',
+        '12000': 'Suite',
+        '18000': 'Family Suite'
+    };
+    return roomTypes[value] || value || 'N/A';
+}
+
+function getBedTypeLabel(value) {
+    const bedTypes = {
+        '0': 'No Bed',
+        '100': 'Single Bed',
+        '150': 'Double Bed',
+        '200': 'King Size Bed',
+        '250': 'Twin Beds'
+    };
+    return bedTypes[value] || value || 'N/A';
+}
+
+function getMealPlanLabel(value) {
+    const mealPlans = {
+        '0': 'No Meals',
+        '500': 'Breakfast Only',
+        '1200': 'Half Board',
+        '2000': 'Full Board'
+    };
+    return mealPlans[value] || value || 'N/A';
+}
+
+
+// Export for Vercel serverless
 module.exports = app;
